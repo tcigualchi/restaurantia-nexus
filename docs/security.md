@@ -1,7 +1,7 @@
 # Segurança
 
-Princípio: **o modelo de linguagem é tratado como um componente não confiável**. A arquitetura limita o que ele pode
-fazer, e cada camada é testada.
+O princípio é tratar o modelo de linguagem como um componente não confiável. A arquitetura limita o que ele pode
+fazer, e cada camada tem testes.
 
 ## Controles implementados
 
@@ -32,5 +32,5 @@ fazer, e cada camada é testada.
 - CSP ainda usa `'unsafe-inline'` para scripts (requisito do runtime) → migrar para CSP com nonce.
 - Detecção de injection por padrões é uma camada de visibilidade, não uma garantia; a defesa real é a ausência de
   ferramentas com efeito e a aprovação humana revalidada.
-- Sem MFA/SSO para usuários locais; o produto público usa apenas sandboxes demo efêmeros.
+- Sem MFA/SSO para usuários locais; a versão pública usa apenas demonstrações temporárias.
 - Auditoria não é encadeada por hash; trigger protege contra a aplicação, não contra um DBA com superusuário.

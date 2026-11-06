@@ -56,7 +56,7 @@ export function RunBadge({ status }: { status: string }) {
 export function ModeBadge({ mode, model }: { mode: string | null; model?: string | null }) {
   if (mode === "llm") return <Badge tone="primary">LLM{model ? ` · ${model}` : ""}</Badge>;
   if (mode === "llm_fallback" || mode === "mixed")
-    return <Badge tone="warning">Fallback determinístico</Badge>;
+    return <Badge tone="warning">Determinístico (o LLM falhou)</Badge>;
   return <Badge tone="neutral">Determinístico (sem LLM)</Badge>;
 }
 
@@ -70,7 +70,7 @@ const SIM: Record<string, { tone: Tone; label: string }> = {
 export const PAUSE_REASON: Record<string, string> = {
   manual: "pausa manual",
   agents_running: "agentes analisando",
-  awaiting_approval: "aguardando decisão humana",
+  awaiting_approval: "aguardando aprovação do gerente",
 };
 
 export function SimBadge({ status, reason }: { status: string; reason?: string | null }) {

@@ -18,7 +18,7 @@ from pydantic import BaseModel, Field
 
 from nexus.domain.catalog import RestaurantTemplate
 from nexus.domain.demand import to_local
-from nexus.domain.fmt import brl, num, qty
+from nexus.domain.fmt import brl, lower_first, num, qty
 from nexus.domain.forecasting import ForecastResult
 from nexus.domain.metrics import IngredientRisk, KitchenSnapshot
 from nexus.domain.order_mix import EXPECTED_MAINS_PER_ORDER
@@ -78,6 +78,10 @@ class PlanProposal(BaseModel):
     recommendations: list[Recommendation]
     capacity: CapacityAnalysis | None
     assumptions: list[str]
+
+
+# Used to explain why the cheapest items (by revenue per unit of ingredient) are paused first.
+ORDINALS = {1: "segundo ", 2: "terceiro ", 3: "quarto "}
 
 
 @dataclass(frozen=True)
@@ -143,7 +147,7 @@ def plan_inventory_actions(
             continue
         fc = by_ing.get(r.ingredient_key)
         if fc is None:
-            assumptions.append(f"Sem previsão para {r.name}; nenhuma ação proposta.")
+            assumptions.append(f"Sem previsão para {r.name}, nenhuma ação foi sugerida.")
             continue
         ev = [e for e in (evidence.get("inventory"), evidence.get("forecast")) if e]
         rate_p50 = fc.adjusted.expected / horizon  # per minute
@@ -168,15 +172,19 @@ def plan_inventory_actions(
                         "estimated_cost_cents": cost,
                     },
                     rationale=(
-                        f"Consumo previsto (P90, ajustado ao ritmo atual) de {qty(fc.adjusted.p90, r.unit)} "
-                        f"nas próximas {horizon // 60}h + estoque de segurança de {qty(r.safety_stock, r.unit)} "
-                        f"supera o estoque atual ({qty(r.stock, r.unit)}) e pedidos em aberto "
-                        f"({qty(ctx.open_po_qty, r.unit)}). Quantidade arredondada para embalagens de "
-                        f"{qty(ctx.pack_size, r.unit)}."
+                        f"No cenário pessimista (P90, já ajustado ao ritmo atual), o consumo das próximas "
+                        f"{horizon // 60}h chega a {qty(fc.adjusted.p90, r.unit)}. Somando o estoque de segurança "
+                        f"de {qty(r.safety_stock, r.unit)}, isso passa do estoque atual ({qty(r.stock, r.unit)})"
+                        + (
+                            f" mais o que já foi pedido ({qty(ctx.open_po_qty, r.unit)})"
+                            if ctx.open_po_qty > 0
+                            else ", e não há outra compra a caminho"
+                        )
+                        + f". A quantidade foi arredondada para embalagens de {qty(ctx.pack_size, r.unit)}."
                     ),
                     expected_impact=(
-                        f"Chegada estimada às {to_local(arrival).strftime('%H:%M')} (lead time {ctx.lead_time_minutes} min); "
-                        f"custo estimado {brl(cost)}."
+                        f"Deve chegar às {to_local(arrival).strftime('%H:%M')} (o fornecedor leva "
+                        f"{ctx.lead_time_minutes} min). Custo estimado de {brl(cost)}."
                     ),
                     risk_level="medium" if cost < 200_000 else "high",
                     evidence=ev,
@@ -195,14 +203,17 @@ def plan_inventory_actions(
             recs.append(
                 Recommendation(
                     title=f"Monitorar {r.name}",
-                    detail="Ruptura provável antes da reposição, mas há apenas um item afetado disponível; pausa total não é proposta automaticamente.",
+                    detail=(
+                        "Pode faltar antes da reposição, mas só resta um item à venda que usa esse ingrediente, "
+                        "e tirá-lo do cardápio não é sugerido automaticamente."
+                    ),
                     category="inventory",
                     evidence=ev,
                 )
             )
             continue
         saved = 0.0
-        for item in options[: min(cfg.max_items_to_pause_per_ingredient, len(options) - 1)]:
+        for rank, item in enumerate(options[: min(cfg.max_items_to_pause_per_ingredient, len(options) - 1)]):
             if saved >= gap:
                 break
             ifc = by_item.get(item.item_key)
@@ -218,18 +229,19 @@ def plan_inventory_actions(
                     title=f"Pausar temporariamente “{item.name}” no cardápio",
                     payload={
                         "item_key": item.item_key,
-                        "reason": f"Preservar {r.name} até a reposição",
+                        "reason": f"Poupar {lower_first(r.name)} até a reposição",
                         "ingredient_key": r.ingredient_key,
                     },
                     rationale=(
-                        f"Sem ação, {r.name} esgota em ~{num(r.stock / rate_p50)} min, antes da reposição "
-                        f"({ctx.lead_time_minutes} min). “{item.name}” tem a menor receita por "
-                        f"{r.unit} de {r.name} entre os itens afetados "
-                        f"({brl(item.price_cents)} por {num(item.usage_per_unit)} {r.unit})."
+                        f"Pelo consumo previsto, o estoque de {lower_first(r.name)} acaba em "
+                        f"~{num(r.stock / rate_p50)} min, antes de a reposição chegar ({ctx.lead_time_minutes} min). "
+                        f"Entre os itens que usam esse ingrediente, “{item.name}” é o {ORDINALS.get(rank, '')}que "
+                        f"menos fatura por {r.unit} usado ({brl(item.price_cents)} para "
+                        f"{num(item.usage_per_unit)} {r.unit})."
                     ),
                     expected_impact=(
-                        f"Economiza ~{qty(saving, r.unit)} até a chegada da reposição; pedidos "
-                        "migram para outros itens em vez de serem cancelados por falta de insumo."
+                        f"Poupa ~{qty(saving, r.unit)} até a reposição chegar. Os clientes passam a pedir outros "
+                        "itens em vez de terem o pedido cancelado por falta de ingrediente."
                     ),
                     risk_level="medium",
                     evidence=ev,
@@ -254,10 +266,10 @@ def plan_kitchen_recommendations(
                 if capacity.risk == "high"
                 else "Cozinha próxima do limite de capacidade",
                 detail=(
-                    f"Projeção de ~{num(capacity.projected_orders_per_hour)} pedidos/h contra capacidade estimada de "
+                    f"A previsão é de ~{num(capacity.projected_orders_per_hour)} pedidos/h para uma capacidade de "
                     f"~{num(capacity.capacity_orders_per_hour)} pedidos/h ({capacity.lines_available} linhas, "
-                    f"~{num(capacity.estimated_service_minutes, 1)} min por pedido). Reforce a linha de chapa e "
-                    "priorize pedidos pelo horário prometido."
+                    f"~{num(capacity.estimated_service_minutes, 1)} min por pedido). Reforce a chapa e "
+                    "priorize os pedidos pelo horário prometido."
                 ),
                 category="operations",
                 evidence=ev,
@@ -275,8 +287,11 @@ def plan_kitchen_recommendations(
     if capacity.risk == "high":
         recs.append(
             Recommendation(
-                title="Comunicar tempo de espera nos canais",
-                detail="Atualize a estimativa de entrega exibida aos clientes para reduzir reclamações (ação manual nesta versão).",
+                title="Avisar os clientes sobre o tempo de espera",
+                detail=(
+                    "Atualize o prazo de entrega mostrado nos aplicativos para evitar reclamações. "
+                    "Nesta versão, isso é feito à mão."
+                ),
                 category="communication",
                 evidence=ev,
             )

@@ -36,7 +36,7 @@ BENIGN_NOTES: tuple[str, ...] = (
     "Capricha no molho!",
     "Entregar na portaria.",
     "Talheres descartáveis, por favor.",
-    "Alergia a amendoim — atenção na montagem.",
+    "Alergia a amendoim, cuidado na montagem.",
 )
 # Deliberately adversarial text injected into one order note of the featured
 # scenario. It exercises the prompt-injection guardrails end to end.
@@ -203,7 +203,7 @@ class TickOutput:
 
 
 def poisson(rng: random.Random, lam: float) -> int:
-    """Knuth's algorithm — fine for the small rates used here (< 10/minute)."""
+    """Knuth's algorithm, fine for the small rates used here (< 10/minute)."""
     if lam <= 0:
         return 0
     limit = math.exp(-lam)

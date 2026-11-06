@@ -4,7 +4,7 @@ Tools depend on this protocol, not on SQL. Production uses the SQLAlchemy
 implementation (``nexus.infra.read_model``); unit tests and offline evaluations
 use :class:`ProjectionReadModel`, built on the reference in-memory projection.
 Every method receives the tenant (``restaurant_id``) from the *server-side* run
-context — model-supplied arguments can never change it.
+context, so model-supplied arguments can never change it.
 """
 
 from __future__ import annotations

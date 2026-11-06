@@ -10,8 +10,8 @@ import { Input, Label } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
 const PERSONAS = [
-  { key: "manager", title: "Gerente", text: "Opera a simulação e pode aprovar ou rejeitar ações.", icon: UserCog },
-  { key: "operator", title: "Operador", text: "Opera e observa; não pode aprovar (demonstra o RBAC).", icon: Users },
+  { key: "manager", title: "Gerente", text: "Inicia a simulação e aprova ou rejeita as ações sugeridas.", icon: UserCog },
+  { key: "operator", title: "Operador", text: "Acompanha tudo, mas não pode aprovar. Serve para ver o controle de permissões.", icon: Users },
 ] as const;
 
 function DemoEntryInner() {
@@ -39,13 +39,13 @@ function DemoEntryInner() {
   return (
     <Card className="shadow-lg">
       <CardHeader>
-        <CardTitle className="text-base">Experimente em 2 minutos</CardTitle>
+        <CardTitle className="text-base">Testar a demonstração</CardTitle>
         <CardDescription>
-          Cada visitante recebe um sandbox isolado com dois restaurantes sintéticos. Expira automaticamente.
+          Você recebe uma cópia própria com dois restaurantes fictícios. Ela expira depois de duas horas.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <fieldset className="grid gap-2" aria-label="Escolha uma persona">
+        <fieldset className="grid gap-2" aria-label="Escolha um perfil">
           {PERSONAS.map(({ key, title, text, icon: Icon }) => (
             <label
               key={key}
@@ -74,6 +74,9 @@ function DemoEntryInner() {
           {busy ? <Loader2 className="animate-spin" /> : <ArrowRight />}
           Entrar no modo demo
         </Button>
+        <p className="text-xs leading-relaxed text-muted-foreground">
+          Dica: abra a tela Simulação e inicie o cenário principal. O primeiro incidente aparece em menos de um minuto.
+        </p>
         {error && (
           <p role="alert" className="rounded-md bg-danger-soft px-3 py-2 text-sm text-danger">
             {error}
@@ -86,7 +89,7 @@ function DemoEntryInner() {
             className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground cursor-pointer"
             aria-expanded={showLogin}
           >
-            <KeyRound className="size-3.5" /> Acesso com usuário local (seed)
+            <KeyRound className="size-3.5" /> Entrar com usuário cadastrado
           </button>
           {showLogin && (
             <form

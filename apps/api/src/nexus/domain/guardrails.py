@@ -2,13 +2,13 @@
 
 Defence in depth against prompt injection:
 
-1. **Architecture first** — tools are read-only or "propose-only"; tenant and
+1. Architecture first: tools are read-only or "propose-only"; tenant and
    time scope are injected by the server, never taken from model arguments;
    sensitive actions require human approval and are revalidated at execution.
-2. **Untrusted data marking** — free text that originates outside the system
+2. Untrusted data marking: free text that originates outside the system
    (order notes, documents, complaints) is wrapped and labelled before it reaches
    a model, and suspicious instructions are neutralised.
-3. **Output checks** — model output is scanned for secrets and length limits
+3. Output checks: model output is scanned for secrets and length limits
    before being stored or displayed.
 
 Pattern matching alone is not a complete defence; it is one layer and makes
@@ -88,7 +88,7 @@ def sanitize_untrusted(text: str, *, max_chars: int = MAX_UNTRUSTED_CHARS) -> Sa
     cleaned = cleaned[:max_chars]
     flags = detect_injection(cleaned)
     if flags:
-        cleaned = "[CONTEÚDO NÃO CONFIÁVEL — instruções ignoradas] " + cleaned.replace("```", "'''")
+        cleaned = "[CONTEÚDO NÃO CONFIÁVEL: instruções ignoradas] " + cleaned.replace("```", "'''")
     return SanitizedText(text=cleaned, flags=flags, truncated=truncated)
 
 

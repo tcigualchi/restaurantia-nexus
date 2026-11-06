@@ -57,7 +57,7 @@ def create_demo_sandbox(
     if (active or 0) >= settings.demo_max_active_sessions:
         raise RateLimited("Capacidade de sandboxes demo esgotada no momento.", retry_after_seconds=300)
 
-    user = User(email=f"demo+{uuid.uuid4().hex[:12]}@demo.invalid", display_name="Avaliador(a) — demo", is_demo=True)
+    user = User(email=f"demo+{uuid.uuid4().hex[:12]}@demo.invalid", display_name="Visitante (demo)", is_demo=True)
     db.add(user)
     db.flush()
     sandbox = DemoSession(

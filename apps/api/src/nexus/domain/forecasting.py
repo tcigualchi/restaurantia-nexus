@@ -292,13 +292,13 @@ def nowcast(
             expected_orders=round(expected, 2),
             raw_ratio=None,
             applied_ratio=1.0,
-            note="Janela observada curta demais; nenhum ajuste aplicado.",
+            note="Ainda há pouco tempo de observação, então nenhum ajuste foi aplicado.",
         )
     raw = observed_orders / expected
     applied = min(max(raw, NOWCAST_BOUNDS[0]), NOWCAST_BOUNDS[1])
     note = (
-        f"Ritmo observado {num(raw, 2)}× o esperado nos últimos {num(window_minutes)} min; "
-        f"fator aplicado {num(applied, 2)}× (limitado a {num(NOWCAST_BOUNDS[0], 1)}–{num(NOWCAST_BOUNDS[1], 1)}×)."
+        f"Nos últimos {num(window_minutes)} min, o ritmo foi {num(raw, 2)}× o esperado. O ajuste aplicado foi de "
+        f"{num(applied, 2)}× (limite entre {num(NOWCAST_BOUNDS[0], 1)}× e {num(NOWCAST_BOUNDS[1], 1)}×)."
     )
     return NowcastInfo(
         window_minutes=round(window_minutes, 1),
@@ -384,9 +384,9 @@ def forecast(
         nowcast=nc,
         backtest=report,
         disclaimer=(
-            "Previsão estatística sobre histórico sintético. Intervalos de 80% assumem variância "
-            "Poisson com sobre-dispersão estimada; o ajuste por ritmo observado é uma heurística "
-            "limitada e não captura eventos sem precedentes."
+            "A previsão usa só o histórico sintético. Os intervalos de 80% supõem variância de Poisson "
+            "com sobredispersão estimada. O ajuste pelo ritmo observado é uma heurística simples e não "
+            "antecipa eventos que nunca aconteceram no histórico."
         ),
     )
 

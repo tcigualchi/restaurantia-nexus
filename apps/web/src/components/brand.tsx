@@ -23,11 +23,8 @@ export function Wordmark({ compact = false }: { compact?: boolean }) {
     <div className="flex items-center gap-2.5">
       <LogoMark />
       {!compact && (
-        <div className="leading-tight">
-          <div className="text-sm font-semibold tracking-tight">
-            RestaurantIA <span className="text-primary">Nexus</span>
-          </div>
-          <div className="text-[10px] uppercase tracking-[0.14em] text-muted-foreground">Restaurant Intelligence</div>
+        <div className="text-[15px] font-semibold tracking-tight">
+          RestaurantIA <span className="text-primary">Nexus</span>
         </div>
       )}
     </div>

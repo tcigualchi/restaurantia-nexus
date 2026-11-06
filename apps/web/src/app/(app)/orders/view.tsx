@@ -39,7 +39,7 @@ export function OrdersView() {
     <>
       <PageHeader
         title="Pedidos"
-        description={`Pedidos persistidos de ${restaurant?.name ?? "—"}. Observações de clientes são tratadas como dados não confiáveis.`}
+        description={`Pedidos de ${restaurant?.name ?? "este restaurante"}. As observações dos clientes são tratadas como texto não confiável e nunca viram instrução para os agentes.`}
         actions={
           <>
             <Select aria-label="Filtrar por status" value={status} onChange={(e) => setStatus(e.target.value)}>
@@ -67,7 +67,7 @@ export function OrdersView() {
           {isLoading && !data ? (
             <Skeleton className="h-64" />
           ) : rows.length === 0 ? (
-            <EmptyState title="Nenhum pedido" description="Inicie uma simulação para gerar pedidos sintéticos." />
+            <EmptyState title="Nenhum pedido" description="Inicie uma simulação para gerar pedidos." />
           ) : (
             <>
               <div className="mb-3 text-xs text-muted-foreground">{n0(data?.[0]?.total ?? rows.length)} pedidos no total</div>

@@ -3,7 +3,7 @@ import { Suspense } from "react";
 
 import { ControlRoomView } from "./view";
 
-export const metadata: Metadata = { title: "AI Control Room" };
+export const metadata: Metadata = { title: "Agentes" };
 
 export default function Page() {
   return (

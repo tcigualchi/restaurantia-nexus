@@ -1,9 +1,9 @@
-# ADR 0003 — Simulação determinística em lockstep
+# ADR 0003: Simulação determinística em lockstep
 
-- **Status:** aceito · **Data:** 2026-11-05
+- Status: aceito · Data: 2026-11-05
 
 ## Contexto
-O avaliador precisa reiniciar a demo e obter o mesmo resultado; testes precisam de reprodutibilidade.
+Quem testa a demonstração precisa poder reiniciar e ver o mesmo resultado, e os testes automatizados dependem disso.
 
 ## Decisão
 - Motor puro (`domain/simulation.py`): um RNG por tick (`Random("nexus-sim:{seed}:{scenario}:{template}:{tick}")`),

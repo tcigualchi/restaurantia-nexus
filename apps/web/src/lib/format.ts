@@ -48,19 +48,19 @@ export const ORDER_STATUS_LABEL: Record<string, string> = {
 
 export const AGENT_LABEL: Record<string, string> = {
   orchestrator: "Orquestrador",
-  operations: "Operations Agent",
-  inventory: "Inventory Agent",
-  forecasting: "Forecasting Agent",
+  operations: "Agente de operação",
+  inventory: "Agente de estoque",
+  forecasting: "Agente de previsão",
 };
 
 export const ACTION_LABEL: Record<string, string> = {
   create_purchase_order: "Pedido de compra",
-  pause_menu_item: "Pausa de item",
+  pause_menu_item: "Pausa de prato",
 };
 
 export function describeAudit(action: string): string {
   const map: Record<string, string> = {
-    "sandbox.created": "Sandbox criado",
+    "sandbox.created": "Demonstração criada",
     "simulation.started": "Simulação iniciada",
     "simulation.paused": "Simulação pausada",
     "simulation.resumed": "Simulação retomada",
@@ -68,21 +68,21 @@ export function describeAudit(action: string): string {
     "simulation.completed": "Simulação concluída",
     "incident.opened": "Incidente detectado",
     "agent_run.requested": "Análise solicitada",
-    "agent_run.started": "Agentes iniciaram análise",
-    "agent_run.completed": "Agentes concluíram análise",
-    "agent_run.failed": "Execução de agentes falhou",
+    "agent_run.started": "Agentes começaram a análise",
+    "agent_run.completed": "Agentes terminaram a análise",
+    "agent_run.failed": "Análise dos agentes falhou",
     "approval.requested": "Aprovação solicitada",
     "approval.approved": "Aprovação concedida",
     "approval.rejected": "Aprovação rejeitada",
     "approval.expired": "Aprovação expirada",
     "action.executed": "Ação executada",
-    "action.failed": "Ação falhou na revalidação",
-    "menu_item.paused": "Item pausado",
-    "menu_item.resumed": "Item reativado",
+    "action.failed": "Ação barrada na conferência final",
+    "menu_item.paused": "Prato pausado",
+    "menu_item.resumed": "Prato reativado",
     "purchase_order.created": "Pedido de compra criado",
     "event.ingested": "Evento recebido via API",
     "event.requeued": "Evento reprocessado",
-    "restaurant.seeded": "Restaurante criado (seed)",
+    "restaurant.seeded": "Restaurante cadastrado",
   };
   return map[action] ?? action;
 }

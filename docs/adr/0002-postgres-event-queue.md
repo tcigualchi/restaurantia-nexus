@@ -1,10 +1,10 @@
-# ADR 0002 — PostgreSQL como log e fila de eventos
+# ADR 0002: PostgreSQL como log e fila de eventos
 
-- **Status:** aceito · **Data:** 2026-11-05
+- Status: aceito · Data: 2026-11-05
 
 ## Contexto
-Eventos precisam de idempotência, ordem por restaurante, retentativas e dead-letter. A stack sugerida citava Redis
-Streams "ou fila equivalente". O volume do produto (dezenas de eventos por minuto por tenant) é baixo.
+Eventos precisam de idempotência, ordem por restaurante, retentativas e dead-letter. A primeira ideia era usar
+Redis Streams ou uma fila equivalente, mas o volume (dezenas de eventos por minuto por tenant) é baixo.
 
 ## Decisão
 Tabela `events` como log + fila: `UNIQUE (restaurant_id, idempotency_key)` com `INSERT … ON CONFLICT DO NOTHING`;

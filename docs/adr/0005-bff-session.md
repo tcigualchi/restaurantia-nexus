@@ -1,6 +1,6 @@
-# ADR 0005 — BFF no Next.js com cookie httpOnly; baseline de segurança
+# ADR 0005: BFF no Next.js com cookie httpOnly; baseline de segurança
 
-- **Status:** aceito · **Data:** 2026-11-05
+- Status: aceito · Data: 2026-11-05
 
 ## Contexto
 O frontend (Vercel) e a API (container) ficam em domínios diferentes. Tokens no `localStorage` ficam expostos a XSS;

@@ -4,7 +4,7 @@
   "templates": [
     {
       "key": "aurora_pinheiros",
-      "name": "Aurora Burger & Bowl — Pinheiros",
+      "name": "Aurora Burger & Bowl Pinheiros",
       "timezone": "America/Sao_Paulo",
       "kitchen_lines": 10,
       "prep_sla_minutes": 18,
@@ -45,7 +45,7 @@
     },
     {
       "key": "sora_moema",
-      "name": "Sora Sushi & Lámen — Moema",
+      "name": "Sora Sushi & Lámen Moema",
       "timezone": "America/Sao_Paulo",
       "kitchen_lines": 8,
       "prep_sla_minutes": 20,

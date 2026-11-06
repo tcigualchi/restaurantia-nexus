@@ -53,14 +53,24 @@ export function StockChart({ data, units }: { data: Timeseries; units: Record<st
   const keys = Object.keys(data.ingredients);
   const colors = ["var(--chart-3)", "var(--chart-4)", "var(--chart-5)"];
   const rows = data.points.map((p) => ({ t: clock(p.t), ...p.stock }));
+  // With a single unit on screen the axis can show it (kg or L for large values); mixed units fall back to "mil".
+  const unitOf = (k: string) => data.units?.[k] ?? units[k] ?? "";
+  const unitSet = new Set(keys.map(unitOf));
+  const shared = unitSet.size === 1 ? [...unitSet][0] : undefined;
+  const big = data.points.some((p) => Object.values(p.stock).some((v) => v >= 1000));
+  const tick = (v: number) => {
+    if (shared && big && (shared === "g" || shared === "ml")) return `${n0(v / 1000)} ${shared === "g" ? "kg" : "L"}`;
+    if (shared) return `${n0(v)} ${shared}`;
+    return v >= 1000 ? `${n0(v / 1000)} mil` : n0(v);
+  };
   return (
     <div className="h-64" role="img" aria-label="Estoque dos ingredientes mais críticos ao longo da simulação">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={rows} margin={{ top: 8, right: 8, bottom: 0, left: 4 }}>
           <CartesianGrid stroke="var(--border)" strokeDasharray="3 3" vertical={false} />
           <XAxis dataKey="t" {...axis} minTickGap={24} />
-          <YAxis {...axis} tickFormatter={(v: number) => (v >= 1000 ? `${n0(v / 1000)}k` : n0(v))} />
-          <Tooltip {...tooltipStyle} formatter={(v, name) => [qty(Number(v), units[String(name)] ?? ""), data.ingredients[String(name)] ?? String(name)]} />
+          <YAxis {...axis} tickFormatter={tick} />
+          <Tooltip {...tooltipStyle} formatter={(v, name) => [qty(Number(v), unitOf(String(name))), data.ingredients[String(name)] ?? String(name)]} />
           <Legend wrapperStyle={{ fontSize: 12 }} formatter={(key: string) => data.ingredients[key] ?? key} />
           {keys.map((k, i) => (
             <Line key={k} dataKey={k} stroke={colors[i % colors.length]} strokeWidth={2} dot={false} type="stepAfter" />

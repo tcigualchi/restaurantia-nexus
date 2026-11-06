@@ -8,7 +8,7 @@ PostgreSQL, and integration tests compare both for the same event stream
 Rules
 -----
 * ``order.created`` is idempotent on ``order_ref``. If any ingredient is short
-  the whole order is *rejected* (lost revenue) and no stock is consumed —
+  the whole order is *rejected* (lost revenue) and no stock is consumed, since
   restaurants do not sell half a burger.
 * ``order.ready`` for an unknown order is *retryable* (events can arrive out of
   order); the queue retries it and eventually dead-letters it.

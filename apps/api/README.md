@@ -1,14 +1,14 @@
-# RestaurantIA Nexus — API
+# RestaurantIA Nexus API
 
-FastAPI modular monolith: REST API, SSE stream, deterministic simulator, event worker,
-agents (LangGraph) and approval workflow. See the repository root `README.md` for the
-full quickstart and `docs/` for architecture and ADRs.
+FastAPI application with the REST API, the live feed, the deterministic simulator, the event worker, the agents
+(LangGraph) and the approval flow. The repository root `README.md` has the full guide, and `docs/` has the
+architecture notes and ADRs.
 
 ```bash
-uv sync                      # install
-uv run alembic upgrade head  # migrate
-uv run nexus-seed            # seed synthetic templates
+uv sync                       # install
+uv run alembic upgrade head   # migrate
+uv run nexus-seed             # create the synthetic restaurants
 uv run uvicorn nexus.main:app --reload
-uv run nexus-worker          # simulation + event + agent worker
-uv run pytest                # tests (integration tests need TEST_DATABASE_URL)
+uv run nexus-worker           # simulation, events and agents
+uv run pytest                 # integration tests need TEST_DATABASE_URL
 ```

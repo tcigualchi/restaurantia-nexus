@@ -11,7 +11,7 @@ Graph::
 * ``plan`` derives candidate actions with deterministic policies; a model, if
   configured, may only write the executive summary and order the candidates.
 * ``request_approvals`` turns sensitive candidates into *pending* approval
-  requests. Nothing is executed here — execution happens only after a human
+  requests. Nothing is executed here: execution happens only after a human
   decision, with revalidation, in the approval service.
 
 The routing function :func:`next_node` is shared by the LangGraph wiring and by
@@ -133,10 +133,10 @@ class Orchestrator:
         if "stockout_risk" in kinds:
             route.append(INVENTORY)
         route.append(FORECASTING)
-        names = {OPERATIONS: "Operations", INVENTORY: "Inventory", FORECASTING: "Forecasting"}
+        names = {OPERATIONS: "operação", INVENTORY: "estoque", FORECASTING: "previsão"}
         reason = (
-            "Sinais de estoque e/ou cozinha: Operations avalia capacidade; Inventory entra quando há risco "
-            "de ruptura; Forecasting quantifica a demanda das próximas horas."
+            "O agente de operação avalia a capacidade da cozinha, o de estoque entra quando há risco de faltar "
+            "ingrediente e o de previsão estima a demanda das próximas horas."
         )
         self.recorder.record(
             agent="orchestrator",
@@ -219,12 +219,13 @@ class Orchestrator:
             delayed = [o["order_ref"] for o in (ops.data.get("list_open_orders") or {}).get("orders", [])]
             recs = plan_kitchen_recommendations(capacity=capacity, delayed_refs=delayed, evidence=evidence) + recs
         if forecast is None:
-            assumptions.append("Previsão indisponível: nenhuma ação de estoque proposta.")
+            assumptions.append("Sem previsão disponível, nenhuma ação de estoque foi sugerida.")
         skipped = [c for c in candidates if c.candidate_id in self.excluded_candidates]
         if skipped:
             candidates = [c for c in candidates if c.candidate_id not in self.excluded_candidates]
             assumptions += [
-                f"“{c.title}” já foi rejeitada por um humano nesta simulação; não reproposta." for c in skipped
+                f"“{c.title}” já foi rejeitada pelo gerente nesta simulação e não foi sugerida de novo."
+                for c in skipped
             ]
         proposal = PlanProposal(candidates=candidates, recommendations=recs, capacity=capacity, assumptions=assumptions)
         priority = [c.candidate_id for c in candidates]
@@ -238,7 +239,7 @@ class Orchestrator:
                 self.recorder.record(
                     agent="orchestrator",
                     kind="fallback",
-                    title="Resumo do plano: fallback determinístico",
+                    title="Falha no modelo, resumo do plano feito por regras",
                     status="error",
                     output={"reason": str(exc)[:200]},
                 )
@@ -312,13 +313,14 @@ class Orchestrator:
             c = proposal.capacity
             parts.append(
                 f"Cozinha: utilização projetada de {pct(c.projected_utilization)} "
-                f"(~{num(c.projected_orders_per_hour)} pedidos/h vs capacidade ~{num(c.capacity_orders_per_hour)}/h)."
+                f"(~{num(c.projected_orders_per_hour)} pedidos/h para uma capacidade de ~{num(c.capacity_orders_per_hour)}/h)."
             )
         if proposal.candidates:
             listed = "; ".join(f"({i}) {c.title}" for i, c in enumerate(proposal.candidates, 1))
-            parts.append(f"{len(proposal.candidates)} ação(ões) aguardando aprovação humana: {listed}.")
+            n = len(proposal.candidates)
+            parts.append(f"{n} {'ação' if n == 1 else 'ações'} aguardando aprovação do gerente: {listed}.")
         else:
-            parts.append("Nenhuma ação sensível necessária no momento.")
+            parts.append("Nenhuma ação precisa de aprovação agora.")
         if proposal.recommendations:
             parts.append("Recomendações: " + "; ".join(r.title for r in proposal.recommendations[:3]) + ".")
         return " ".join(parts)
@@ -352,7 +354,7 @@ class Orchestrator:
         self.recorder.record(
             agent="orchestrator",
             kind="model_call",
-            title=f"Modelo ({resp.model}) — resumo do plano",
+            title=f"Resumo do plano pelo modelo {resp.model}",
             latency_ms=resp.latency_ms,
             output={"prompt_tokens": resp.usage.prompt_tokens, "completion_tokens": resp.usage.completion_tokens},
         )

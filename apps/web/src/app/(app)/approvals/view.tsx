@@ -51,7 +51,7 @@ function PayloadSummary({ a }: { a: ApprovalView }) {
       </span>
     );
   }
-  return <span>Item: {String(p.item_key)} · motivo: {String(p.reason)}</span>;
+  return <span>Motivo que fica registrado na pausa: {String(p.reason)}</span>;
 }
 
 export function ApprovalsView() {
@@ -68,7 +68,7 @@ export function ApprovalsView() {
     try {
       const result = await apiPost<ApprovalView>(path, { decision, reason: why, expected_version: a.version });
       if (result.status === "executed") toast.success(result.execution_result?.message ?? "Ação executada.");
-      else if (result.status === "failed") toast.error(`Revalidação bloqueou a execução: ${result.execution_result?.message ?? "estado mudou"}`);
+      else if (result.status === "failed") toast.error(`A ação não foi executada: ${result.execution_result?.message ?? "a situação mudou desde a sugestão"}`);
       else toast.info("Ação rejeitada e registrada na auditoria.");
       setRejecting(null);
       setReason("");
@@ -89,8 +89,8 @@ export function ApprovalsView() {
   return (
     <>
       <PageHeader
-        title="Approval Center"
-        description="Ações sensíveis propostas pelos agentes. Nada é executado sem uma decisão humana válida; a ação é revalidada no momento da execução e tudo vai para a trilha de auditoria."
+        title="Aprovações"
+        description="Ações sugeridas pelos agentes que só acontecem com a sua aprovação. Antes de executar, o sistema confere de novo se a ação ainda faz sentido, e toda decisão fica registrada na auditoria."
       />
       {!canDecide && (
         <p className="mb-4 flex items-center gap-2 rounded-md bg-info-soft px-3 py-2 text-sm text-info">
@@ -112,7 +112,7 @@ export function ApprovalsView() {
             <EmptyState
               icon={<ClipboardCheck />}
               title="Nenhuma aprovação pendente"
-              description="Quando os agentes propuserem uma ação sensível (compra emergencial, pausa de item), ela aparecerá aqui."
+              description="Quando os agentes sugerirem uma compra emergencial ou a pausa de um prato, a ação aparece aqui."
             />
           ) : (
             <div className="grid gap-4 lg:grid-cols-2">
@@ -150,7 +150,7 @@ export function ApprovalsView() {
                       <span className="ml-auto">proposta às {clock(a.business_time)} (simulado) · requer {a.required_role === "manager" ? "gerente" : a.required_role}</span>
                     </div>
                     <div className="mt-auto flex gap-2 pt-2">
-                      <Tooltip content={a.can_decide ? "Executa após revalidar o estado atual" : "Requer papel de gerente"}>
+                      <Tooltip content={a.can_decide ? "Confere o estado atual e executa" : "Só o gerente pode aprovar"}>
                         <span className="flex-1">
                           <Button
                             className="w-full"
@@ -229,7 +229,7 @@ export function ApprovalsView() {
             <DialogDescription>{rejecting?.title}</DialogDescription>
           </DialogHeader>
           <div className="grid gap-1.5">
-            <Label htmlFor="reason">Justificativa (obrigatória, registrada na auditoria)</Label>
+            <Label htmlFor="reason">Motivo (obrigatório, fica registrado na auditoria)</Label>
             <Textarea id="reason" value={reason} onChange={(e) => setReason(e.target.value)} maxLength={500} placeholder="Ex.: item é o carro-chefe da casa; prefiro manter no cardápio." />
           </div>
           <DialogFooter>

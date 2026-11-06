@@ -12,8 +12,18 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Select } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/misc";
 import { TBody, TD, TH, THead, TR, Table } from "@/components/ui/table";
-import { clock, dateTime, describeAudit } from "@/lib/format";
+import { AGENT_LABEL, clock, dateTime, describeAudit } from "@/lib/format";
 import type { AuditView as Audit } from "@/lib/types";
+
+const TARGET_LABEL: Record<string, string> = {
+  agent_run: "execução dos agentes",
+  approval: "aprovação",
+  incident: "incidente",
+  menu_item: "item do cardápio",
+  purchase_order: "pedido de compra",
+  restaurant: "restaurante",
+  simulation: "simulação",
+};
 
 const PREFIXES = ["approval", "action", "agent_run", "incident", "simulation", "menu_item", "purchase_order", "event", "sandbox"];
 const ACTOR_TONE: Record<string, "primary" | "info" | "neutral"> = { user: "primary", agent: "info", system: "neutral" };
@@ -39,8 +49,8 @@ export function AuditView() {
   return (
     <>
       <PageHeader
-        title="Audit Log"
-        description="Trilha append-only (bloqueada contra UPDATE/DELETE no banco). Registra quem fez o quê — usuário, agente ou sistema — com horário real e horário do negócio."
+        title="Auditoria"
+        description="Registro de quem fez o quê, seja pessoa, agente ou sistema, com o horário real e o horário da simulação. O banco bloqueia qualquer alteração ou exclusão nesses registros."
         actions={
           <>
             <Select aria-label="Filtrar por ação" value={action} onChange={(e) => setAction(e.target.value)}>
@@ -66,7 +76,7 @@ export function AuditView() {
           {!data ? (
             <Skeleton className="h-64" />
           ) : rows.length === 0 ? (
-            <EmptyState title="Sem registros" description="Ações relevantes aparecerão aqui." />
+            <EmptyState title="Sem registros" description="As ações importantes aparecem aqui." />
           ) : (
             <>
               <Table>
@@ -89,7 +99,9 @@ export function AuditView() {
                       <TD>
                         <div className="flex flex-col gap-1">
                           <Badge tone={ACTOR_TONE[a.actor_type]}>{ACTOR_LABEL[a.actor_type]}</Badge>
-                          <span className="text-xs text-muted-foreground">{a.actor_label}</span>
+                          <span className="text-xs text-muted-foreground">
+                            {a.actor_type === "agent" ? (AGENT_LABEL[a.actor_label.replace(/^Agente /, "")] ?? a.actor_label) : a.actor_label}
+                          </span>
                         </div>
                       </TD>
                       <TD>
@@ -97,7 +109,10 @@ export function AuditView() {
                         <div className="font-mono text-[11px] text-muted-foreground">{a.action}</div>
                       </TD>
                       <TD className="min-w-64 max-w-md">
-                        <JsonView value={a.details} label={String(a.details.title ?? a.target_type ?? "detalhes")} />
+                        <JsonView
+                          value={a.details}
+                          label={String(a.details.title ?? TARGET_LABEL[a.target_type ?? ""] ?? a.target_type ?? "detalhes")}
+                        />
                       </TD>
                     </TR>
                   ))}

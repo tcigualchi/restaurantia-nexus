@@ -21,10 +21,10 @@ from nexus.logging_config import configure_logging, request_id_var
 log = logging.getLogger("nexus.app")
 
 DESCRIPTION = """
-**RestaurantIA Nexus** — plataforma de inteligência operacional para restaurantes (projeto de portfólio).
+API do RestaurantIA Nexus, um projeto de portfólio sobre agentes de IA na operação de restaurantes.
 
-* Todos os dados são **sintéticos**; não há integração com iFood ou outras plataformas.
-* Agentes de IA **propõem**; ações sensíveis só executam após **aprovação humana** revalidada.
+* Todos os dados são sintéticos. Não há integração com iFood nem com outras plataformas.
+* Os agentes sugerem ações, e as ações sensíveis só são executadas depois de aprovadas por uma pessoa e conferidas de novo.
 * Cada restaurante é um tenant isolado: toda rota sob `/restaurants/{restaurant_id}` exige associação.
 """
 

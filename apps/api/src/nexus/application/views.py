@@ -106,6 +106,7 @@ class Timeseries(BaseModel):
     start: datetime
     end: datetime
     ingredients: dict[str, str]
+    units: dict[str, str] = Field(default_factory=dict)
     points: list[TimeseriesPoint]
 
 

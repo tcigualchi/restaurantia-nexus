@@ -108,6 +108,7 @@ export interface Timeseries {
   start: string;
   end: string;
   ingredients: Record<string, string>;
+  units?: Record<string, string>;
   points: TimeseriesPoint[];
 }
 

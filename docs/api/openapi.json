@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "RestaurantIA Nexus API",
-    "description": "\n**RestaurantIA Nexus** — plataforma de inteligência operacional para restaurantes (projeto de portfólio).\n\n* Todos os dados são **sintéticos**; não há integração com iFood ou outras plataformas.\n* Agentes de IA **propõem**; ações sensíveis só executam após **aprovação humana** revalidada.\n* Cada restaurante é um tenant isolado: toda rota sob `/restaurants/{restaurant_id}` exige associação.\n",
+    "description": "\nAPI do RestaurantIA Nexus, um projeto de portfólio sobre agentes de IA na operação de restaurantes.\n\n* Todos os dados são sintéticos. Não há integração com iFood nem com outras plataformas.\n* Os agentes sugerem ações, e as ações sensíveis só são executadas depois de aprovadas por uma pessoa e conferidas de novo.\n* Cada restaurante é um tenant isolado: toda rota sob `/restaurants/{restaurant_id}` exige associação.\n",
     "version": "0.1.0"
   },
   "paths": {
@@ -348,7 +348,7 @@
         "tags": [
           "restaurants"
         ],
-        "summary": "Command Center KPIs",
+        "summary": "Overview KPIs (Visão geral)",
         "operationId": "overview_api_v1_restaurants__restaurant_id__overview_get",
         "parameters": [
           {
@@ -5311,6 +5311,13 @@
             },
             "type": "object",
             "title": "Ingredients"
+          },
+          "units": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Units"
           },
           "points": {
             "items": {

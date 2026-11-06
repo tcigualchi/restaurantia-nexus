@@ -51,7 +51,7 @@ def get_restaurant(ctx: TenantDep) -> RestaurantView:
     return queries.restaurant_view(ctx.restaurant, ctx.role.value)
 
 
-@router.get("/{restaurant_id}/overview", response_model=Overview, summary="Command Center KPIs")
+@router.get("/{restaurant_id}/overview", response_model=Overview, summary="Overview KPIs (Visão geral)")
 def overview(ctx: TenantDep, db: DbDep, catalog: CatalogDep) -> Overview:
     return queries.overview(db, catalog, ctx.restaurant, ctx.role.value)
 
@@ -248,7 +248,7 @@ def forecast_view(
     return ForecastOut(
         forecast=result,
         history=history,
-        data_label="Histórico de vendas sintético gerado deterministicamente a partir do modelo do restaurante.",
+        data_label="Histórico de vendas sintético, gerado de forma determinística a partir do perfil do restaurante.",
     )
 
 

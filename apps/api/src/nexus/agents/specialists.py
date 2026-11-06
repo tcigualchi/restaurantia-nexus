@@ -3,11 +3,11 @@
 Each specialist has two execution modes that produce the *same observable trace
 format* (tool calls with validated arguments and results):
 
-* ``llm`` — a model chooses tools through function calling (bounded turns and
+* ``llm``: a model chooses tools through function calling (bounded turns and
   calls). Required evidence the model did not fetch is collected afterwards by
   the runner and marked as such. The final answer must be JSON whose facts cite
   existing step ids; ungrounded facts are dropped.
-* ``deterministic`` — a scripted tool plan plus template summaries. Used when no
+* ``deterministic``: a scripted tool plan plus template summaries. Used when no
   model is configured, and as a labelled fallback (``llm_fallback``) when the
   provider fails.
 """
@@ -83,6 +83,12 @@ COMMON_RULES = (
 _fmt = num
 _qty = qty
 
+MODEL_NAMES = {
+    "naive_1d": "ingênuo diário",
+    "seasonal_naive_7d": "ingênuo semanal",
+    "seasonal_mean_4w": "média sazonal de 4 semanas",
+}
+
 
 # --- Operations -------------------------------------------------------------------------
 
@@ -104,10 +110,15 @@ def _ops_summary(task: AgentTask, data: dict[str, Any], ev: dict[str, str]) -> t
     facts: list[Fact] = []
     parts: list[str] = []
     if snap:
+        queue = (
+            f"Fila com {snap['queue_length']} pedidos, o mais antigo aberto há {_fmt(snap.get('oldest_open_minutes'))} min. "
+            if snap["queue_length"] and snap.get("oldest_open_minutes") is not None
+            else "Nenhum pedido na fila. "
+        )
         parts.append(
-            f"Fila com {snap['queue_length']} pedidos (mais antigo há {_fmt(snap.get('oldest_open_minutes'))} min); "
-            f"preparo médio {_fmt(snap.get('avg_prep_minutes'), 1)} min e p90 {_fmt(snap.get('p90_prep_minutes'), 1)} min "
-            f"(SLA {snap['sla_minutes']} min) nos últimos {snap['window_minutes']} min."
+            queue
+            + f"Nos últimos {snap['window_minutes']} min, o preparo levou em média {_fmt(snap.get('avg_prep_minutes'), 1)} min "
+            f"e o p90 ficou em {_fmt(snap.get('p90_prep_minutes'), 1)} min (SLA de {snap['sla_minutes']} min)."
         )
         facts += [
             Fact(label="Pedidos na fila", value=str(snap["queue_length"]), evidence=ev["get_kitchen_snapshot"]),
@@ -121,10 +132,11 @@ def _ops_summary(task: AgentTask, data: dict[str, Any], ev: dict[str, str]) -> t
         capacity = cap["lines_available"] * 60 / cap["estimated_service_minutes"]
         projected = fc["orders_adjusted"]["expected"] * 60 / fc["horizon_minutes"]
         util = projected / capacity if capacity else 0.0
-        level = "ALTO" if util >= 1.05 else "moderado" if util >= 0.9 else "baixo"
+        level = "alto" if util >= 1.05 else "moderado" if util >= 0.9 else "baixo"
         parts.append(
-            f"Demanda projetada de ~{num(projected)} pedidos/h para a próxima hora contra capacidade estimada de "
-            f"~{num(capacity)} pedidos/h ({cap['lines_available']} linhas): utilização {pct(util)} — risco de atraso {level}."
+            f"Para a próxima hora, a previsão é de ~{num(projected)} pedidos/h, e a cozinha dá conta de "
+            f"~{num(capacity)} pedidos/h com {cap['lines_available']} linhas. Isso dá uma utilização de {pct(util)} "
+            f"e risco de atraso {level}."
         )
         facts.append(Fact(label="Utilização projetada", value=pct(util), evidence=ev.get("get_demand_forecast", "")))
     injected = [
@@ -133,13 +145,19 @@ def _ops_summary(task: AgentTask, data: dict[str, Any], ev: dict[str, str]) -> t
         if isinstance(o.get("customer_note"), dict) and o["customer_note"].get("injection_flags")
     ]
     if injected:
-        parts.append(
-            f"Observação de cliente com tentativa de manipulação detectada e ignorada ({', '.join(injected)})."
-        )
+        if len(injected) == 1:
+            parts.append(
+                f"A observação do pedido {injected[0]} tinha uma tentativa de manipulação dos agentes e foi ignorada."
+            )
+        else:
+            parts.append(
+                f"As observações dos pedidos {', '.join(injected)} tinham tentativas de manipulação dos agentes "
+                "e foram ignoradas."
+            )
         facts.append(
             Fact(
-                label="Conteúdo não confiável",
-                value=f"{len(injected)} observação(ões) neutralizada(s)",
+                label="Observações suspeitas",
+                value=f"{len(injected)} ignorada" + ("s" if len(injected) > 1 else ""),
                 evidence=ev.get("list_open_orders", ""),
             )
         )
@@ -167,25 +185,26 @@ def _inv_summary(task: AgentTask, data: dict[str, Any], ev: dict[str, str]) -> t
     details = data.get("_details", {})
     if not at_risk:
         watch = [r["name"] for r in status["ingredients"]]
-        return ("Nenhum ingrediente em risco alto. " + (f"Em observação: {', '.join(watch)}." if watch else "")), []
+        return ("Nenhum ingrediente em risco alto." + (f" Em observação: {', '.join(watch)}." if watch else "")), []
     facts: list[Fact] = []
-    parts = [f"{len(at_risk)} ingrediente(s) em risco alto ou crítico."]
+    count = len(at_risk)
+    parts = [f"{count} ingrediente{'s' if count > 1 else ''} em risco alto ou crítico."]
     for r in at_risk[:3]:
         d = details.get(r["ingredient_key"], {})
         eta = f"~{_fmt(r.get('eta_minutes'))} min" if r.get("eta_minutes") is not None else "indeterminado"
-        items = ", ".join(i["name"] for i in d.get("affected_items", []) if i.get("available")) or "—"
+        items = ", ".join(i["name"] for i in d.get("affected_items", []) if i.get("available")) or "nenhum à venda"
         lead = d.get("lead_time_minutes")
         parts.append(
-            f"{r['name']}: {_qty(r['stock'], r['unit'])} em estoque, consumo recente de "
-            f"{_qty(r['consumption_per_hour'], r['unit'])}/h, ruptura em {eta}"
-            + (f" (reposição leva {lead} min)" if lead else "")
+            f"{r['name']}: {_qty(r['stock'], r['unit'])} em estoque e consumo recente de "
+            f"{_qty(r['consumption_per_hour'], r['unit'])}/h. Tempo até acabar: {eta}"
+            + (f" (a reposição leva {lead} min)" if lead else "")
             + f". Itens afetados: {items}."
         )
-        facts.append(Fact(label=f"Ruptura estimada — {r['name']}", value=eta, evidence=ev["get_inventory_status"]))
+        facts.append(Fact(label=f"{r['name']}: tempo até acabar", value=eta, evidence=ev["get_inventory_status"]))
         if d and f"get_ingredient_details:{r['ingredient_key']}" in ev:
             facts.append(
                 Fact(
-                    label=f"Itens afetados — {r['name']}",
+                    label=f"{r['name']}: itens do cardápio afetados",
                     value=str(len(d.get("affected_items", []))),
                     evidence=ev[f"get_ingredient_details:{r['ingredient_key']}"],
                 )
@@ -211,17 +230,18 @@ def _fc_summary(task: AgentTask, data: dict[str, Any], ev: dict[str, str]) -> tu
     nc = fc["nowcast"]
     o, oa = fc["orders"], fc["orders_adjusted"]
     parts = [
-        f"Modelo {bt['selected_model']} (WAPE {pct(sel['wape'], 1)} na semana de teste"
-        + (f" vs {pct(naive['wape'], 1)} do ingênuo semanal" if naive else "")
-        + ").",
+        f"Modelo escolhido: {MODEL_NAMES.get(bt['selected_model'], bt['selected_model'])}, com WAPE de "
+        f"{pct(sel['wape'], 1)} na semana de teste"
+        + (f" (o ingênuo semanal teve {pct(naive['wape'], 1)})" if naive else "")
+        + ".",
         f"Próximas {fc['horizon_minutes'] // 60}h: {num(o['expected'])} pedidos na linha de base "
-        f"(80%: {num(o['p10'])}–{num(o['p90'])}); {nc['note']} Projeção ajustada: {num(oa['expected'])} "
-        f"({num(oa['p10'])}–{num(oa['p90'])}).",
+        f"(intervalo de 80%: {num(o['p10'])} a {num(o['p90'])}). {nc['note']} Com o ajuste, a projeção fica em "
+        f"{num(oa['expected'])} pedidos ({num(oa['p10'])} a {num(oa['p90'])}).",
     ]
     facts = [
         Fact(
             label="Pedidos previstos (ajustado)",
-            value=f"{num(oa['expected'])} ({num(oa['p10'])}–{num(oa['p90'])})",
+            value=f"{num(oa['expected'])} ({num(oa['p10'])} a {num(oa['p90'])})",
             evidence=ev["get_demand_forecast"],
         ),
         Fact(
@@ -232,40 +252,40 @@ def _fc_summary(task: AgentTask, data: dict[str, Any], ev: dict[str, str]) -> tu
         a = ing["adjusted"]
         parts.append(
             f"Consumo previsto de {ing['name']}: {_qty(a['expected'], ing['unit'])} "
-            f"(80%: {_qty(a['p10'], ing['unit'])}–{_qty(a['p90'], ing['unit'])})."
+            f"(de {_qty(a['p10'], ing['unit'])} a {_qty(a['p90'], ing['unit'])})."
         )
         facts.append(
             Fact(
-                label=f"Consumo previsto — {ing['name']}",
+                label=f"{ing['name']}: consumo previsto",
                 value=_qty(a["expected"], ing["unit"]),
                 evidence=ev["get_demand_forecast"],
             )
         )
-    parts.append(f"Cobertura empírica do intervalo de 80% no teste: {pct(bt['interval_coverage_test'])}.")
+    parts.append(f"No teste, o intervalo de 80% cobriu {pct(bt['interval_coverage_test'])} dos valores reais.")
     return " ".join(parts), facts
 
 
 SPECIALISTS: dict[str, Specialist] = {
     OPERATIONS: Specialist(
         OPERATIONS,
-        "Operations Agent",
-        "Você é o Operations Agent de um restaurante. Investigue gargalos, filas e atrasos na cozinha, "
+        "Agente de operação",
+        "Você é o agente de operação de um restaurante. Investigue gargalos, filas e atrasos na cozinha, "
         "compare a demanda projetada com a capacidade e indique riscos de atraso e prioridades. " + COMMON_RULES,
         _ops_plan,
         _ops_summary,
     ),
     INVENTORY: Specialist(
         INVENTORY,
-        "Inventory Agent",
-        "Você é o Inventory Agent. Identifique ingredientes com risco de ruptura, o tempo até a ruptura, "
-        "o lead time de reposição e os itens do cardápio afetados (fichas técnicas). " + COMMON_RULES,
+        "Agente de estoque",
+        "Você é o agente de estoque de um restaurante. Identifique ingredientes com risco de acabar, o tempo "
+        "até acabarem, o tempo de reposição e os itens do cardápio afetados (fichas técnicas). " + COMMON_RULES,
         _inv_plan,
         _inv_summary,
     ),
     FORECASTING: Specialist(
         FORECASTING,
-        "Forecasting Agent",
-        "Você é o Forecasting Agent. Consulte a previsão estatística, explique intervalos, o ajuste por ritmo "
+        "Agente de previsão",
+        "Você é o agente de previsão de um restaurante. Consulte a previsão estatística, explique intervalos, o ajuste por ritmo "
         "observado e as limitações do modelo. Nunca apresente previsão como certeza. " + COMMON_RULES,
         _fc_plan,
         _fc_summary,
@@ -291,7 +311,7 @@ class AgentRunner:
             self.recorder.record(
                 agent=specialist.name,
                 kind="fallback",
-                title="Fallback determinístico",
+                title="Falha no modelo, análise feita por regras",
                 status="error",
                 output={"reason": str(exc)},
             )
@@ -389,7 +409,7 @@ class AgentRunner:
             self.recorder.record(
                 agent=specialist.name,
                 kind="model_call",
-                title=f"Modelo ({resp.model}) — turno {turn}",
+                title=f"Chamada ao modelo {resp.model}, rodada {turn}",
                 status="ok",
                 latency_ms=resp.latency_ms,
                 output={
@@ -423,7 +443,7 @@ class AgentRunner:
                     {
                         "role": "tool",
                         "tool_call_id": call.id,
-                        "content": json.dumps({"ok": False, "error": "limite de chamadas por turno"}),
+                        "content": json.dumps({"ok": False, "error": "limite de chamadas por rodada"}),
                     }
                 )
         # Evidence required by the deterministic planner is always collected.
@@ -453,14 +473,14 @@ class AgentRunner:
         if not text:
             flags.append("model_no_final_answer")
             summary, facts = specialist.summarize(AgentTask(objective=""), data, ev)
-            return "[resumo determinístico — o modelo não produziu resposta final] " + summary, facts
+            return "[Resumo feito por regras: o modelo não deu resposta final] " + summary, facts
         try:
             start, end = text.find("{"), text.rfind("}")
             parsed = _ModelFinal.model_validate_json(text[start : end + 1] if start >= 0 else text)
         except (ValidationError, ValueError):
             flags.append("model_invalid_json")
             summary, facts = specialist.summarize(AgentTask(objective=""), data, ev)
-            return "[resumo determinístico — resposta do modelo fora do formato] " + summary, facts
+            return "[Resumo feito por regras: resposta do modelo fora do formato] " + summary, facts
         valid_ids = set(ev.values())
         grounded = [f for f in parsed.facts if f.evidence in valid_ids]
         if len(grounded) < len(parsed.facts):

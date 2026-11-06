@@ -13,6 +13,13 @@ from sqlalchemy.orm import Session
 from nexus.domain.guardrails import redact_secrets
 from nexus.infra.models import AuditLog
 
+# Display names for agent actors, matching the labels used in the web app.
+AGENT_LABELS = {
+    "orchestrator": "Orquestrador",
+    "operations": "Agente de operação",
+    "inventory": "Agente de estoque",
+    "forecasting": "Agente de previsão",
+}
 SENSITIVE_KEYS = {"password", "password_hash", "token", "access_token", "api_key", "authorization", "secret", "jwt"}
 
 
@@ -28,7 +35,7 @@ class Actor:
 
     @classmethod
     def agent(cls, name: str) -> Actor:
-        return cls("agent", name, f"Agente {name}")
+        return cls("agent", name, AGENT_LABELS.get(name, f"Agente {name}"))
 
 
 def _sanitize(value: Any, depth: int = 0) -> Any:

@@ -1,57 +1,102 @@
-import { Bot, ClipboardCheck, FlaskConical, LineChart, ShieldCheck, Workflow } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 
 import { Wordmark } from "@/components/brand";
-import { Badge } from "@/components/ui/badge";
 
 import { DemoEntry } from "./demo-entry";
 
+const REPO_URL = "https://github.com/tcigualchi/restaurantia-nexus";
+
 const STEPS = [
-  { icon: FlaskConical, title: "Simulação reproduzível", text: "Um restaurante sintético recebe um pico de pedidos com estoque crítico — mesma seed, mesmo resultado." },
-  { icon: Workflow, title: "Detecção e orquestração", text: "Detectores determinísticos abrem um incidente; um grafo LangGraph aciona os agentes especialistas." },
-  { icon: Bot, title: "Agentes com ferramentas tipadas", text: "Operations, Inventory e Forecasting consultam dados via ferramentas com schema, permissões e limites." },
-  { icon: LineChart, title: "Previsão estatística", text: "Números vêm de modelos avaliados em backtest (WAPE/MAE), nunca inventados por um LLM." },
-  { icon: ClipboardCheck, title: "Aprovação humana", text: "Ações sensíveis ficam pendentes; só executam após aprovação válida, com revalidação e auditoria." },
-  { icon: ShieldCheck, title: "Segurança por padrão", text: "Isolamento por tenant, RBAC, guardrails contra prompt injection e trilha de auditoria append-only." },
+  {
+    title: "Começa o horário de pico",
+    text: "A simulação gera pedidos minuto a minuto e desconta o estoque pelas fichas técnicas. Com a mesma seed, o resultado é sempre igual.",
+  },
+  {
+    title: "Algo sai do normal",
+    text: "A fila da cozinha cresce e a costela começa a acabar. Um detector abre um incidente e pausa o relógio da simulação.",
+  },
+  {
+    title: "Os agentes investigam",
+    text: "Três agentes, de operação, estoque e previsão, consultam os dados por ferramentas que só fazem leitura e montam um diagnóstico com evidências.",
+  },
+  {
+    title: "O gerente decide",
+    text: "As ações sugeridas, como uma compra emergencial ou pausar um prato, esperam aprovação. Só o que for aprovado é executado, e tudo fica na auditoria.",
+  },
 ];
 
 export default function Landing() {
   return (
-    <div className="min-h-dvh bg-[radial-gradient(ellipse_at_top,var(--secondary),transparent_55%)]">
+    <div className="min-h-dvh bg-[radial-gradient(ellipse_at_top,var(--secondary),transparent_60%)]">
       <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
         <Wordmark />
-        <Badge tone="warning">Projeto de portfólio · dados sintéticos</Badge>
+        <nav aria-label="Links" className="flex items-center gap-5 text-sm">
+          <a href="#como-funciona" className="hidden text-muted-foreground transition-colors hover:text-foreground sm:inline">
+            Como funciona
+          </a>
+          <a
+            href={REPO_URL}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex items-center gap-1 rounded-md border bg-card px-3 py-1.5 font-medium shadow-sm transition-colors hover:bg-muted"
+          >
+            Código no GitHub
+            <ArrowUpRight className="size-3.5" />
+          </a>
+        </nav>
       </header>
-      <main id="main" className="mx-auto grid max-w-6xl gap-12 px-6 pb-16 pt-6 lg:grid-cols-[1.15fr_1fr] lg:pt-12">
-        <section>
-          <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
-            Inteligência operacional autônoma para restaurantes — com humanos no controle.
-          </h1>
-          <p className="mt-4 max-w-xl text-base text-muted-foreground">
-            RestaurantIA Nexus combina simulação de operações, previsão de demanda e agentes de IA especializados que
-            investigam gargalos, antecipam rupturas de estoque e propõem ações. Nada sensível acontece sem aprovação.
-          </p>
-          <ul className="mt-8 grid gap-4 sm:grid-cols-2">
-            {STEPS.map(({ icon: Icon, title, text }) => (
-              <li key={title} className="flex gap-3">
-                <div className="mt-0.5 h-fit self-start rounded-lg bg-card p-2 text-primary shadow-sm ring-1 ring-border">
-                  <Icon className="size-4" />
-                </div>
-                <div>
-                  <div className="text-sm font-medium">{title}</div>
-                  <div className="text-sm text-muted-foreground">{text}</div>
-                </div>
-              </li>
-            ))}
-          </ul>
+
+      <main id="main">
+        <section className="mx-auto grid max-w-6xl items-start gap-12 px-6 pb-20 pt-8 lg:grid-cols-[1.2fr_1fr] lg:pt-16">
+          <div>
+            <p className="text-sm font-medium text-primary">Projeto de portfólio</p>
+            <h1 className="mt-3 text-4xl font-semibold tracking-tight text-balance sm:text-5xl">
+              Agentes de IA na operação de um restaurante, com aprovação humana
+            </h1>
+            <p className="mt-6 max-w-xl text-lg leading-relaxed text-muted-foreground text-pretty">
+              Criei este projeto para estudar como agentes de IA podem ajudar no dia a dia de um restaurante sem tomar
+              decisões sozinhos. Um restaurante fictício entra em horário de pico, um ingrediente começa a faltar e três
+              agentes analisam a situação. Eles sugerem o que fazer, mas nada é executado sem a aprovação de um gerente.
+            </p>
+            <p className="mt-8 text-sm text-muted-foreground">
+              Python, FastAPI, LangGraph, Next.js e PostgreSQL. Publicado no Vercel com banco Neon.
+            </p>
+          </div>
+          <div className="lg:pt-2">
+            <DemoEntry />
+          </div>
         </section>
-        <section aria-label="Acesso">
-          <DemoEntry />
-          <p className="mt-4 text-xs text-muted-foreground">
-            Todos os restaurantes, pedidos e estoques são fictícios e gerados por simulação. Este projeto não tem
-            vínculo com iFood ou qualquer marketplace de delivery.
-          </p>
+
+        <section id="como-funciona" className="border-t bg-card/40">
+          <div className="mx-auto max-w-6xl px-6 py-16">
+            <h2 className="text-2xl font-semibold tracking-tight">Como funciona</h2>
+            <p className="mt-2 max-w-2xl text-muted-foreground">
+              O cenário principal da demonstração leva uns dois minutos, do primeiro pedido à decisão do gerente.
+            </p>
+            <ol className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+              {STEPS.map((step, index) => (
+                <li key={step.title} className="rounded-xl border bg-card p-5 shadow-sm">
+                  <span className="flex size-7 items-center justify-center rounded-full bg-secondary text-sm font-semibold text-primary">
+                    {index + 1}
+                  </span>
+                  <h3 className="mt-4 font-medium">{step.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{step.text}</p>
+                </li>
+              ))}
+            </ol>
+          </div>
         </section>
       </main>
+
+      <footer className="border-t">
+        <div className="mx-auto flex max-w-6xl flex-col gap-2 px-6 py-8 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+          <p>Feito por João Victor Gualchi.</p>
+          <p className="max-w-xl sm:text-right">
+            Restaurantes, pedidos e estoques são fictícios. O projeto não tem relação com o iFood nem com outros
+            aplicativos de delivery.
+          </p>
+        </div>
+      </footer>
     </div>
   );
 }

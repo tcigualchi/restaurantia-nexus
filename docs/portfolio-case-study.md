@@ -1,152 +1,183 @@
-# Case study — RestaurantIA Nexus
+# Estudo de caso: RestaurantIA Nexus
 
-*Português primeiro; English version below.*
+Português primeiro. A versão em inglês está [no fim da página](#english).
+
+Demonstração: [restaurantia-nexus.vercel.app](https://restaurantia-nexus.vercel.app) · Código:
+[github.com/tcigualchi/restaurantia-nexus](https://github.com/tcigualchi/restaurantia-nexus)
+
+## O problema
+
+No horário de pico, um restaurante costuma perder dinheiro de duas formas que se alimentam: a cozinha passa da
+capacidade e algum ingrediente importante acaba antes de a reposição chegar. As decisões que evitam o prejuízo
+(comprar com urgência, tirar um prato do cardápio, reorganizar a produção) precisam ser tomadas em minutos, com dados
+espalhados entre o sistema de pedidos, o estoque e o histórico de vendas.
+
+Esse cenário me pareceu bom para estudar agentes de IA porque tem dados de verdade para consultar, decisões com
+consequência e um ponto claro em que uma pessoa precisa dar a palavra final.
+
+## O que eu construí
+
+Uma aplicação web em que agentes investigam e sugerem, modelos estatísticos estimam a demanda e o gerente decide.
+
+- Um simulador determinístico gera a operação de dois restaurantes fictícios, minuto a minuto.
+- Detectores percebem quando a fila ou o estoque saem do normal e abrem um incidente.
+- Um orquestrador em LangGraph aciona três agentes (operação, estoque e previsão), que consultam os dados por
+  ferramentas de leitura com schema estrito.
+- Regras fixas transformam o diagnóstico em sugestões de ação, cada uma com justificativa e evidências.
+- O gerente aprova ou rejeita. O que foi aprovado é conferido de novo e executado uma única vez, e tudo fica num
+  registro de auditoria que não aceita alteração.
+
+O frontend é Next.js 16 com um BFF que guarda a sessão em cookie httpOnly. O backend é FastAPI com SQLAlchemy, e o
+PostgreSQL guarda os eventos, as projeções, os passos dos agentes, as aprovações e a auditoria. Está publicado no
+Vercel, com o banco no Neon.
+
+## Decisões técnicas
+
+- Usei o PostgreSQL como fila de eventos (`SKIP LOCKED`, lock por restaurante, dead-letter). O efeito de cada evento e
+  o registro de auditoria entram na mesma transação, e não precisei de outro serviço.
+- A simulação roda em lockstep: o relógio para enquanto os agentes analisam e enquanto o gerente decide. Com a mesma
+  seed e as mesmas decisões, o resultado é sempre o mesmo, o que permitiu testar o fluxo inteiro.
+- O LLM explica, mas não decide. As ações candidatas vêm de fórmulas (consumo previsto, estoque de segurança, tempo de
+  reposição, receita por grama de ingrediente). O modelo só pode ordenar e resumir, e não consegue criar nem remover
+  ações.
+- Na previsão, escolhi o modelo numa semana de validação e reportei as métricas numa semana de teste. Os intervalos
+  têm a cobertura medida, e o ajuste pelo ritmo do dia aparece explicitamente na tela.
+- Sem chave de API, os agentes rodam num modo determinístico que a interface identifica em toda execução. Nenhum texto
+  pronto é apresentado como se fosse inferência de um modelo.
+- O mesmo código roda em Docker, com um worker, e no Vercel, onde não há processo contínuo no plano gratuito. Lá,
+  cada consulta do painel avança o trabalho daquele restaurante pelo tempo decorrido. Quando ninguém está usando, nada
+  roda e nada custa.
+
+## Os agentes
+
+- Operação: tamanho da fila, p90 do tempo de preparo contra o SLA, capacidade da cozinha e utilização prevista.
+- Estoque: ingredientes em risco, tempo até acabarem, tempo de reposição e pratos afetados pelas fichas técnicas.
+- Previsão: demanda e consumo das próximas horas, com intervalo de 80% e as limitações do modelo.
+- Orquestrador: decide quem é acionado, monta o plano, escreve o resumo e abre os pedidos de aprovação.
+
+Os agentes de base de conhecimento (RAG) e de atendimento ao cliente estão no roadmap.
+
+## Segurança
+
+Comecei pela arquitetura, e não pelo prompt. As ferramentas só leem e o restaurante é injetado pelo servidor. As ações
+sensíveis passam por aprovação com permissão por papel, prazo de validade, controle de versão, execução única e nova
+conferência antes de rodar. Textos de clientes são tratados como não confiáveis. Um restaurante não enxerga o outro
+(a resposta é 404). A sessão fica em cookie httpOnly, há CSP, limites de requisição e cotas para a demonstração, e um
+trigger no banco protege a auditoria. Detalhes em [`security.md`](security.md).
+
+## Resultados medidos (dados sintéticos)
+
+- 164 testes de backend (100 unitários e 64 de integração e segurança com PostgreSQL), cerca de 90% de cobertura, e 3
+  testes de ponta a ponta com Playwright.
+- Previsão: WAPE de 33,9% contra 40,5% do ingênuo semanal na semana de teste. O intervalo de 80% cobriu 89% dos
+  valores reais.
+- Cenário principal em 10 seeds: aprovando as sugestões, 0 pedidos perdidos; aprovando só a compra, 8,2; rejeitando
+  tudo, 55,9 pedidos (cerca de R$ 4,8 mil). Isso vale dentro da premissa do simulador de que o cliente troca de prato
+  quando um item é pausado.
+- Agentes no modo determinístico: p50 de 100 ms e p95 de 134 ms por execução completa.
+- Ainda não medi: avaliação dos agentes com um conjunto de casos, RAG e custo com um LLM real.
+
+## O que aprendi
+
+- Um teste diferencial achou um bug de fuso horário. A projeção em SQL divergia da projeção de referência em memória
+  porque o perfil de demanda usava a hora UTC do banco. Comparar duas implementações do mesmo contrato encontrou o
+  problema mais rápido do que testes isolados.
+- Pedidos que seriam recusados por falta de ingrediente ainda ocupavam a cozinha no simulador. Passei a mandar o
+  estoque para o simulador, que só agenda os pedidos que de fato podem ser aceitos.
+- Para ter determinismo, precisei decidir onde o tempo para. Sem o lockstep, o tempo de reação de cada pessoa mudava a
+  simulação.
+- Deixar um agente seguro é mais uma questão de arquitetura do que de prompt. A principal defesa é não existir
+  ferramenta com efeito colateral ao alcance do modelo.
+- No começo, eu não tinha acesso aos registros de pacotes. Escrevi e testei primeiro a lógica de domínio, com o mínimo
+  de dependências, e isso acabou deixando a separação entre domínio e infraestrutura mais limpa.
+- O primeiro `docker compose up` de verdade achou o que os testes não cobriam: o Compose passava variáveis opcionais
+  vazias que a configuração rejeitava, e o checkpointer do LangGraph não se recuperava depois de o banco reiniciar.
+  Os dois casos viraram testes de regressão.
+- Publicar no Vercel me obrigou a repensar o worker. Em vez de manter um processo rodando, o trabalho de fundo passou a
+  ser feito sob demanda a cada consulta do painel, com os mesmos passos e seguro sob concorrência.
+
+## Próximos passos
+
+Observabilidade com OpenTelemetry ou Langfuse, aprovação usando o `interrupt` nativo do LangGraph, o agente de base de
+conhecimento com RAG (pgvector, busca híbrida e citações), o agente de atendimento ao cliente e um conjunto de
+avaliação com mais de 100 casos.
+
+## Texto curto para candidaturas
+
+> Construí o RestaurantIA Nexus, um projeto de portfólio com agentes de IA na operação de um restaurante, usando dados
+> sintéticos. Ele tem um simulador determinístico, uma fila de eventos idempotente em PostgreSQL, agentes orquestrados
+> com LangGraph que só acessam dados por ferramentas tipadas e com escopo por restaurante, regras auditáveis para as
+> ações, aprovação humana conferida antes da execução e auditoria que não aceita alteração. A previsão de demanda usa
+> modelos estatísticos avaliados com backtest temporal (WAPE de 33,9% contra 40,5% do modelo ingênuo). Stack: FastAPI,
+> SQLAlchemy, LangGraph, Next.js 16 e TypeScript, com 164 testes de backend, testes e2e com Playwright e CI. Está
+> publicado no Vercel. Não é um produto em produção e não tem vínculo com plataformas de delivery.
 
 ---
 
-## 🇧🇷 Português
+## English
 
-### Problema
-Em horários de pico, restaurantes perdem dinheiro por dois motivos que se alimentam: a cozinha passa da capacidade e
-ingredientes-chave acabam antes da reposição. As decisões que evitam o prejuízo (comprar com urgência, tirar um item
-do cardápio, reorganizar a produção) precisam ser tomadas em minutos, com dados espalhados entre PDV, estoque e histórico.
+Live demo: [restaurantia-nexus.vercel.app](https://restaurantia-nexus.vercel.app)
 
-### Público-alvo
-Gerentes de operação de restaurantes com delivery e salão — e, como peça de portfólio, times que avaliam engenharia de IA
-aplicada: agentes com ferramentas, avaliação, segurança e produto.
+### The problem
 
-### Solução
-Uma plataforma em que **agentes especializados investigam e propõem**, **modelos estatísticos quantificam** e **humanos
-decidem**. Um simulador determinístico gera a operação; detectores abrem incidentes; um orquestrador LangGraph aciona os
-agentes de Operações, Estoque e Previsão por meio de ferramentas tipadas; políticas auditáveis transformam os achados em
-ações candidatas; ações sensíveis esperam aprovação, são revalidadas e auditadas.
+During a dinner rush, restaurants lose money in two ways that feed each other: the kitchen runs over capacity and a key
+ingredient runs out before the next delivery. The decisions that prevent the loss (a rush purchase, pausing a dish,
+reprioritising orders) have to be made in minutes, with data spread across the order system, inventory and sales
+history. I picked this problem to study AI agents because it has real data to query, decisions with consequences and
+an obvious point where a person should have the final word.
 
-### Arquitetura (resumo)
-Next.js 16 (UI + BFF com cookie httpOnly) → FastAPI (monólito modular) + worker → PostgreSQL (log de eventos idempotente,
-projeções, traces dos agentes, aprovações e auditoria append-only). Detalhes em `docs/architecture/overview.md`.
+### What I built
 
-### Escolhas técnicas e por quê
-- **PostgreSQL como fila de eventos** (`SKIP LOCKED`, locks de transação por tenant, DLQ): efeitos e auditoria na mesma
-  transação, sem infraestrutura extra.
-- **Simulação em lockstep**: o relógio pausa nos pontos de decisão, então *mesma seed + mesmas decisões = mesmo resultado*.
-- **Mesmo código em Docker e no Vercel**: com worker no Docker; no Vercel, sem processo contínuo, cada consulta do
-  painel avança o trabalho do tenant (ticks pelo tempo decorrido, `SKIP LOCKED`). Custo zero quando ninguém usa.
-- **LLM explica, política decide**: candidatos vêm de fórmulas; o modelo só ordena e resume — não cria nem remove ações.
-- **Previsão honesta**: seleção na validação, métricas no teste, intervalos com cobertura medida, ajuste de ritmo explícito.
-- **Modo determinístico rotulado**: a demo funciona sem chave de API e nunca apresenta template como inferência.
+A web app where agents investigate and suggest, statistical models estimate demand and the manager decides. A
+deterministic simulator runs two fictional restaurants minute by minute; detectors open incidents; a LangGraph
+orchestrator runs operations, inventory and forecasting agents that read data through strictly typed tools; fixed
+rules turn the findings into candidate actions with evidence; the manager approves or rejects; approved actions are
+re-validated, executed exactly once and written to an append-only audit log. Next.js 16 with a BFF (httpOnly session
+cookie), FastAPI and PostgreSQL, deployed on Vercel with Neon.
 
-### Responsabilidade de cada agente
-- **Operations:** fila, p90 de preparo vs SLA, capacidade efetiva e utilização projetada; prioriza pedidos antigos.
-- **Inventory:** ingredientes em risco, tempo até ruptura, lead time, itens afetados pelas fichas técnicas.
-- **Forecasting:** demanda e consumo das próximas horas com intervalo de 80% e limitações explícitas.
-- **Orquestrador:** triagem, plano, resumo e pedidos de aprovação. *(Knowledge/RAG e Customer Experience: roadmap.)*
+### Key decisions
 
-### Controles de segurança
-Ferramentas somente leitura com schema estrito e tenant injetado pelo servidor; aprovação humana com RBAC, expiração,
-versão, execução única e revalidação; prompt injection marcado e sem poder de efeito; isolamento por tenant com 404;
-JWT em cookie httpOnly via BFF; CSP; rate limits e quotas; auditoria protegida por trigger. Ver `docs/security.md`.
-
-### Métricas realmente medidas (dados sintéticos)
-- 164 testes de backend (100 unitários + 64 de integração/segurança com PostgreSQL), ~90% de cobertura; 3 testes e2e.
-- Previsão: WAPE de **33,9%** vs **40,5%** do ingênuo semanal na semana de teste; cobertura de **89%** para intervalo de 80%.
-- Cenário principal em 10 seeds: aprovar as propostas → **0** pedidos perdidos; só a compra → **8,2**; rejeitar tudo →
-  **55,9** pedidos (≈ R$ 4,8 mil) — sob a premissa de substituição de pratos do simulador.
-- Agentes (modo determinístico): p50 **100 ms** / p95 **134 ms** por execução completa.
-- Não medido ainda: métricas de avaliação de agentes com dataset, RAG e custo com LLM real (Fases 3–4).
-
-### Dificuldades e aprendizados
-- **Teste diferencial pegou um bug de fuso horário**: a projeção SQL divergia da projeção em memória porque o perfil de
-  demanda usava a hora UTC do banco. Comparar duas implementações do mesmo contrato foi mais eficaz que testes isolados.
-- **Carga fantasma na cozinha**: pedidos que seriam recusados por falta de insumo ainda ocupavam linhas de preparo; o
-  simulador passou a receber o estoque e só agendar pedidos aceitáveis.
-- **Determinismo exige decidir onde o tempo para**: sem o lockstep, o tempo de reação humano mudava a simulação.
-- **Agentes seguros são um problema de arquitetura**, não de prompt: a defesa principal é não existir ferramenta com efeito.
-- **Restrições de ambiente**: sem acesso inicial a registries de pacotes, a lógica de domínio foi escrita e testada primeiro,
-  com dependências mínimas — o que acabou reforçando a separação entre domínio e infraestrutura.
-- **O primeiro `docker compose up` real achou o que os testes não cobriam**: o compose passava variáveis opcionais vazias
-  que a configuração rejeitava, e o checkpointer do LangGraph não se recuperava depois de o banco reiniciar. Os dois
-  viraram testes de regressão (contrato compose ↔ configuração e perda de conexão).
-
-### Vídeo
-`docs/assets/demo.mp4` — walkthrough de 1min40 sem áudio, gravado automaticamente (Playwright). Roteiro para versão narrada em `docs/demo-script.md`.
-
-### Próximos passos
-OpenTelemetry/Langfuse, HITL nativo do LangGraph, Knowledge Agent com RAG (pgvector, busca híbrida, citações), Customer
-Experience Agent, Evaluation Lab com 100+ casos e deploy público com quotas.
-
-### Texto curto para candidatura (AI Engineer)
-> Construí o **RestaurantIA Nexus**, um projeto de portfólio de IA agêntica para operações de restaurante com dados
-> sintéticos: simulador determinístico, fila de eventos idempotente em PostgreSQL, orquestração **LangGraph** de agentes
-> com **ferramentas tipadas e escopo por tenant**, políticas determinísticas para ações, **aprovação humana revalidada** e
-> auditoria append-only. A previsão de demanda usa baselines estatísticos avaliados em backtest temporal (WAPE 33,9% vs
-> 40,5% do ingênuo). Stack: FastAPI, SQLAlchemy, Next.js 16, TypeScript; 164 testes de backend, e2e com Playwright e CI.
-> Não é um produto em produção nem tem vínculo com plataformas de delivery.
-
----
-
-## 🇺🇸 English
-
-### Problem
-At peak hours restaurants lose money in two compounding ways: the kitchen runs over capacity and key ingredients run out
-before replenishment. The decisions that prevent losses — rush purchases, pausing a menu item, re-prioritising
-production — must be made in minutes, with data scattered across POS, inventory and history.
-
-### Audience
-Operations managers of delivery/dine-in restaurants — and, as a portfolio piece, teams evaluating applied AI engineering:
-tool-using agents, evaluation, safety and product sense.
-
-### Solution
-A platform where **specialised agents investigate and propose**, **statistical models quantify** and **humans decide**.
-A deterministic simulator drives operations; detectors open incidents; a LangGraph orchestrator runs Operations,
-Inventory and Forecasting agents through typed tools; auditable policies turn findings into candidate actions; sensitive
-actions wait for approval, are re-validated at execution time and audited.
-
-### Architecture
-Next.js 16 (UI + BFF with an httpOnly session cookie) → FastAPI modular monolith + worker → PostgreSQL (idempotent event
-log, projections, agent traces, approvals, append-only audit). See `docs/architecture/overview.md`.
-
-### Key technical choices
-- **PostgreSQL as the event queue** (`SKIP LOCKED`, per-tenant transaction locks, dead-letter): effects and audit commit atomically.
-- **Lock-step simulation**: the clock pauses at decision points, so *same seed + same decisions = same run*.
-- **Same code on Docker and Vercel**: a worker under Docker; on Vercel, with no long-running process, each dashboard
-  poll advances that tenant's work (time-based ticks, `SKIP LOCKED`). Nothing runs, or costs, when nobody is watching.
-- **The LLM explains, policies decide**: candidates come from formulas; a model may only rank and summarise them.
-- **Honest forecasting**: selection on a validation week, metrics on a held-out week, measured interval coverage.
-- **Clearly labelled deterministic mode**: the demo works without an API key and never presents templates as inference.
-
-### Agent responsibilities
-Operations (queue, p90 vs SLA, projected utilisation), Inventory (at-risk ingredients, time to stock-out, lead time,
-affected items), Forecasting (demand and consumption with 80% intervals) and the Orchestrator (triage, plan, summary,
-approval requests). Knowledge (RAG) and Customer Experience agents are on the roadmap.
-
-### Safety controls
-Read-only, strictly typed tools with server-injected tenant scope; durable human approval with RBAC, expiry,
-versioning, single execution and re-validation; prompt-injection marking with no path to side effects; tenant isolation
-with indistinguishable 404s; JWT in an httpOnly cookie behind a BFF; CSP; rate limits and quotas; trigger-protected audit log.
+- PostgreSQL as the event queue (`SKIP LOCKED`, per-tenant locks, dead-letter), so effects and audit commit together.
+- A lock-step simulation that pauses while agents work and while the manager decides, so the same seed and the same
+  decisions always produce the same run.
+- The LLM explains, the rules decide: candidates come from formulas, and a model may only rank and summarise them.
+- Forecast models are selected on a validation week and reported on a held-out test week, with measured interval
+  coverage.
+- A clearly labelled deterministic mode, so the demo works without an API key and never passes templates off as
+  model output.
+- The same code runs on Docker with a worker and on Vercel without one: there, each dashboard poll advances that
+  tenant's work based on elapsed time, and nothing runs when nobody is watching.
 
 ### Measured results (synthetic data)
-- 164 backend tests (100 unit + 64 PostgreSQL integration/security), ~90% coverage; 3 Playwright end-to-end tests.
-- Forecasting: **33.9%** WAPE vs **40.5%** for the seasonal-naive baseline on the test week; **89%** empirical coverage of 80% intervals.
-- Featured scenario over 10 seeds: approving proposals → **0** lost orders; purchase only → **8.2**; rejecting everything →
-  **55.9** lost orders (≈ BRL 4.8k), under the simulator's dish-substitution assumption.
-- Deterministic agent runs: p50 **100 ms** / p95 **134 ms** end to end.
-- Not yet measured: dataset-based agent evaluation, RAG faithfulness and real-LLM cost (phases 3–4).
 
-### Challenges and lessons
-- A **differential test caught a timezone bug**: the SQL projection diverged from the in-memory reference because the
-  demand profile read the database's UTC hour.
-- **Phantom kitchen load**: orders later rejected for missing stock still occupied prep lines; the engine now receives
-  stock and only schedules orders that will be accepted.
-- **Determinism requires choosing where time stops**; without lock-step, human reaction time changed the simulation.
-- **Safe agents are an architecture problem, not a prompt problem**: the main defence is the absence of side-effecting tools.
-- **The first real `docker compose up` found what the tests did not cover**: Compose passed empty optional variables that
-  the settings rejected, and the LangGraph checkpointer did not recover after a database restart. Both are now regression
-  tests (compose ↔ settings contract and connection loss).
+- 164 backend tests (100 unit, 64 PostgreSQL integration and security), about 90% coverage, 3 Playwright end-to-end tests.
+- Forecasting: 33.9% WAPE against 40.5% for the seasonal naive baseline on the test week; the 80% interval covered 89%
+  of actual values.
+- Featured scenario over 10 seeds: approving the suggestions leads to 0 lost orders, approving only the purchase to
+  8.2 and rejecting everything to 55.9 (about BRL 4.8k), under the simulator's assumption that customers switch dishes.
+- Deterministic agent runs: p50 of 100 ms and p95 of 134 ms end to end.
+- Not measured yet: dataset-based agent evaluation, RAG quality and real LLM cost.
+
+### What I learned
+
+- A differential test caught a timezone bug: the SQL projection disagreed with the in-memory reference because the
+  demand profile used the database's UTC hour.
+- Orders that would be rejected for missing stock were still taking kitchen capacity; the simulator now receives the
+  stock and only schedules orders that can be accepted.
+- Determinism meant deciding where time stops. Without lock-step, human reaction time changed the simulation.
+- Making agents safe is mostly an architecture problem: the main defence is that no tool with side effects is within
+  the model's reach.
+- The first real `docker compose up` found what tests did not cover (empty optional variables and a checkpointer that
+  did not recover after a database restart). Both are regression tests now.
+- Deploying to Vercel made me rethink the worker: background work now runs on demand on each dashboard poll, with the
+  same steps and safe under concurrency.
 
 ### Short blurb for applications
-> I built **RestaurantIA Nexus**, a portfolio agentic-AI system for restaurant operations on synthetic data: a deterministic
-> simulator, an idempotent PostgreSQL event queue, **LangGraph** orchestration of agents with **typed, tenant-scoped tools**,
-> deterministic action policies, **re-validated human approvals** and an append-only audit trail. Demand forecasting uses
-> statistical baselines evaluated with a temporal backtest (33.9% vs 40.5% WAPE for the naive baseline). Stack: FastAPI,
-> SQLAlchemy, Next.js 16, TypeScript; 164 backend tests, Playwright e2e and CI. Not a production product and not affiliated
-> with any delivery platform.
+
+> I built RestaurantIA Nexus, a portfolio project with AI agents in restaurant operations, on synthetic data: a
+> deterministic simulator, an idempotent PostgreSQL event queue, LangGraph-orchestrated agents that only read data
+> through typed, tenant-scoped tools, auditable rules for actions, human approvals that are re-validated before
+> execution and an append-only audit trail. Demand forecasting uses statistical models evaluated with a temporal
+> backtest (33.9% vs 40.5% WAPE for the naive baseline). Stack: FastAPI, SQLAlchemy, LangGraph, Next.js 16 and
+> TypeScript, with 164 backend tests, Playwright end-to-end tests and CI. It is live on Vercel. It is not a production
+> product and has no affiliation with any delivery platform.

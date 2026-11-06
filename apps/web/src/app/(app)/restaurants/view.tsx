@@ -24,7 +24,7 @@ function RestaurantCard({ r, active, onSelect }: { r: Restaurant; active: boolea
           {active && <Badge tone="primary">ativo</Badge>}
         </div>
         <CardDescription>
-          Tenant isolado · papel {r.role} · {r.kitchen_lines} linhas de preparo · SLA {r.prep_sla_minutes} min
+          Papel {r.role} · {r.kitchen_lines} linhas de preparo · meta de preparo de {r.prep_sla_minutes} min
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-3">
@@ -71,7 +71,7 @@ export function RestaurantsView() {
     <>
       <PageHeader
         title="Restaurantes"
-        description="Cada restaurante é um tenant: toda consulta é filtrada no servidor pela sua associação. Seu sandbox demo contém cópias privadas dos dois restaurantes sintéticos."
+        description="Os dados de cada restaurante ficam isolados, e o servidor filtra toda consulta pelo seu acesso. Sua demonstração tem cópias próprias dos dois restaurantes fictícios."
       />
       <div className="grid gap-4 lg:grid-cols-2">
         {restaurants.map((r) => (

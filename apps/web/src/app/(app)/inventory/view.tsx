@@ -44,12 +44,12 @@ export function InventoryView() {
     <>
       <PageHeader
         title="Estoque e cardápio"
-        description={`Estoque atual, consumo recente (15 min) e tempo estimado até ruptura${data ? ` — horário simulado ${clock(data.business_time)}` : ""}.`}
+        description={`Estoque atual, consumo dos últimos 15 minutos e quanto tempo falta para cada ingrediente acabar${data ? `. Horário da simulação: ${clock(data.business_time)}` : ""}.`}
       />
       <Card>
         <CardHeader>
           <CardTitle>Ingredientes</CardTitle>
-          <CardDescription>Ordenados por risco. Fichas técnicas ligam cada ingrediente aos itens do cardápio.</CardDescription>
+          <CardDescription>Do maior para o menor risco. As fichas técnicas ligam cada ingrediente aos pratos do cardápio.</CardDescription>
         </CardHeader>
         <CardContent>
           {!data ? (
@@ -62,7 +62,7 @@ export function InventoryView() {
                   <TH className="text-right">Estoque</TH>
                   <TH className="text-right">Segurança</TH>
                   <TH className="text-right">Consumo/h</TH>
-                  <TH className="text-right">Ruptura em</TH>
+                  <TH className="text-right">Acaba em</TH>
                   <TH>Risco</TH>
                   <TH className="text-right">Em pedido</TH>
                   <TH>Usado em</TH>
@@ -93,7 +93,7 @@ export function InventoryView() {
         <Card>
           <CardHeader>
             <CardTitle>Cardápio</CardTitle>
-            <CardDescription>Pausas manuais exigem papel de gerente e ficam registradas na auditoria.</CardDescription>
+            <CardDescription>Só o gerente pode pausar um prato, e cada pausa fica registrada na auditoria.</CardDescription>
           </CardHeader>
           <CardContent>
             {!data ? (
@@ -131,13 +131,13 @@ export function InventoryView() {
         <Card>
           <CardHeader>
             <CardTitle>Pedidos de compra</CardTitle>
-            <CardDescription>Criados somente a partir de aprovações. Fornecedores são simulados.</CardDescription>
+            <CardDescription>Só são criados a partir de uma aprovação. Os fornecedores são simulados.</CardDescription>
           </CardHeader>
           <CardContent>
             {!data ? (
               <Skeleton className="h-48" />
             ) : data.purchase_orders.length === 0 ? (
-              <EmptyState title="Nenhum pedido de compra" description="Aprovações de compra emergencial aparecem aqui." />
+              <EmptyState title="Nenhum pedido de compra" description="As compras emergenciais aprovadas aparecem aqui." />
             ) : (
               <Table>
                 <THead>

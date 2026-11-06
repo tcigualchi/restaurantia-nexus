@@ -45,6 +45,9 @@ def seed() -> dict[str, int]:
                     target_id=restaurant.id,
                     details={"template": template.key},
                 )
+            elif existing[template.key].name != template.name:
+                # Names follow the catalog, so a rename also reaches restaurants seeded by an older version.
+                existing[template.key].name = template.name
         email = os.environ.get("SEED_ADMIN_EMAIL", "").strip().lower()
         password = os.environ.get("SEED_ADMIN_PASSWORD", "")
         if email and password:

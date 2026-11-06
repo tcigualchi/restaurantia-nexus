@@ -8,9 +8,9 @@ What is measured (all on synthetic data):
 1. Forecast backtest metrics per template (WAPE/MAE, interval coverage).
 2. Simulator outcomes of the featured scenario under three decision policies,
    executed through the real service layer (events, detectors, agents, approvals):
-   * approve_all   — a manager approves every proposal immediately;
-   * po_only       — approves purchase orders, rejects menu pauses;
-   * reject_all    — rejects everything (counterfactual baseline).
+   * approve_all: a manager approves every proposal immediately;
+   * po_only: approves purchase orders, rejects menu pauses;
+   * reject_all: rejects everything (counterfactual baseline).
 3. Latencies of deterministic agent runs, tool calls and simulation ticks.
 These numbers describe the simulator and the deterministic agents. They are not
 evidence of real-world restaurant performance.
@@ -61,9 +61,17 @@ def run_policy(factory, catalog, settings, seed: int, policy: str) -> dict[str, 
         s.flush()
         restaurant = create_restaurant_from_template(s, catalog.get("aurora_pinheiros"))
         s.add(Membership(user_id=user.id, restaurant_id=restaurant.id, role="manager"))
-        run = start_simulation(s, restaurant=restaurant, catalog=catalog, settings=settings, scenario_key="rush_stockout",
-                               seed=seed, tick_interval_ms=200, auto_pause_on_approval=None,
-                               actor=Actor("user", str(user.id), "Benchmark"))
+        run = start_simulation(
+            s,
+            restaurant=restaurant,
+            catalog=catalog,
+            settings=settings,
+            scenario_key="rush_stockout",
+            seed=seed,
+            tick_interval_ms=200,
+            auto_pause_on_approval=None,
+            actor=Actor("user", str(user.id), "Benchmark"),
+        )
         rid, run_id, uid = restaurant.id, run.id, user.id
     actor = DecisionActor(user_id=uid, label="Benchmark", role=Role.MANAGER)
     tick_ms: list[float] = []
@@ -75,29 +83,60 @@ def run_policy(factory, catalog, settings, seed: int, policy: str) -> dict[str, 
         if step.agent_run_id:
             execute_agent_run(factory, settings, catalog, step.agent_run_id)
             with session_scope(factory) as s:
-                pending = list(s.scalars(select(ApprovalRequest).where(
-                    ApprovalRequest.restaurant_id == rid, ApprovalRequest.status == "pending")))
+                pending = list(
+                    s.scalars(
+                        select(ApprovalRequest).where(
+                            ApprovalRequest.restaurant_id == rid, ApprovalRequest.status == "pending"
+                        )
+                    )
+                )
             for a in pending:
                 approve = policy == "approve_all" or (policy == "po_only" and a.action_type == "create_purchase_order")
                 with session_scope(factory) as s:
-                    decide(s, restaurant_id=rid, approval_id=a.id, actor=actor,
-                           decision=Decision.APPROVE if approve else Decision.REJECT,
-                           reason=None if approve else f"benchmark policy {policy}")
+                    decide(
+                        s,
+                        restaurant_id=rid,
+                        approval_id=a.id,
+                        actor=actor,
+                        decision=Decision.APPROVE if approve else Decision.REJECT,
+                        reason=None if approve else f"benchmark policy {policy}",
+                    )
         if step.status == "completed":
             break
     with session_scope(factory) as s:
-        rows = dict(s.execute(select(Order.status, func.count()).where(Order.restaurant_id == rid).group_by(Order.status)).all())
-        lost_value = s.scalar(select(func.coalesce(func.sum(Order.total_cents), 0)).where(
-            Order.restaurant_id == rid, Order.status == "rejected")) or 0
+        rows = dict(
+            s.execute(select(Order.status, func.count()).where(Order.restaurant_id == rid).group_by(Order.status)).all()
+        )
+        lost_value = (
+            s.scalar(
+                select(func.coalesce(func.sum(Order.total_cents), 0)).where(
+                    Order.restaurant_id == rid, Order.status == "rejected"
+                )
+            )
+            or 0
+        )
         runs = list(s.scalars(select(AgentRun).where(AgentRun.restaurant_id == rid)))
         run_ms = [(r.finished_at - r.started_at).total_seconds() * 1000 for r in runs if r.finished_at and r.started_at]
-        tool_ms = [float(x) for x in s.scalars(select(AgentStep.latency_ms).where(
-            AgentStep.restaurant_id == rid, AgentStep.kind == "tool_call", AgentStep.latency_ms.is_not(None)))]
+        tool_ms = [
+            float(x)
+            for x in s.scalars(
+                select(AgentStep.latency_ms).where(
+                    AgentStep.restaurant_id == rid, AgentStep.kind == "tool_call", AgentStep.latency_ms.is_not(None)
+                )
+            )
+        ]
         pos = s.scalar(select(func.count()).select_from(PurchaseOrder).where(PurchaseOrder.restaurant_id == rid))
     return {
-        "seed": seed, "policy": policy, "orders": sum(rows.values()), "lost_orders": rows.get("rejected", 0),
-        "lost_revenue_cents": int(lost_value), "agent_runs": len(runs), "purchase_orders": pos,
-        "agent_run_ms": run_ms, "tool_ms": tool_ms, "tick_ms": tick_ms,
+        "seed": seed,
+        "policy": policy,
+        "orders": sum(rows.values()),
+        "lost_orders": rows.get("rejected", 0),
+        "lost_revenue_cents": int(lost_value),
+        "agent_runs": len(runs),
+        "purchase_orders": pos,
+        "agent_run_ms": run_ms,
+        "tool_ms": tool_ms,
+        "tick_ms": tick_ms,
     }
 
 
@@ -134,13 +173,21 @@ def main() -> None:
     latency = {
         "agent_run_ms": {"n": len(all_runs), "p50": percentile(all_runs, 0.5), "p95": percentile(all_runs, 0.95)},
         "tool_call_ms": {"n": len(all_tools), "p50": percentile(all_tools, 0.5), "p95": percentile(all_tools, 0.95)},
-        "simulation_tick_ms": {"n": len(all_ticks), "p50": percentile(all_ticks, 0.5), "p95": percentile(all_ticks, 0.95)},
+        "simulation_tick_ms": {
+            "n": len(all_ticks),
+            "p50": percentile(all_ticks, 0.5),
+            "p95": percentile(all_ticks, 0.95),
+        },
     }
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
     payload = {
-        "generated_at": datetime.now(UTC).isoformat(), "seeds": args.seeds, "mode": "deterministic agents (no LLM)",
-        "forecasting": forecasting, "policies": summary, "latency": latency,
+        "generated_at": datetime.now(UTC).isoformat(),
+        "seeds": args.seeds,
+        "mode": "deterministic agents (no LLM)",
+        "forecasting": forecasting,
+        "policies": summary,
+        "latency": latency,
         "runs": [{k: v for k, v in r.items() if not k.endswith("_ms")} for r in results],
     }
     (out / "results.json").write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")

@@ -6,11 +6,26 @@ import { Providers } from "@/components/providers";
 
 import "./globals.css";
 
+const siteUrl =
+  process.env.NEXT_PUBLIC_SITE_URL ??
+  (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : "http://localhost:3000");
+
+const description =
+  "Projeto de portfólio: agentes de IA analisam a operação de um restaurante fictício em horário de pico e sugerem ações, que só são executadas com a aprovação de um gerente.";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: { default: "RestaurantIA Nexus", template: "%s · RestaurantIA Nexus" },
-  description:
-    "Plataforma de inteligência operacional para restaurantes com agentes de IA, previsão de demanda e aprovação humana. Projeto de portfólio com dados sintéticos.",
-  robots: { index: false, follow: false },
+  description,
+  openGraph: {
+    type: "website",
+    locale: "pt_BR",
+    siteName: "RestaurantIA Nexus",
+    title: "RestaurantIA Nexus",
+    description,
+    url: "/",
+  },
+  twitter: { card: "summary_large_image", title: "RestaurantIA Nexus", description },
 };
 
 export const viewport: Viewport = {

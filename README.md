@@ -1,286 +1,282 @@
 # RestaurantIA Nexus
 
-**Autonomous Restaurant Intelligence Platform** — plataforma de inteligência operacional para restaurantes com
-simulação reproduzível, previsão de demanda, agentes de IA especializados com ferramentas tipadas, aprovação humana
-durável e trilha de auditoria.
+Projeto de portfólio em que simulo a operação de um restaurante em horário de pico e uso agentes de IA para analisar o
+que está acontecendo. Os agentes sugerem ações, como fazer uma compra emergencial ou tirar um prato do cardápio, mas
+quem decide é o gerente. Nada é executado sem aprovação, e cada decisão fica registrada.
 
-> **Projeto de portfólio com dados 100% sintéticos.** Restaurantes, cardápios, pedidos e estoques são fictícios.
-> Não há integração nem vínculo com iFood ou qualquer marketplace de delivery.
+**Demonstração:** [restaurantia-nexus.vercel.app](https://restaurantia-nexus.vercel.app). Não precisa de cadastro: cada
+visitante recebe uma cópia própria com dois restaurantes fictícios, que expira depois de duas horas.
 
-![Command Center após o cenário principal](docs/assets/screenshots/overview.webp)
+Todos os dados são sintéticos. Restaurantes, cardápios, pedidos e estoques são inventados, e o projeto não tem relação
+com o iFood nem com outros aplicativos de delivery.
 
-<details>
-<summary><b>English summary</b></summary>
+![Visão geral do painel durante o cenário principal](docs/assets/screenshots/overview.webp)
 
-RestaurantIA Nexus is a portfolio project that shows how to build an agentic AI system that is safe to put in front
-of operations: a deterministic restaurant simulator feeds an event-sourced PostgreSQL core; threshold detectors open
-incidents; a LangGraph orchestrator runs Operations, Inventory and Forecasting agents through typed, permissioned,
-tenant-scoped tools; deterministic policies (not the LLM) generate candidate actions; sensitive actions wait for a
-durable human approval, are re-validated at execution time and recorded in an append-only audit log. Demand
-forecasts come from statistical models evaluated with a temporal backtest (WAPE/MAE, measured interval coverage).
-Everything runs end to end in a deterministic, clearly labelled no-LLM mode, and any OpenAI-compatible model can be
-plugged in. The same code runs with Docker Compose (API + worker) or fully serverless on Vercel (Services: Next.js +
-FastAPI, no background process). 164 backend tests (unit, PostgreSQL integration, API security) and 3 Playwright
-end-to-end tests run in CI.
-</details>
+*English summary at the end of this page.*
 
----
+## Por que fiz este projeto
 
-## O que funciona hoje (Fase 1 + partes das Fases 2–3)
+Eu queria entender, na prática, o que é preciso para colocar agentes de IA perto de uma operação de verdade sem
+deixar que eles ajam sozinhos. Restaurante é um bom caso para isso: as decisões precisam sair em minutos, envolvem
+dinheiro e dependem de dados espalhados entre pedidos, estoque e histórico de vendas.
 
-| Área | Status | O que está implementado |
-| --- | --- | --- |
-| Command Center | ✅ | KPIs calculados de dados persistidos (pedidos, fila, p90 de preparo vs SLA, perdas por ruptura, receita, incidentes, aprovações), gráficos e feed ao vivo (polling leve de `/live`; SSE disponível para integrações) |
-| Simulation Lab | ✅ | 4 cenários reproduzíveis (seed + relógio simulado): *pico + estoque crítico*, *pico*, *ruptura*, *atraso na cozinha*; iniciar, pausar, avançar, reiniciar; inspetor de eventos |
-| Agentes | ✅ 3 de 5 | **Operations**, **Inventory** e **Forecasting** + orquestrador **LangGraph** (checkpoints em memória ou PostgreSQL). Knowledge (RAG) e Customer Experience estão no roadmap |
-| Ferramentas tipadas | ✅ | 6 ferramentas read-only com schema Pydantic estrito, allowlist por agente, orçamento de chamadas e tenant injetado pelo servidor |
-| Approval Center | ✅ | Aprovação durável com RBAC, expiração, justificativa obrigatória na rejeição, controle otimista de versão, revalidação e execução única |
-| AI Control Room | ✅ | Trace persistido passo a passo (triagem, chamadas de ferramenta, resultados, conclusões, plano, pedidos de aprovação), flags de prompt injection |
-| Forecasting | ✅ | Baselines sazonais, seleção na semana de validação, métricas na semana de teste, intervalos de 80% com cobertura empírica medida, ajuste por ritmo observado |
-| Eventos | ✅ | Fila em PostgreSQL com idempotência, ordem por tenant, retentativas com backoff, dead-letter e reprocessamento |
-| Multi-tenancy e segurança | ✅ | Sandbox isolado por visitante, RBAC por restaurante, 404 para acesso cruzado, BFF com cookie httpOnly, CSP, rate limits, auditoria append-only |
-| Deploy | ✅ | Docker Compose (API + worker + web + PostgreSQL) ou **Vercel Services** em modo serverless (sem worker: cada consulta do painel avança o trabalho do tenant), banco Neon via Marketplace e migrações no build |
-| Knowledge Base (RAG) | 🛣 Fase 3 | pgvector já está na imagem do banco; ingestão, busca híbrida e citações ainda não implementadas |
-| Evaluation Lab (100+ casos) | 🛣 Fase 4 | Harness offline já existe (`nexus.agents.harness`); dataset versionado e runner ainda não |
+Em vez de fazer um chatbot, escolhi um problema concreto e fui até o fim dele: gerar a operação, perceber que algo
+saiu do normal, investigar, sugerir o que fazer, esperar a decisão de uma pessoa, executar com segurança e deixar tudo
+auditável.
 
-## Demonstração principal (2 minutos)
+## O que acontece na demonstração
 
-1. Abra a aplicação e clique em **Entrar no modo demo** (persona *Gerente*). Você recebe um sandbox privado com dois restaurantes sintéticos.
-2. Em **Simulation Lab**, inicie **Pico de pedidos + estoque crítico** (seed 42).
-3. O simulador gera pedidos e consumo de estoque; o painel atualiza em tempo real.
-4. Por volta de 18h54 (relógio simulado), os detectores abrem um incidente: a costela vai acabar antes da reposição.
-5. O orquestrador aciona **Operations** (utilização projetada da cozinha ~124%), **Inventory** (ingrediente crítico e itens afetados) e **Forecasting** (consumo previsto com intervalo de 80%).
-6. Políticas determinísticas propõem uma compra emergencial e pausas de itens, com evidências ligadas aos passos do trace.
-7. O relógio pausa; as ações aguardam no **Approval Center**.
-8. Aprove a compra, rejeite (com justificativa) a pausa do *Burger de Costela* e aprove a do *Pastel*. Só o que foi aprovado e revalidado é executado.
-9. Dashboard, estoque (pedido de compra a caminho/recebido), **AI Control Room** e **Audit Log** refletem as decisões; um segundo incidente não repropõe a ação rejeitada.
-10. **Reiniciar** recria o sandbox e reproduz exatamente os mesmos eventos.
+O cenário principal leva uns dois minutos.
 
-Se nenhum LLM estiver configurado, os agentes rodam em **modo determinístico** (planos de ferramentas fixos e resumos por
-template). A interface rotula isso em toda execução — nenhum texto pré-programado é apresentado como inferência de IA.
+1. Na tela **Simulação**, você inicia o cenário "Pico de pedidos + estoque crítico". O simulador gera pedidos minuto a
+   minuto e desconta o estoque pelas fichas técnicas dos pratos.
+2. Por volta das 18h54 do relógio simulado, a fila da cozinha cresce e a costela começa a acabar. Um detector abre um
+   incidente e o relógio pausa.
+3. Três agentes (operação, estoque e previsão) consultam os dados e montam um diagnóstico. A cozinha está com
+   utilização prevista de 124%, e a costela deve acabar antes de a reposição chegar.
+4. Na tela **Aprovações** aparecem três sugestões: uma compra emergencial de costela e a pausa de dois pratos que usam
+   esse ingrediente. Cada uma mostra a justificativa, o impacto esperado e os passos da análise que servem de evidência.
+5. Você aprova a compra, rejeita uma das pausas (o motivo é obrigatório) e aprova a outra. Só o que foi aprovado é
+   executado, depois de o sistema conferir de novo se a ação ainda faz sentido.
+6. O relógio volta a andar. Em **Estoque** a compra aparece a caminho, em **Agentes** dá para ver cada passo da
+   análise, e em **Auditoria** fica o registro de quem decidiu o quê.
+7. **Reiniciar** recomeça o cenário com a mesma seed, e os eventos se repetem exatamente.
 
-| Approval Center | AI Control Room |
+Numa das observações de clientes há um texto tentando dar ordens aos agentes ("ignore as instruções anteriores..."). Ele
+é marcado como não confiável, ignorado, e aparece sinalizado na tela **Agentes**.
+
+| Aprovações | Agentes |
 | --- | --- |
-| ![Approval Center](docs/assets/screenshots/approval-center.webp) | ![AI Control Room](docs/assets/screenshots/ai-control-room.webp) |
-| **Simulation Lab** | **Forecasting** |
-| ![Simulation Lab](docs/assets/screenshots/simulation-lab.webp) | ![Forecasting](docs/assets/screenshots/forecasting.webp) |
+| ![Tela de aprovações com as três ações sugeridas](docs/assets/screenshots/approval-center.webp) | ![Tela dos agentes com o passo a passo da análise](docs/assets/screenshots/ai-control-room.webp) |
+| **Simulação** | **Previsão de demanda** |
+| ![Tela de simulação com os cenários](docs/assets/screenshots/simulation-lab.webp) | ![Tela de previsão de demanda com o backtest](docs/assets/screenshots/forecasting.webp) |
 
-🎬 **Vídeo da demo** (1min40, sem áudio, gravado automaticamente com Playwright): [`docs/assets/demo.mp4`](docs/assets/demo.mp4).
-Mais capturas (tema escuro, mobile, auditoria) em [`docs/assets/screenshots`](docs/assets/screenshots). Roteiro para uma versão narrada: [`docs/demo-script.md`](docs/demo-script.md).
+Há também um [vídeo curto, sem áudio](docs/assets/demo.mp4), gravado com Playwright, mostrando o fluxo completo. Mais
+capturas (tema escuro, celular, auditoria) estão em [`docs/assets/screenshots`](docs/assets/screenshots).
 
-## Arquitetura
+## Como funciona
 
 ```mermaid
 flowchart LR
-  subgraph Browser
-    UI[Next.js UI<br/>React 19 · Tailwind 4]
+  subgraph Navegador
+    UI[Next.js<br/>React 19 e Tailwind 4]
   end
   subgraph Web["apps/web (Next.js 16)"]
-    BFF[BFF proxy<br/>cookie httpOnly → Bearer]
+    BFF[BFF<br/>cookie httpOnly para Bearer]
   end
-  subgraph API["apps/api (FastAPI · modular monolith)"]
-    R[REST · /live · SSE<br/>RBAC · tenant scope]
-    APPR[Approval service<br/>revalidate + execute once]
-    Q[Read model / queries]
+  subgraph API["apps/api (FastAPI)"]
+    R[REST e feed ao vivo<br/>RBAC e escopo por restaurante]
+    APPR[Aprovações<br/>confere de novo e executa uma vez]
+    Q[Consultas]
   end
-  subgraph Worker["worker (Docker) ou pump em /live (Vercel)"]
-    SIM[Simulador determinístico<br/>1 tick = 1 min]
-    EV[Fila de eventos<br/>idempotente · DLQ]
+  subgraph Fundo["worker (Docker) ou /live (Vercel)"]
+    SIM[Simulador<br/>1 tick = 1 minuto]
+    EV[Fila de eventos<br/>idempotente, com dead-letter]
     DET[Detectores]
     ORCH[Orquestrador LangGraph]
-    AG[Operations · Inventory · Forecasting]
-    TOOLS[Ferramentas tipadas<br/>read-only]
+    AG[Agentes de operação,<br/>estoque e previsão]
+    TOOLS[Ferramentas<br/>somente leitura]
   end
-  DB[(PostgreSQL<br/>eventos · pedidos · estoque<br/>agentes · aprovações · auditoria)]
-  LLM[[LLM OpenAI-compatible<br/>opcional]]
+  DB[(PostgreSQL)]
+  LLM[[LLM compatível com OpenAI<br/>opcional]]
 
   UI <--> BFF <--> R
   R --> APPR --> DB
   R --> Q --> DB
   SIM --> EV --> DB
   EV --> DET --> ORCH --> AG --> TOOLS --> DB
-  ORCH -->|propõe| APPR
+  ORCH -->|sugere| APPR
   AG -.-> LLM
 ```
 
-Decisões principais (detalhes em [`docs/adr`](docs/adr)):
+Algumas decisões que tomei e por quê (os detalhes estão nos [ADRs](docs/adr)):
 
-- **Monólito modular + worker** com o mesmo código ([ADR 0001](docs/adr/0001-modular-monolith.md)).
-- **PostgreSQL como fila de eventos** com `SKIP LOCKED`, locks consultivos por tenant e dead-letter ([ADR 0002](docs/adr/0002-postgres-event-queue.md)).
-- **Simulação em lockstep**: o relógio pausa em pontos de decisão, o que torna o replay determinístico ([ADR 0003](docs/adr/0003-lockstep-simulation.md)).
-- **LLM explica, política decide**: ações candidatas vêm de fórmulas auditáveis; o modelo só ordena e resume ([ADR 0004](docs/adr/0004-deterministic-policies.md)).
-- **BFF com cookie httpOnly** em vez de token no navegador ([ADR 0005](docs/adr/0005-bff-session.md)).
-- **Baseline estatístico honesto** para previsão ([ADR 0006](docs/adr/0006-forecasting-baseline.md)).
-- **Serverless sem worker**: no Vercel, o trabalho de fundo roda sob demanda a cada consulta do painel, com o mesmo código ([ADR 0007](docs/adr/0007-serverless-pump.md)).
+- A simulação é determinística. Cada minuto simulado é um tick, e a mesma seed gera os mesmos eventos. O relógio
+  pausa enquanto os agentes analisam e enquanto o gerente decide. Sem essa pausa, o tempo de reação de cada pessoa
+  mudaria o resultado e eu não conseguiria testar o fluxo de ponta a ponta. ([ADR 0003](docs/adr/0003-lockstep-simulation.md))
+- Os agentes só leem. Eles acessam os dados por seis ferramentas com schema estrito, e o restaurante e o horário
+  de referência são injetados pelo servidor. O modelo não tem como escrever no banco, rodar SQL ou ver outro
+  restaurante.
+- As ações vêm de regras, e não do modelo. As sugestões saem de fórmulas que dá para auditar (consumo previsto,
+  estoque de segurança, tempo de reposição, receita por grama de ingrediente). Quando há um LLM configurado, ele só
+  ordena e explica as sugestões. ([ADR 0004](docs/adr/0004-deterministic-policies.md))
+- A aprovação fica gravada no banco. Cada sugestão vira um registro com prazo de validade, versão e papel exigido. Na
+  hora de executar, o sistema confere de novo se a ação ainda vale (se a sugestão não ficou velha, se a quantidade
+  está dentro do limite, se não há outra compra igual em aberto) e garante que ela rode uma única vez.
+- O PostgreSQL também faz o papel de fila de eventos. Uso `SKIP LOCKED`, locks por restaurante e dead-letter. Assim o efeito
+  de um evento e o registro de auditoria entram na mesma transação, sem precisar de outro serviço.
+  ([ADR 0002](docs/adr/0002-postgres-event-queue.md))
+- A previsão é estatística e foi avaliada fora da amostra. Comparei modelos simples (ingênuo diário, ingênuo semanal e
+  média sazonal de 4 semanas), escolhi o melhor numa semana de validação e reportei as métricas numa semana de teste
+  que o modelo não viu. ([ADR 0006](docs/adr/0006-forecasting-baseline.md))
+- Funciona sem chave de API. Sem um LLM configurado, os agentes seguem um plano fixo de ferramentas e montam o
+  resumo a partir de modelos de texto. A interface mostra isso em cada execução, e é assim que a demonstração
+  pública roda.
+- O mesmo código roda em Docker e no Vercel. No Docker, um processo worker avança a simulação, a fila e os
+  agentes. No Vercel não existe processo contínuo no plano gratuito, então cada consulta do painel faz esse trabalho
+  para aquele restaurante. Quando ninguém está olhando, nada roda. ([ADR 0007](docs/adr/0007-serverless-pump.md))
 
-Visão completa: [`docs/architecture/overview.md`](docs/architecture/overview.md) · Segurança: [`docs/security.md`](docs/security.md).
+Mais detalhes em [`docs/architecture/overview.md`](docs/architecture/overview.md) e em [`docs/security.md`](docs/security.md).
 
-## Stack
+## Tecnologias
 
-| Camada | Tecnologias |
+| Camada | O que usei |
 | --- | --- |
-| Frontend | Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS 4, componentes no estilo shadcn/ui (Radix), Recharts, SWR |
+| Frontend | Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS 4, componentes Radix no estilo shadcn/ui, Recharts, SWR |
 | Backend | Python 3.12+, FastAPI, Pydantic 2, SQLAlchemy 2, Alembic, psycopg 3 |
-| Agentes | LangGraph 1.x (StateGraph + checkpointer), provedor OpenAI-compatible via httpx (timeouts, retry, fallback rotulado) |
-| Dados | PostgreSQL 16 (imagem com pgvector para a Fase 3), fila de eventos transacional |
-| ML | NumPy: baselines sazonais, backtest temporal, intervalos com sobre-dispersão estimada |
-| Qualidade | pytest (+ cobertura), Ruff, mypy `--strict`, ESLint, `tsc`, Playwright |
-| Infra | Docker Compose, Dockerfiles multi-stage não-root, Vercel Services (Next.js + FastAPI) com Neon, GitHub Actions (lint, tipos, testes, build, e2e, auditoria de dependências, gitleaks) |
+| Agentes | LangGraph (StateGraph com checkpointer), provedor compatível com a API da OpenAI via httpx |
+| Dados | PostgreSQL 16, Neon em produção |
+| Previsão | NumPy: modelos sazonais, backtest temporal e intervalos com sobredispersão estimada |
+| Qualidade | pytest, Ruff, mypy strict, ESLint, tsc, Playwright |
+| Infra | Docker Compose, Vercel Services (Next.js e FastAPI no mesmo projeto), GitHub Actions |
 
-## Como rodar
+## Resultados medidos
 
-### Opção A — Docker Compose (recomendado)
+Tudo abaixo foi calculado por código deste repositório, sobre dados sintéticos. Descreve o simulador e os modelos,
+não o desempenho em um restaurante real. Metodologia e dados brutos em
+[`docs/benchmarks/results.md`](docs/benchmarks/results.md).
+
+| O que medi | Resultado |
+| --- | --- |
+| Previsão de demanda (semana de teste, item por hora) | WAPE de 33,9% com a média sazonal de 4 semanas, contra 40,5% do ingênuo semanal e 43,3% do ingênuo diário |
+| Intervalo de previsão de 80% | cobriu 89% dos valores reais na semana de teste |
+| Cenário principal, 10 seeds, aprovando as sugestões | 0 pedidos perdidos por falta de ingrediente, em média |
+| O mesmo cenário aprovando só a compra | 8,2 pedidos perdidos |
+| O mesmo cenário rejeitando tudo | 55,9 pedidos perdidos, cerca de R$ 4.766 por execução |
+| Execução completa dos agentes (modo determinístico) | p50 de 100 ms, p95 de 134 ms |
+
+O simulador assume que, quando um prato é pausado, o cliente escolhe outro. Na vida real parte dessas pessoas
+desistiria do pedido, então esses números servem para comparar as políticas entre si.
+
+Ainda não medi a taxa de acerto dos agentes num conjunto de avaliação, a qualidade de respostas com RAG nem o custo
+com um LLM real. Isso depende das próximas fases e aparece como N/A nos documentos.
+
+## Rodando localmente
+
+### Com Docker Compose
 
 ```bash
-cp .env.example .env          # opcional: todos os valores têm padrão seguro para uso local
+cp .env.example .env    # opcional: todos os valores têm padrão para uso local
 docker compose up --build
-# abra http://localhost:3000  →  "Entrar no modo demo"
 ```
 
-Serviços: `db` (PostgreSQL 16 + pgvector), `api` (migra e faz seed ao iniciar), `worker` (simulação, eventos, agentes) e `web`.
-A API fica em `http://localhost:8000` (OpenAPI em `/docs`).
+Depois abra `http://localhost:3000` e clique em **Entrar no modo demo**. Sobem quatro serviços: `db` (PostgreSQL 16),
+`api` (migra o banco e cria os dados ao iniciar), `worker` (simulação, eventos e agentes) e `web`. A API fica em
+`http://localhost:8000`, com a documentação OpenAPI em `/docs`.
 
-### Opção B — Desenvolvimento local
+### Sem Docker
 
-Pré-requisitos: Python 3.12+, [uv](https://docs.astral.sh/uv/), Node.js 22, PostgreSQL 16.
+Precisa de Python 3.12+, [uv](https://docs.astral.sh/uv/), Node.js 22 e PostgreSQL 16.
 
 ```bash
-# API + worker
+# API e worker
 cd apps/api
 uv sync
 export DATABASE_URL=postgresql+psycopg://nexus:nexus@localhost:5432/nexus
 uv run alembic upgrade head && uv run nexus-seed
-uv run uvicorn nexus.main:app --reload --port 8000     # terminal 1
-uv run nexus-worker                                    # terminal 2 (ou EMBEDDED_WORKER=true na API)
+uv run uvicorn nexus.main:app --reload --port 8000   # terminal 1
+uv run nexus-worker                                  # terminal 2
 
 # Web
 cd apps/web
 npm ci
-API_INTERNAL_URL=http://localhost:8000 npm run dev    # http://localhost:3000
+API_INTERNAL_URL=http://localhost:8000 npm run dev   # http://localhost:3000
 ```
 
-### Opção C — Vercel (serverless)
+### No Vercel
 
-Um único projeto Vercel com dois serviços ([`vercel.json`](vercel.json)): `web` (Next.js, público) e `api` (FastAPI,
-privado, acessado pelo BFF via *service binding*), mais um banco **Neon** conectado pelo Marketplace. Não há worker: no
-modo serverless cada consulta do painel a `/live` avança a simulação, a fila de eventos e os agentes daquele tenant, e
-nada roda (nem custa) quando ninguém está olhando. As migrações e o seed rodam no build. Passo a passo completo, com as
-variáveis de ambiente, em [`docs/deploy.md`](docs/deploy.md).
+É um único projeto com dois serviços definidos no [`vercel.json`](vercel.json): `web` (Next.js, público) e `api`
+(FastAPI, sem rota pública, acessada só pelo BFF), mais um banco Neon conectado pelo Marketplace. As migrações rodam
+no build. O passo a passo, com as variáveis de ambiente e os problemas que encontrei no caminho, está em
+[`docs/deploy.md`](docs/deploy.md).
 
-### Usando um LLM
+### Com um LLM
 
-Por padrão `LLM_PROVIDER=deterministic`. Para usar um modelo, configure no **servidor** (nunca no frontend):
+Por padrão os agentes rodam em modo determinístico (`LLM_PROVIDER=deterministic`). Para usar um modelo, configure no
+servidor, nunca no frontend:
 
 ```bash
 LLM_PROVIDER=openai_compatible
-LLM_BASE_URL=https://api.openai.com/v1      # ou um gateway, Ollama (http://ollama:11434/v1), vLLM...
-LLM_API_KEY=...                              # segredo: variável de ambiente, nunca commitado
+LLM_BASE_URL=https://api.openai.com/v1   # ou um gateway, Ollama (http://ollama:11434/v1), vLLM
+LLM_API_KEY=...                          # só por variável de ambiente
 LLM_MODEL=<modelo com suporte a tool calling>
 ```
 
-O caminho com LLM é coberto por testes com um provedor simulado (tool calling, argumentos inválidos, fatos sem
-evidência removidos, ações inventadas ignoradas, indisponibilidade → fallback rotulado). **Ele não foi validado contra
-um modelo real neste ambiente**; custo por tarefa aparece como N/A até você configurar os preços do seu provedor.
+O caminho com LLM tem testes com um provedor simulado: escolha de ferramentas, argumentos inválidos, fatos sem
+evidência descartados, ações inventadas ignoradas e queda do provedor (os agentes voltam para o modo determinístico e
+a tela mostra isso). Ainda não validei esse caminho com um modelo real, e o custo por tarefa aparece como N/A até você
+configurar os preços do seu provedor.
 
-## Testes e qualidade
+## Testes
 
 ```bash
 cd apps/api
 uv run ruff check src tests && uv run ruff format --check src tests
-uv run mypy                               # strict
-uv run pytest --cov=nexus                 # integração/segurança usam TEST_DATABASE_URL (PostgreSQL descartável)
+uv run mypy
+uv run pytest --cov=nexus      # os testes de integração usam TEST_DATABASE_URL (um PostgreSQL descartável)
 
-cd apps/web && npm run lint && npx next typegen && npm run typecheck && npm run build
+cd apps/web
+npm run lint && npm run typecheck && npm run build
 
-cd tests/e2e && npm ci && npx playwright install chromium && npx playwright test   # stack precisa estar rodando
+cd tests/e2e                   # com a aplicação rodando em http://localhost:3000
+npm ci && npx playwright install chromium && npx playwright test
 ```
 
-Resultados da última execução local (detalhes e metodologia em [`docs/benchmarks/results.md`](docs/benchmarks/results.md)):
+Na última execução passaram 164 testes de backend (100 unitários e 64 de integração e segurança contra um PostgreSQL
+real), com cerca de 90% de cobertura, e os 3 testes de ponta a ponta com Playwright, rodados com worker e também no
+modo serverless. O CI no GitHub Actions roda lint, tipos, testes, build, e2e, auditoria de dependências e busca de
+segredos.
 
-| Verificação | Resultado |
-| --- | --- |
-| Testes backend | **164 passando** — 100 unitários + 64 de integração/segurança contra PostgreSQL real |
-| Cobertura (backend) | **~90%** de linhas+ramos (`pytest --cov`) |
-| E2E (Playwright) | **3 passando** — fluxo principal com aprovação/rejeição, RBAC do operador, navegação mobile; rodados nos dois modos (API + worker, e serverless sem worker) |
-| Lint / tipos | Ruff, mypy strict, ESLint e `tsc` sem erros; `next build` ok |
-| Migrações | `alembic check` sem divergência entre modelos e migração |
-| Build Vercel | `vercel build` (CLI 65.12.1) conclui os dois serviços; o hook do build migra e semeia um banco vazio |
+Alguns comportamentos que os testes garantem: a mesma seed gera os mesmos eventos; um evento duplicado não tem efeito
+duplicado; nada sensível executa sem aprovação válida; uma decisão enviada duas vezes executa uma vez só; aprovação
+vencida, papel insuficiente e acesso a outro restaurante são bloqueados; o registro de auditoria não aceita UPDATE nem
+DELETE; e a tentativa de prompt injection não produz efeito.
 
-O que os testes garantem, entre outros: mesmo seed → mesmos eventos; pipeline SQL idêntico à projeção de referência
-(teste diferencial); eventos duplicados sem efeito duplicado; retentativa → dead-letter → reprocessamento; nada sensível
-executa sem aprovação válida; decisão dupla não executa duas vezes; aprovação expirada, papel insuficiente e acesso
-cruzado bloqueados; auditoria imune a UPDATE/DELETE/TRUNCATE; tokens forjados/expirados rejeitados; prompt injection
-marcado e sem efeito.
-
-### Métricas medidas (dados sintéticos)
-
-- **Previsão (semana de teste, item × hora):** média sazonal de 4 semanas com WAPE **33,9%** vs **40,5%** do ingênuo semanal
-  e **43,3%** do ingênuo diário (Aurora); cobertura empírica do intervalo de 80%: **89%**.
-- **Cenário principal, 10 seeds:** aprovar as propostas → **0** pedidos perdidos em média; aprovar só a compra → **8,2**;
-  rejeitar tudo → **55,9** (≈ R$ 4.766 por execução). O simulador assume que clientes trocam de item quando um prato é
-  pausado — é um resultado do modelo de simulação, não evidência de desempenho real.
-- **Latência (modo determinístico):** execução completa dos agentes p50 **100 ms** / p95 **134 ms**; chamada de ferramenta
-  p50 **4 ms** / p95 **11 ms**; tick de simulação p50 **29 ms** / p95 **61 ms**.
-- **Não medido ainda (N/A):** task success rate e tool-call accuracy em dataset de avaliação, faithfulness de RAG e custo
-  por tarefa com LLM real — dependem das Fases 3–4 e de um provedor configurado.
-
-## Segurança (resumo)
-
-- LLM nunca acessa SQL, segredos ou ações destrutivas: só ferramentas read-only com schema estrito; tenant e horário vêm do servidor.
-- Ações sensíveis passam por aprovação humana durável (RBAC, expiração, versão, revalidação, execução única) e ficam na auditoria.
-- Conteúdo de terceiros (observações de clientes) é marcado como não confiável e tentativas de injection são sinalizadas no trace.
-- Isolamento por tenant em todas as consultas; acesso cruzado responde 404; sandboxes demo expiram e são apagados com sua auditoria.
-- Sessão em cookie httpOnly via BFF; CSP restritiva; CORS por allowlist; rate limits; limites de corpo; logs JSON com redação de segredos.
-
-Detalhes e ameaças conhecidas em [`docs/security.md`](docs/security.md).
-
-## Estrutura
+## Estrutura do repositório
 
 ```
-apps/api/            FastAPI + worker (pacote `nexus`)
-  src/nexus/domain/       regras puras: simulação, projeção de referência, métricas, previsão, políticas, guardrails, RBAC
-  src/nexus/agents/       ferramentas tipadas, provedores LLM, agentes especialistas, orquestrador LangGraph, harness offline
-  src/nexus/application/  serviços: eventos, simulação, agentes, aprovações, demo, auditoria, consultas
-  src/nexus/infra/        SQLAlchemy (modelos, sessão, read model)
-  src/nexus/api/          rotas REST, /live e SSE, dependências de auth/tenant, middleware
-  src/nexus/data/         catálogo sintético dos restaurantes (dados fictícios)
-  migrations/             Alembic
-  tests/                  unit · integration · security
-  scripts/                benchmarks reproduzíveis e hook de build do Vercel (migrações + seed)
-  asgi.py                 entrypoint da função Python no Vercel
-apps/web/            Next.js (UI + BFF)
-tests/e2e/           Playwright
-vercel.json          serviços do Vercel (web público, api privada via binding)
-docs/                arquitetura, ADRs, API, segurança, deploy, benchmarks, roadmap, case study
+apps/api/                 FastAPI e worker (pacote nexus)
+  src/nexus/domain/         regras puras: simulação, métricas, previsão, políticas, guardrails, permissões
+  src/nexus/agents/         ferramentas, provedores de LLM, agentes e orquestrador LangGraph
+  src/nexus/application/    serviços: eventos, simulação, agentes, aprovações, demo, auditoria, consultas
+  src/nexus/infra/          modelos SQLAlchemy e acesso ao banco
+  src/nexus/api/            rotas REST, feed ao vivo, autenticação e escopo por restaurante
+  src/nexus/data/           catálogo fictício dos restaurantes
+  migrations/               Alembic
+  tests/                    unitários, integração e segurança
+  scripts/                  benchmarks e hook de build do Vercel
+apps/web/                 Next.js (interface e BFF)
+tests/e2e/                Playwright
+docs/                     arquitetura, ADRs, API, segurança, deploy, benchmarks, roadmap e estudo de caso
 ```
 
-Os serviços `services/event-worker` e `services/forecasting` sugeridos inicialmente foram mantidos como **módulos do
-mesmo pacote** com processos separados, para não duplicar modelos e regras ([ADR 0001](docs/adr/0001-modular-monolith.md)).
+## Limitações
 
-## Deploy
+- Faltam os agentes de base de conhecimento (RAG) e de atendimento ao cliente, um conjunto de avaliação com mais de
+  100 casos e observabilidade com OpenTelemetry ou Langfuse.
+- O caminho com LLM real ainda não foi testado com um provedor de verdade.
+- O rate limit fica em memória, por instância.
+- Pedidos de compra e fornecedores são simulados. Nenhum sistema externo é acionado.
+- No Vercel, a simulação só anda enquanto alguém está com o painel aberto, e o plano gratuito tem cotas mensais de
+  CPU, memória e invocações.
 
-Guia passo a passo para **Vercel Services (web + API) + Neon (PostgreSQL)** em [`docs/deploy.md`](docs/deploy.md),
-com a alternativa de qualquer host Docker. O build de produção foi validado localmente com o Vercel CLI; o deploy em si
-depende da sua conta Vercel e não foi executado a partir deste ambiente.
+O backlog por fase está em [`docs/roadmap.md`](docs/roadmap.md), e o estudo de caso, com o que aprendi no caminho, em
+[`docs/portfolio-case-study.md`](docs/portfolio-case-study.md).
 
-## Limitações conhecidas
+## English summary
 
-- Agentes Knowledge (RAG) e Customer Experience, Evaluation Lab com 100+ casos e OpenTelemetry/Langfuse ainda não existem.
-- Caminho com LLM real não validado aqui; o modo demo usa o modo determinístico rotulado.
-- Rate limit em memória por instância (adequado para uma réplica; ver ADR 0005 para escalar).
-- O histórico de vendas usado na previsão é sintético e gerado deterministicamente; não há dados reais.
-- Pedidos de compra e fornecedores são simulados — nenhum sistema externo é acionado.
-- As imagens Docker não podem ser construídas no ambiente de desenvolvimento usado aqui (Docker Hub indisponível). Elas
-  foram construídas e executadas com sucesso no Docker Desktop (Windows), e o job `docker` do CI também as constrói.
-- No Vercel (modo serverless) a simulação só avança enquanto alguém está com o painel aberto, e o plano Hobby tem cotas
-  mensais (CPU, memória, invocações; Neon Free: 100 CU-hora por projeto). Veja [`docs/deploy.md`](docs/deploy.md).
+RestaurantIA Nexus is a portfolio project I built to learn what it takes to put AI agents close to real operations
+without letting them act on their own. A deterministic simulator runs a restaurant's dinner rush; detectors open an
+incident when the kitchen falls behind and an ingredient is about to run out; a LangGraph orchestrator runs three
+agents (operations, inventory and forecasting) that can only read data through typed, tenant-scoped tools. Candidate
+actions come from auditable rules, not from the model. A manager approves or rejects each one, and approved actions are
+re-validated and executed exactly once, with an append-only audit trail.
 
-## Roadmap
+It runs without an API key in a clearly labelled deterministic mode, and any OpenAI-compatible model can be plugged
+in. The same code runs on Docker Compose (API and worker) or serverless on Vercel with Neon. All data is synthetic, and
+the project has no connection to iFood or any delivery platform.
+[Live demo](https://restaurantia-nexus.vercel.app) and the [case study](docs/portfolio-case-study.md#english).
 
-Backlog priorizado por fase em [`docs/roadmap.md`](docs/roadmap.md). Próximo incremento: Fase 2 (OpenTelemetry/Langfuse,
-interrupt nativo do LangGraph para HITL, falhas controladas) e Fase 3 (RAG com pgvector e citações).
+---
 
-## Case study
-
-[`docs/portfolio-case-study.md`](docs/portfolio-case-study.md) — versão em português e inglês, com problema, decisões,
-métricas medidas, aprendizados e texto curto para candidaturas.
+Feito por João Victor Gualchi.

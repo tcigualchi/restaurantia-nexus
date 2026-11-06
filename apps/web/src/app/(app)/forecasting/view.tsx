@@ -24,7 +24,7 @@ function IntervalCell({ v, unit }: { v: Interval; unit?: string }) {
     <span className="inline-flex flex-col items-end tabular-nums">
       <span className="font-medium">{f(v.expected)}</span>
       <span className="whitespace-nowrap text-[11px] text-muted-foreground">
-        {f(v.p10)} – {f(v.p90)}
+        {f(v.p10)} a {f(v.p90)}
       </span>
     </span>
   );
@@ -41,8 +41,8 @@ export function ForecastingView() {
   return (
     <>
       <PageHeader
-        title="Forecasting"
-        description="Previsão estatística de demanda (não gerada por LLM), avaliada com backtest temporal. Intervalos de 80% com cobertura medida — previsão não é certeza."
+        title="Previsão de demanda"
+        description="Modelos estatísticos testados no histórico, sem modelo de linguagem. Os intervalos de 80% mostram a incerteza, e a cobertura real deles foi medida."
       />
       <div className="grid gap-4 xl:grid-cols-3">
         <Card>
@@ -52,11 +52,11 @@ export function ForecastingView() {
           </CardHeader>
           <CardContent className="space-y-3 text-sm">
             <div className="flex items-start justify-between">
-              <span className="text-muted-foreground">Pedidos — linha de base</span>
+              <span className="text-muted-foreground">Pedidos previstos</span>
               <IntervalCell v={f.orders} />
             </div>
             <div className="flex items-start justify-between">
-              <span className="text-muted-foreground">Pedidos — ajustado ao ritmo</span>
+              <span className="text-muted-foreground">Ajustado ao ritmo atual</span>
               <IntervalCell v={f.orders_adjusted} />
             </div>
             <div className="rounded-md bg-muted px-3 py-2 text-xs leading-relaxed">{f.nowcast.note}</div>
@@ -79,8 +79,8 @@ export function ForecastingView() {
           <CardHeader>
             <CardTitle>Backtest (item × hora)</CardTitle>
             <CardDescription>
-              Seleção na semana de validação ({dateTime(bt.validation_window[0])} → {dateTime(bt.validation_window[1])}); métricas reportadas na semana de teste
-              ({dateTime(bt.test_window[0])} → {dateTime(bt.test_window[1])}), {bt.test_hours} horas de operação.
+              O modelo foi escolhido na semana de validação ({dateTime(bt.validation_window[0])} a {dateTime(bt.validation_window[1])}), e as métricas são da
+              semana de teste ({dateTime(bt.test_window[0])} a {dateTime(bt.test_window[1])}), com {bt.test_hours} horas de operação.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -107,7 +107,7 @@ export function ForecastingView() {
               </TBody>
             </Table>
             <p className="mt-3 text-xs text-muted-foreground">
-              Intervalo de {pct(bt.interval_level)}: cobertura empírica de {pct(bt.interval_coverage_test)} na semana de teste (sobre-dispersão estimada φ = {n1(bt.dispersion)}).
+              Intervalo de {pct(bt.interval_level)}: cobertura empírica de {pct(bt.interval_coverage_test)} na semana de teste (sobredispersão estimada φ = {n1(bt.dispersion)}).
               Método: {bt.method}.
             </p>
           </CardContent>
@@ -115,7 +115,7 @@ export function ForecastingView() {
         <Card>
           <CardHeader>
             <CardTitle>Consumo previsto de ingredientes</CardTitle>
-            <CardDescription>Esperado (P10–P90) nas próximas {f.horizon_minutes / 60}h, a partir das fichas técnicas.</CardDescription>
+            <CardDescription>Consumo esperado nas próximas {f.horizon_minutes / 60} h, com faixa de P10 a P90, calculado pelas fichas técnicas.</CardDescription>
           </CardHeader>
           <CardContent>
             <Table>

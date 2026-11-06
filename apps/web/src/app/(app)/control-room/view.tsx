@@ -27,6 +27,8 @@ const KIND_ICON: Record<string, React.ReactNode> = {
   fallback: <AlertTriangle />,
 };
 
+const SEVERITY_LABEL: Record<string, string> = { medium: "médio", high: "alto", critical: "crítico" };
+
 const STATUS_TONE: Record<string, "success" | "danger" | "warning" | "neutral"> = {
   ok: "success",
   error: "danger",
@@ -52,8 +54,8 @@ function StepRow({ step }: { step: StepView }) {
       {injection.length > 0 && (
         <div className="mt-1.5 flex items-start gap-1.5 rounded-md bg-danger-soft px-2.5 py-1.5 text-xs text-danger">
           <ShieldAlert className="mt-0.5 size-3.5 shrink-0" />
-          Conteúdo não confiável com tentativa de prompt injection foi marcado e neutralizado ({injection.map((f) => f.split(":")[1]).join(", ")}).
-          Nenhuma instrução contida nele foi seguida.
+          Tentativa de prompt injection em texto de cliente ({injection.map((f) => f.split(":")[1]).join(", ")}). O texto foi
+          marcado como não confiável e nenhuma instrução dele foi seguida.
         </div>
       )}
       {step.kind === "finding" && typeof step.output?.summary === "string" && (
@@ -99,8 +101,8 @@ export function ControlRoomView() {
   return (
     <>
       <PageHeader
-        title="AI Control Room"
-        description="Execuções dos agentes com passos observáveis: triagem, chamadas de ferramentas com parâmetros validados, resultados, conclusões, plano e pedidos de aprovação. O raciocínio interno do modelo não é exibido — apenas ações e evidências."
+        title="Agentes"
+        description="Cada execução mostra o que os agentes fizeram, passo a passo: as ferramentas que chamaram, os dados que receberam, as conclusões e as ações que sugeriram."
         actions={
           can("agents.run") && (
             <Button variant="outline" onClick={requestRun} disabled={requesting}>
@@ -152,7 +154,7 @@ export function ControlRoomView() {
         <div className="min-w-0 space-y-4">
           {runError && <ErrorState error={runError} />}
           {!selectedId ? (
-            <EmptyState icon={<Bot />} title="Sem execuções" description="Inicie o cenário principal no Simulation Lab para gerar um incidente." />
+            <EmptyState icon={<Bot />} title="Sem execuções" description="Inicie o cenário principal na tela Simulação para gerar um incidente." />
           ) : !run ? (
             <Skeleton className="h-96" />
           ) : (
@@ -169,7 +171,7 @@ export function ControlRoomView() {
                   <CardTitle className="mt-2 text-base">{run.incident?.title ?? "Revisão sob demanda"}</CardTitle>
                   {run.mode !== "llm" && (
                     <CardDescription>
-                      Modo determinístico: os agentes seguem planos de ferramentas fixos e resumos por template — não há inferência de LLM nesta execução.
+                      Modo determinístico: sem modelo de linguagem configurado, os agentes seguem planos fixos de ferramentas e montam o resumo a partir de modelos de texto.
                     </CardDescription>
                   )}
                 </CardHeader>
@@ -179,7 +181,7 @@ export function ControlRoomView() {
                       <div className="text-xs font-medium text-muted-foreground">Sinais dos detectores</div>
                       {run.incident.signals.map((s, i) => (
                         <div key={i} className="flex items-start gap-2 text-sm">
-                          <Badge tone={s.severity === "critical" ? "danger" : "warning"}>{s.severity}</Badge>
+                          <Badge tone={s.severity === "critical" ? "danger" : "warning"}>{SEVERITY_LABEL[s.severity] ?? s.severity}</Badge>
                           <span>{s.message}</span>
                         </div>
                       ))}
@@ -193,7 +195,7 @@ export function ControlRoomView() {
                   )}
                   <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
                     <span>Tokens: {n0(run.prompt_tokens + run.completion_tokens)}</span>
-                    <span>Custo estimado: {run.estimated_cost_usd != null ? `US$ ${run.estimated_cost_usd.toFixed(4)}` : "N/A (sem LLM ou preço não configurado)"}</span>
+                    <span>Custo estimado: {run.estimated_cost_usd != null ? `US$ ${run.estimated_cost_usd.toFixed(4)}` : "N/A (sem modelo de linguagem ou sem preço configurado)"}</span>
                     {run.error && <span className="text-danger">Erro: {run.error}</span>}
                   </div>
                 </CardContent>
@@ -245,7 +247,7 @@ export function ControlRoomView() {
                 <Card>
                   <CardHeader>
                     <CardTitle>Plano proposto</CardTitle>
-                    <CardDescription>Ações candidatas geradas por políticas determinísticas; um modelo (se configurado) apenas ordena e explica.</CardDescription>
+                    <CardDescription>As ações saem de regras fixas e auditáveis. Um modelo de linguagem, quando configurado, só ordena e explica.</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     {run.plan.capacity && (
@@ -303,8 +305,8 @@ export function ControlRoomView() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Trace de execução ({run.step_list.length} passos)</CardTitle>
-                  <CardDescription>Cada passo foi persistido no momento em que ocorreu. Tenant e horário de referência são injetados pelo servidor, nunca pelo modelo.</CardDescription>
+                  <CardTitle>Passo a passo da execução ({run.step_list.length} passos)</CardTitle>
+                  <CardDescription>Cada passo foi gravado no momento em que aconteceu. O restaurante e o horário de referência vêm do servidor, nunca do modelo.</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <ol className="relative space-y-5 border-l pl-1 [&>li]:-ml-[13px]">

@@ -1,23 +1,23 @@
 # Arquitetura
 
-RestaurantIA Nexus é um **monólito modular** em Python (FastAPI) com um **processo worker** separado, um frontend
-**Next.js** que também atua como **BFF** e um **PostgreSQL** que guarda estado, eventos, traces dos agentes e auditoria.
+O RestaurantIA Nexus é um monólito modular em Python (FastAPI) com um processo worker separado, um frontend Next.js que
+também faz o papel de BFF e um PostgreSQL que guarda o estado, os eventos, os passos dos agentes e a auditoria.
 
 ## Visão de componentes
 
 ```mermaid
 flowchart TB
-  subgraph web["apps/web — Next.js 16"]
-    pages["Páginas (App Router)<br/>Overview · Simulation Lab · AI Control Room · Approval Center · …"]
+  subgraph web["apps/web (Next.js 16)"]
+    pages["Páginas (App Router)<br/>Visão geral · Simulação · Agentes · Aprovações · …"]
     bff["Route handlers<br/>/api/session/* · /api/proxy/v1/*"]
   end
-  subgraph api["apps/api — pacote nexus"]
-    routes["api/ — rotas REST, /live e SSE<br/>deps: auth JWT, TenantContext, RBAC"]
-    app["application/ — serviços<br/>simulation · events · agent_runs · approvals · demo · queries · audit"]
-    domain["domain/ — regras puras<br/>simulation · projection · metrics · forecasting · policies · detectors · guardrails · rbac"]
-    agents["agents/ — tools · llm · specialists · orchestrator (LangGraph) · harness"]
-    infra["infra/ — SQLAlchemy models · db · read_model"]
-    worker["worker/ — loop: ticks, fila de eventos, agentes, housekeeping"]
+  subgraph api["apps/api (pacote nexus)"]
+    routes["api/<br/>rotas REST, /live e SSE<br/>deps: auth JWT, TenantContext, RBAC"]
+    app["application/<br/>serviços: simulation · events · agent_runs · approvals · demo · queries · audit"]
+    domain["domain/<br/>regras puras: simulation · projection · metrics · forecasting · policies · detectors · guardrails · rbac"]
+    agents["agents/<br/>tools · llm · specialists · orchestrator (LangGraph) · harness"]
+    infra["infra/<br/>SQLAlchemy models · db · read_model"]
+    worker["worker/<br/>loop: ticks, fila de eventos, agentes, limpeza"]
   end
   db[(PostgreSQL)]
   pages --> bff --> routes --> app --> domain
@@ -45,7 +45,7 @@ Regras de dependência: `domain` não importa nada de infraestrutura; `agents` d
 | `audit_logs` | trilha append-only (trigger bloqueia UPDATE/DELETE/TRUNCATE, exceto purga explícita de retenção) |
 
 Toda tabela de tenant tem `restaurant_id`. As rotas resolvem o tenant pela associação do usuário (`TenantContext`)
-e os serviços sempre filtram por ele; acesso a outro tenant responde **404** (não revela existência).
+e os serviços sempre filtram por ele. Acesso a outro tenant responde 404, sem revelar se o recurso existe.
 
 ## Fluxo do cenário principal
 
@@ -58,7 +58,7 @@ sequenceDiagram
   participant D as Detectores
   participant O as Orquestrador (LangGraph)
   participant A as Agentes + ferramentas
-  participant H as Gerente (Approval Center)
+  participant H as Gerente (tela Aprovações)
   participant X as Executor
 
   loop a cada tick (1 min simulado)
@@ -70,7 +70,7 @@ sequenceDiagram
   D-->>W: risco de ruptura (costela)
   W->>W: abre incidente, pausa relógio (agents_running)
   W->>O: executa run
-  O->>A: triagem → Operations → Inventory → Forecasting
+  O->>A: triagem → operação → estoque → previsão
   A-->>O: achados + evidências (passos S01..S11)
   O->>O: políticas determinísticas geram candidatos
   O-->>H: approval_requests (pendentes), relógio pausa (awaiting_approval)
@@ -84,25 +84,26 @@ sequenceDiagram
 
 O motor é determinístico por tick (RNG semeado por `seed:cenário:template:tick`). Se o relógio continuasse enquanto os
 agentes analisam ou enquanto o humano decide, o ponto em que a decisão entra na simulação dependeria do tempo de
-reação, quebrando a reprodutibilidade. Pausar em pontos de decisão (lockstep) garante que **mesma seed + mesmas
-decisões = mesma execução** (teste `test_reset_replays_deterministically`). Ver [ADR 0003](../adr/0003-lockstep-simulation.md).
+reação, e a execução deixaria de ser reproduzível. Pausar nos pontos de decisão (lockstep) garante que a mesma seed
+com as mesmas decisões gera a mesma execução (teste `test_reset_replays_deterministically`). Ver [ADR 0003](../adr/0003-lockstep-simulation.md).
 
 ## Agentes
 
 | Agente | Ferramentas (read-only) | Saída |
 | --- | --- | --- |
-| Operations | `get_kitchen_snapshot`, `get_kitchen_capacity`, `list_open_orders`, `get_demand_forecast` | fila, p90, utilização projetada (demanda prevista vs capacidade), pedidos mais antigos, conteúdo não confiável detectado |
-| Inventory | `get_inventory_status`, `get_ingredient_details` | ingredientes em risco, ETA de ruptura, lead time, itens afetados (fichas técnicas), pedidos em aberto |
-| Forecasting | `get_demand_forecast` | demanda e consumo previstos (P10–P90), fator de ritmo, métricas de backtest |
-| Orquestrador | — | triagem, plano (políticas), resumo, pedidos de aprovação |
+| Operação | `get_kitchen_snapshot`, `get_kitchen_capacity`, `list_open_orders`, `get_demand_forecast` | fila, p90, utilização projetada (demanda prevista vs capacidade), pedidos mais antigos, conteúdo não confiável detectado |
+| Estoque | `get_inventory_status`, `get_ingredient_details` | ingredientes em risco, ETA de ruptura, lead time, itens afetados (fichas técnicas), pedidos em aberto |
+| Previsão | `get_demand_forecast` | demanda e consumo previstos (faixa de P10 a P90), fator de ritmo, métricas de backtest |
+| Orquestrador | nenhuma | triagem, plano (políticas), resumo, pedidos de aprovação |
 
 Cada chamada passa pelo `ToolExecutor`: valida JSON e schema (`extra="forbid"`, limites numéricos, padrões de chave),
 checa a allowlist do agente e o orçamento de chamadas, injeta `restaurant_id` e `as_of` do contexto do servidor,
 registra o passo (inclusive negações) e nunca propaga exceções para o loop do modelo.
 
-**Modos:** `deterministic` (planos fixos + resumos por template), `llm` (o modelo escolhe ferramentas via function
-calling; a evidência exigida pelas políticas é coletada depois, marcada como `required_evidence`; fatos sem `step_id`
-válido são descartados) e `llm_fallback` (provedor falhou → modo determinístico rotulado).
+Há três modos. Em `deterministic`, os agentes seguem planos fixos e montam resumos a partir de modelos de texto. Em
+`llm`, o modelo escolhe as ferramentas por function calling, a evidência exigida pelas políticas é coletada depois
+(marcada como `required_evidence`) e fatos sem `step_id` válido são descartados. Em `llm_fallback`, o provedor falhou
+e a execução continua no modo determinístico, identificada como tal na tela.
 
 ## Modos de execução
 

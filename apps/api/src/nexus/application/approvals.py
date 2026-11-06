@@ -230,7 +230,7 @@ def _create_purchase_order(
             "unit": ing.unit,
             "expected_at": expected_at.isoformat(),
             "approval_id": str(approval.id),
-            "note": "Pedido simulado — nenhum fornecedor real é contatado.",
+            "note": "Pedido simulado. Nenhum fornecedor real é contatado.",
         },
         business_time=business_time,
     )
@@ -238,7 +238,7 @@ def _create_purchase_order(
         "result": "purchase_order_created",
         "purchase_order_id": str(po.id),
         "expected_at": expected_at.isoformat(),
-        "message": "Pedido de compra registrado (simulado; nenhum fornecedor real é contatado).",
+        "message": "Pedido de compra registrado. É uma simulação, nenhum fornecedor real é contatado.",
     }
 
 

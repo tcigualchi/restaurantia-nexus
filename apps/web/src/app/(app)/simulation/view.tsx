@@ -68,8 +68,8 @@ export function SimulationView() {
   return (
     <>
       <PageHeader
-        title="Simulation Lab"
-        description="Cenários reproduzíveis: a mesma seed gera exatamente os mesmos eventos. Cada início reinicia o sandbox deste restaurante."
+        title="Simulação"
+        description="Escolha um cenário e acompanhe a operação minuto a minuto. Com a mesma seed, os eventos se repetem exatamente. Cada início zera os dados deste restaurante."
       />
       {!allowed && (
         <p className="mb-4 rounded-md bg-info-soft px-3 py-2 text-sm text-info">Seu papel permite apenas visualizar a simulação.</p>
@@ -143,7 +143,7 @@ export function SimulationView() {
                 act("start", "/simulation", { scenario_key: scenario, seed, tick_interval_ms: speed, auto_pause_on_approval: autoPause }, "Simulação iniciada.")
               }
             >
-              <Play /> Iniciar (reinicia o sandbox)
+              <Play /> Iniciar (zera os dados)
             </Button>
           </CardContent>
         </Card>
@@ -253,7 +253,7 @@ export function SimulationView() {
           <div>
             <CardTitle>Inspetor de eventos</CardTitle>
             <CardDescription>
-              Fila de eventos persistida: chave de idempotência por evento, processamento ordenado por restaurante, retentativas e dead-letter.
+              Cada evento tem uma chave única, é processado em ordem e, se falhar, volta para a fila até ir para a lista de falhas.
             </CardDescription>
           </div>
           <div className="flex gap-2">

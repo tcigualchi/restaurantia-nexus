@@ -9,7 +9,7 @@ One tick (= one simulated minute), in a single transaction:
 5. a new incident pauses the run (``agents_running``) and queues an agent run.
 
 The agent run executes after the commit (steps are visible live). When it
-finishes, the run resumes — or waits for a human if approvals are pending and
+finishes, the run resumes, or waits for a human if approvals are pending and
 ``auto_pause_on_approval`` is on. Pausing at fixed ticks keeps replays with the
 same decisions fully reproducible.
 """

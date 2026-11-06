@@ -20,7 +20,7 @@ const PERMISSION_LABEL: Record<string, string> = {
   "agents.run": "Solicitar análises dos agentes",
   "approvals.decide": "Aprovar ou rejeitar ações sensíveis",
   "menu.update": "Pausar e reativar itens do cardápio",
-  "sandbox.reset": "Reiniciar o sandbox",
+  "sandbox.reset": "Reiniciar a demonstração",
 };
 
 export function SettingsView() {
@@ -30,7 +30,7 @@ export function SettingsView() {
 
   return (
     <>
-      <PageHeader title="Configurações" description="Sessão, permissões, modo dos agentes e preferências de interface." />
+      <PageHeader title="Configurações" description="Sua sessão, suas permissões, o modo dos agentes e a aparência." />
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
           <CardHeader>
@@ -43,8 +43,8 @@ export function SettingsView() {
             </div>
             {me?.demo_expires_at && (
               <div>
-                <span className="text-muted-foreground">Sandbox expira em: </span>
-                {dateTime(me.demo_expires_at)} — dados e trilha de auditoria do sandbox são apagados após a expiração.
+                <span className="text-muted-foreground">Sua demonstração expira em: </span>
+                {dateTime(me.demo_expires_at)}. Depois disso, os dados e a auditoria dela são apagados.
               </div>
             )}
             <div className="pt-2">
@@ -60,7 +60,7 @@ export function SettingsView() {
         <Card>
           <CardHeader>
             <CardTitle>Permissões em {restaurant?.name ?? "—"}</CardTitle>
-            <CardDescription>RBAC por restaurante. Papel atual: {restaurant?.role ?? "—"}.</CardDescription>
+            <CardDescription>As permissões dependem do seu papel em cada restaurante. Papel atual: {restaurant?.role ?? "—"}.</CardDescription>
           </CardHeader>
           <CardContent>
             <ul className="space-y-1.5 text-sm">
@@ -79,7 +79,7 @@ export function SettingsView() {
         <Card>
           <CardHeader>
             <CardTitle>Agentes de IA</CardTitle>
-            <CardDescription>Configurados no servidor por variáveis de ambiente; chaves nunca chegam ao navegador.</CardDescription>
+            <CardDescription>Configurados no servidor por variáveis de ambiente. Nenhuma chave chega ao navegador.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-2 text-sm">
             <div className="flex items-center gap-2">

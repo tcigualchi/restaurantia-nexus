@@ -55,7 +55,7 @@ from nexus.infra.models import (
 )
 from nexus.infra.read_model import SqlReadModel, bound, latest_simulation, order_rows
 
-DATA_LABEL = "Dados sintéticos — ambiente de simulação. Sem integração com plataformas reais."
+DATA_LABEL = "Dados sintéticos gerados por simulação, sem integração com plataformas reais."
 
 
 def restaurant_view(r: Restaurant, role: str) -> RestaurantView:
@@ -245,6 +245,7 @@ def timeseries(
         start=start,
         end=end,
         ingredients={i.key: i.name for i in ingredients},
+        units={i.key: i.unit for i in ingredients},
         points=points,
     )
 

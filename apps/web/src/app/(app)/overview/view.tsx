@@ -61,7 +61,7 @@ export function OverviewView() {
     setStarting(true);
     try {
       await apiPost(path, { scenario_key: "rush_stockout", seed: 42 });
-      toast.success("Cenário “Pico de pedidos + estoque crítico” iniciado (seed 42).");
+      toast.success("Cenário principal iniciado (pico de pedidos com estoque crítico).");
       await mutate();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Falha ao iniciar a simulação.");
@@ -78,8 +78,8 @@ export function OverviewView() {
   return (
     <>
       <PageHeader
-        title={`Command Center — ${data.restaurant.name}`}
-        description="Indicadores calculados a partir de pedidos e eventos persistidos; atualizados em tempo real via SSE."
+        title="Visão geral"
+        description={`${data.restaurant.name}. Os números são calculados a partir dos pedidos e eventos gravados no banco e se atualizam sozinhos.`}
         actions={
           can("simulation.control") && (
             <Button onClick={startFeatured} disabled={starting}>
@@ -122,7 +122,7 @@ export function OverviewView() {
           <EmptyState
             icon={<Play />}
             title="Nenhuma simulação neste restaurante"
-            description="Inicie o cenário principal para gerar pedidos, consumo de estoque e incidentes analisados pelos agentes."
+            description="Inicie o cenário principal para gerar pedidos, consumir estoque e ver os agentes analisando os incidentes."
           />
         </div>
       )}
@@ -139,7 +139,11 @@ export function OverviewView() {
         <KpiCard
           label="Preparo p90"
           value={kpis.p90_prep_minutes != null ? `${n1(kpis.p90_prep_minutes)} min` : "—"}
-          hint={`SLA ${kpis.sla_minutes} min · ${pct(kpis.sla_breach_rate)} acima do SLA`}
+          hint={
+            kpis.sla_breach_rate != null
+              ? `SLA ${kpis.sla_minutes} min · ${pct(kpis.sla_breach_rate)} acima do SLA`
+              : `SLA de ${kpis.sla_minutes} min, ainda sem pedidos prontos`
+          }
           icon={<Timer />}
           tone={(kpis.p90_prep_minutes ?? 0) > kpis.sla_minutes ? "danger" : "neutral"}
         />
@@ -160,7 +164,7 @@ export function OverviewView() {
         <KpiCard
           label="Aprovações pendentes"
           value={n0(kpis.pending_approvals)}
-          hint={<Link className="underline underline-offset-2" href="/approvals">abrir Approval Center</Link>}
+          hint={<Link className="underline underline-offset-2" href="/approvals">abrir aprovações</Link>}
           icon={<ClipboardCheck />}
           tone={kpis.pending_approvals > 0 ? "warning" : "neutral"}
         />
@@ -178,14 +182,14 @@ export function OverviewView() {
         <Card>
           <CardHeader>
             <CardTitle>Pedidos e fila (intervalos de 5 min)</CardTitle>
-            <CardDescription>Barras: pedidos recebidos e perdidos por falta de insumo. Linha: pedidos em preparo.</CardDescription>
+            <CardDescription>As barras mostram pedidos recebidos e perdidos por falta de ingrediente. A linha mostra os pedidos em preparo.</CardDescription>
           </CardHeader>
           <CardContent>{series && series.points.length > 0 ? <OrdersQueueChart data={series} /> : <Skeleton className="h-64" />}</CardContent>
         </Card>
         <Card>
           <CardHeader>
             <CardTitle>Estoque dos ingredientes mais críticos</CardTitle>
-            <CardDescription>Reconstruído a partir das movimentações de estoque (consumo e recebimentos).</CardDescription>
+            <CardDescription>Calculado a partir das movimentações de estoque: consumo e recebimentos.</CardDescription>
           </CardHeader>
           <CardContent>
             {series && Object.keys(series.ingredients).length > 0 ? (
@@ -226,7 +230,7 @@ export function OverviewView() {
         <Card>
           <CardHeader>
             <CardTitle>Ingredientes em risco</CardTitle>
-            <CardDescription>Tempo até ruptura pelo consumo dos últimos 15 min.</CardDescription>
+            <CardDescription>Tempo até acabar, pelo ritmo de consumo dos últimos 15 minutos.</CardDescription>
           </CardHeader>
           <CardContent>
             {data.ingredients_at_risk.length === 0 ? (
@@ -238,7 +242,8 @@ export function OverviewView() {
                     <div>
                       <div className="font-medium">{r.name}</div>
                       <div className="text-xs text-muted-foreground">
-                        {qty(r.stock, r.unit)} · {qty(r.consumption_per_hour, r.unit)}/h · ruptura em {r.eta_minutes != null ? `~${n0(r.eta_minutes)} min` : "—"}
+                        {qty(r.stock, r.unit)} · {qty(r.consumption_per_hour, r.unit)}/h ·{" "}
+                        {r.eta_minutes != null ? `acaba em ~${n0(r.eta_minutes)} min` : "sem previsão de acabar"}
                       </div>
                     </div>
                     <RiskBadge risk={r.risk} />

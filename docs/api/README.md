@@ -13,9 +13,9 @@ cd apps/api && uv run python -c "import json; from nexus.main import create_app;
 
 | Método e rota | Papel mínimo | Descrição |
 | --- | --- | --- |
-| `POST /api/v1/auth/demo` | — | Cria sandbox demo isolado (persona `manager` ou `operator`) e retorna sessão |
-| `POST /api/v1/auth/login` · `GET /api/v1/auth/me` | — | Login local (bcrypt) e usuário atual |
-| `GET …/overview` · `GET …/timeseries` | viewer | KPIs e séries do Command Center |
+| `POST /api/v1/auth/demo` | público | Cria uma demonstração isolada (persona `manager` ou `operator`) e retorna a sessão |
+| `POST /api/v1/auth/login` · `GET /api/v1/auth/me` | público · autenticado | Login local (bcrypt) e usuário atual |
+| `GET …/overview` · `GET …/timeseries` | viewer | Indicadores e séries da Visão geral |
 | `GET …/orders` · `GET …/inventory` · `GET …/forecast` | viewer | Pedidos (cursor), estoque/cardápio/compras, previsão + backtest |
 | `POST …/menu-items/{key}/availability` | manager | Pausa/reativa item manualmente (auditado) |
 | `POST …/events` | operator | Ingestão externa idempotente (`idempotency_key`), schema estrito |
@@ -26,7 +26,7 @@ cd apps/api && uv run python -c "import json; from nexus.main import create_app;
 | `GET …/audit` | viewer | Trilha de auditoria |
 | `GET …/live?cursor=` | viewer | Feed do painel: eventos e auditoria após o cursor + status. Em `RUNTIME_MODE=serverless` também avança a simulação, a fila e os agentes do tenant |
 | `GET …/stream` | viewer | SSE: `events`, `audit`, `status` (reconexão com `Last-Event-ID`) |
-| `GET /healthz` · `GET /readyz` | — | Liveness e readiness (banco migrado) |
+| `GET /healthz` · `GET /readyz` | público | Liveness e readiness (banco migrado) |
 
 ## Exemplo: ingestão idempotente
 

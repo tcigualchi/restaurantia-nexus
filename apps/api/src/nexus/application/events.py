@@ -1,15 +1,15 @@
 """Event ingestion and processing (PostgreSQL-backed queue).
 
-* **Idempotent ingestion** — ``UNIQUE (restaurant_id, idempotency_key)`` with
+* Idempotent ingestion: ``UNIQUE (restaurant_id, idempotency_key)`` with
   ``ON CONFLICT DO NOTHING``: replays return the original event, never a copy.
-* **Ordered, per-tenant processing** — a transaction-scoped advisory lock per
+* Ordered, per-tenant processing: a transaction-scoped advisory lock per
   restaurant serialises processing; events are claimed in id order with
   ``FOR UPDATE SKIP LOCKED`` so several workers can share the queue.
-* **Retries and dead-letter** — each event is applied inside a SAVEPOINT. A
+* Retries and dead-letter: each event is applied inside a SAVEPOINT. A
   retryable failure (e.g. ``order.ready`` arriving before ``order.created``) or an
   unexpected error rolls back only that event and schedules a retry with
   exponential backoff; after ``max_attempts`` it is moved to ``dead_letter``.
-* **Idempotent effects** — handlers are no-ops for already-applied facts (same
+* Idempotent effects: handlers are no-ops for already-applied facts (same
   order ref, order already ready), so even a re-delivered event cannot double
   count stock or revenue.
 

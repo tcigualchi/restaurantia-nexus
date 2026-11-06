@@ -24,3 +24,8 @@ def brl(cents: int | float) -> str:
 
 def pct(ratio: float, digits: int = 0) -> str:
     return f"{num(ratio * 100, digits)}%"
+
+
+def lower_first(text: str) -> str:
+    """Lower-cases the first letter so a catalog name reads naturally mid-sentence."""
+    return text[:1].lower() + text[1:]
