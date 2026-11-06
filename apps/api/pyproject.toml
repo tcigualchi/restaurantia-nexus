@@ -1,0 +1,96 @@
+[project]
+name = "restaurantia-nexus-api"
+version = "0.1.0"
+description = "RestaurantIA Nexus — API, worker, simulator and agents (modular monolith)"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.115,<1.0",
+    "uvicorn[standard]>=0.30",
+    "sqlalchemy>=2.0.36,<2.2",
+    "alembic>=1.14",
+    "psycopg[binary]>=3.2",
+    "pydantic>=2.9,<3",
+    "pydantic-settings>=2.6",
+    "langgraph>=1.0,<2",
+    "langgraph-checkpoint-postgres>=2.0",
+    "httpx>=0.27,<1",
+    "pyjwt>=2.9",
+    "bcrypt>=4.2",
+    "numpy>=2.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "pytest-cov>=6.0",
+    "mypy>=1.13",
+    "ruff>=0.8",
+]
+
+[project.scripts]
+nexus-worker = "nexus.worker.main:main"
+nexus-seed = "nexus.application.seed:main"
+
+# Vercel (Services): the function entrypoint is asgi.py (see /vercel.json). The build hook
+# migrates and seeds the database before the deployment receives traffic.
+[tool.vercel.scripts]
+build = "python scripts/vercel_build.py"
+
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/nexus"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "S", "SIM", "RUF", "PL"]
+ignore = [
+    "E501",     # formatting is delegated to `ruff format`; long pt-BR strings are kept readable
+    "PLC0415",  # lazy imports are deliberate (optional LangGraph checkpointers, embedded worker)
+    "PLR0917",
+    "UP046",    # Generic[T] kept for broad Pydantic compatibility
+    "PLR0913",  # explicit keyword-heavy signatures are intentional in services
+    "PLR2004",  # magic numbers are documented thresholds
+    "PLR0911", "PLR0912", "PLR0915",
+    "RUF001", "RUF002", "RUF003",  # pt-BR text uses typographic characters on purpose
+    "S101",
+    "B008",  # FastAPI Depends() in defaults
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S", "PLR", "B", "RUF012", "PLW"]
+"src/nexus/domain/simulation.py" = ["S311"]  # seeded, non-cryptographic simulation RNG
+"src/nexus/agents/llm.py" = ["S311"]         # retry jitter
+"migrations/**" = ["E501"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+plugins = ["pydantic.mypy"]
+mypy_path = "src"
+packages = ["nexus"]
+warn_unreachable = true
+disallow_untyped_decorators = false
+
+[[tool.mypy.overrides]]
+module = ["langgraph.*", "psycopg.*", "psycopg_pool.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers"
+markers = [
+    "integration: requires PostgreSQL (DATABASE_URL / TEST_DATABASE_URL)",
+]
+filterwarnings = ["error::DeprecationWarning:nexus.*"]
+
+[tool.coverage.run]
+source = ["nexus"]
+branch = true

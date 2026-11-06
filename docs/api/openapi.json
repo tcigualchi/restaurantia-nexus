@@ -1,0 +1,5423 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "RestaurantIA Nexus API",
+    "description": "\n**RestaurantIA Nexus** — plataforma de inteligência operacional para restaurantes (projeto de portfólio).\n\n* Todos os dados são **sintéticos**; não há integração com iFood ou outras plataformas.\n* Agentes de IA **propõem**; ações sensíveis só executam após **aprovação humana** revalidada.\n* Cada restaurante é um tenant isolado: toda rota sob `/restaurants/{restaurant_id}` exige associação.\n",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/healthz": {
+      "get": {
+        "tags": [
+          "system"
+        ],
+        "summary": "Liveness probe",
+        "operationId": "healthz_healthz_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "type": "object",
+                  "title": "Response Healthz Healthz Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/readyz": {
+      "get": {
+        "tags": [
+          "system"
+        ],
+        "summary": "Readiness probe (database reachable and migrated)",
+        "operationId": "readyz_readyz_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/system/info": {
+      "get": {
+        "tags": [
+          "system"
+        ],
+        "summary": "Public runtime information (no secrets)",
+        "operationId": "system_info_api_v1_system_info_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "type": "object",
+                  "title": "Response System Info Api V1 System Info Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/scenarios": {
+      "get": {
+        "tags": [
+          "system"
+        ],
+        "summary": "Available simulation scenarios",
+        "operationId": "scenarios_api_v1_scenarios_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ScenarioView"
+                  },
+                  "type": "array",
+                  "title": "Response Scenarios Api V1 Scenarios Get"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/demo": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Create an isolated demo sandbox (synthetic data) and return a session",
+        "operationId": "demo_api_v1_auth_demo_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DemoIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/login": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Password login (seeded local users)",
+        "operationId": "login_api_v1_auth_login_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessionOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/me": {
+      "get": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Current user and accessible restaurants",
+        "operationId": "me_api_v1_auth_me_get",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/restaurants": {
+      "get": {
+        "tags": [
+          "restaurants"
+        ],
+        "summary": "Restaurants the caller can access",
+        "operationId": "list_restaurants_api_v1_restaurants_get",
+        "parameters": [
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RestaurantView"
+                  },
+                  "title": "Response List Restaurants Api V1 Restaurants Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/restaurants/{restaurant_id}": {
+      "get": {
+        "tags": [
+          "restaurants"
+        ],
+        "summary": "Get Restaurant",
+        "operationId": "get_restaurant_api_v1_restaurants__restaurant_id__get",
+        "parameters": [
+          {
+            "name": "restaurant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "ID do restaurante (tenant)",
+              "title": "Restaurant Id"
+            },
+            "description": "ID do restaurante (tenant)"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RestaurantView"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/restaurants/{restaurant_id}/overview": {
+      "get": {
+        "tags": [
+          "restaurants"
+        ],
+        "summary": "Command Center KPIs",
+        "operationId": "overview_api_v1_restaurants__restaurant_id__overview_get",
+        "parameters": [
+          {
+            "name": "restaurant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "ID do restaurante (tenant)",
+              "title": "Restaurant Id"
+            },
+            "description": "ID do restaurante (tenant)"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Overview"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/restaurants/{restaurant_id}/timeseries": {
+      "get": {
+        "tags": [
+          "restaurants"
+        ],
+        "summary": "Timeseries",
+        "operationId": "timeseries_api_v1_restaurants__restaurant_id__timeseries_get",
+        "parameters": [
+          {
+            "name": "restaurant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "ID do restaurante (tenant)",
+              "title": "Restaurant Id"
+            },
+            "description": "ID do restaurante (tenant)"
+          },
+          {
+            "name": "bucket_minutes",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 60,
+              "minimum": 1,
+              "default": 5,
+              "title": "Bucket Minutes"
+            }
+          },
+          {
+            "name": "ingredients",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "maxItems": 5
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Ingredients"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Timeseries"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/restaurants/{restaurant_id}/orders": {
+      "get": {
+        "tags": [
+          "restaurants"
+        ],
+        "summary": "Orders",
+        "operationId": "orders_api_v1_restaurants__restaurant_id__orders_get",
+        "parameters": [
+          {
+            "name": "restaurant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "ID do restaurante (tenant)",
+              "title": "Restaurant Id"
+            },
+            "description": "ID do restaurante (tenant)"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "received",
+                    "ready",
+                    "rejected",
+                    "cancelled"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "name": "channel",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "app_delivery",
+                    "dine_in",
+                    "takeout"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Channel"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 200,
+              "minimum": 1,
+              "default": 50,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 200
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Page_OrderView_"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/restaurants/{restaurant_id}/inventory": {
+      "get": {
+        "tags": [
+          "restaurants"
+        ],
+        "summary": "Inventory",
+        "operationId": "inventory_api_v1_restaurants__restaurant_id__inventory_get",
+        "parameters": [
+          {
+            "name": "restaurant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "ID do restaurante (tenant)",
+              "title": "Restaurant Id"
+            },
+            "description": "ID do restaurante (tenant)"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InventoryView"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/restaurants/{restaurant_id}/menu-items/{item_key}/availability": {
+      "post": {
+        "tags": [
+          "restaurants"
+        ],
+        "summary": "Manually pause or resume a menu item (manager; audited)",
+        "operationId": "set_availability_api_v1_restaurants__restaurant_id__menu_items__item_key__availability_post",
+        "parameters": [
+          {
+            "name": "item_key",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Item Key"
+            }
+          },
+          {
+            "name": "restaurant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "ID do restaurante (tenant)",
+              "title": "Restaurant Id"
+            },
+            "description": "ID do restaurante (tenant)"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AvailabilityIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MenuItemView"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/restaurants/{restaurant_id}/events": {
+      "post": {
+        "tags": [
+          "restaurants"
+        ],
+        "summary": "Ingest an external event (idempotent by idempotency_key)",
+        "operationId": "ingest_api_v1_restaurants__restaurant_id__events_post",
+        "parameters": [
+          {
+            "name": "restaurant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "ID do restaurante (tenant)",
+              "title": "Restaurant Id"
+            },
+            "description": "ID do restaurante (tenant)"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EventIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IngestOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "restaurants"
+        ],
+        "summary": "Events",
+        "operationId": "events_api_v1_restaurants__restaurant_id__events_get",
+        "parameters": [
+          {
+            "name": "restaurant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "ID do restaurante (tenant)",
+              "title": "Restaurant Id"
+            },
+            "description": "ID do restaurante (tenant)"
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 40
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Type"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "pending",
+                    "processed",
+                    "rejected",
+                    "dead_letter"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "name": "after_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "After Id"
+            }
+          },
+          {
+            "name": "before_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Before Id"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 500,
+              "minimum": 1,
+              "default": 100,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/EventView"
+                  },
+                  "title": "Response Events Api V1 Restaurants  Restaurant Id  Events Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/restaurants/{restaurant_id}/events/{event_id}/requeue": {
+      "post": {
+        "tags": [
+          "restaurants"
+        ],
+        "summary": "Re-queue a dead-lettered event (manager)",
+        "operationId": "requeue_api_v1_restaurants__restaurant_id__events__event_id__requeue_post",
+        "parameters": [
+          {
+            "name": "event_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Event Id"
+            }
+          },
+          {
+            "name": "restaurant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "ID do restaurante (tenant)",
+              "title": "Restaurant Id"
+            },
+            "description": "ID do restaurante (tenant)"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EventView"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/restaurants/{restaurant_id}/incidents": {
+      "get": {
+        "tags": [
+          "restaurants"
+        ],
+        "summary": "Incidents",
+        "operationId": "incidents_api_v1_restaurants__restaurant_id__incidents_get",
+        "parameters": [
+          {
+            "name": "restaurant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "ID do restaurante (tenant)",
+              "title": "Restaurant Id"
+            },
+            "description": "ID do restaurante (tenant)"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/IncidentView"
+                  },
+                  "title": "Response Incidents Api V1 Restaurants  Restaurant Id  Incidents Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/restaurants/{restaurant_id}/forecast": {
+      "get": {
+        "tags": [
+          "restaurants"
+        ],
+        "summary": "Demand forecast, backtest and history",
+        "operationId": "forecast_view_api_v1_restaurants__restaurant_id__forecast_get",
+        "parameters": [
+          {
+            "name": "restaurant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "ID do restaurante (tenant)",
+              "title": "Restaurant Id"
+            },
+            "description": "ID do restaurante (tenant)"
+          },
+          {
+            "name": "horizon_minutes",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 360,
+              "minimum": 30,
+              "default": 120,
+              "title": "Horizon Minutes"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ForecastOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/restaurants/{restaurant_id}/audit": {
+      "get": {
+        "tags": [
+          "restaurants"
+        ],
+        "summary": "Audit",
+        "operationId": "audit_api_v1_restaurants__restaurant_id__audit_get",
+        "parameters": [
+          {
+            "name": "restaurant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "ID do restaurante (tenant)",
+              "title": "Restaurant Id"
+            },
+            "description": "ID do restaurante (tenant)"
+          },
+          {
+            "name": "action",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 60
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Action"
+            }
+          },
+          {
+            "name": "actor_type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "user",
+                    "agent",
+                    "system"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Actor Type"
+            }
+          },
+          {
+            "name": "before_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Before Id"
+            }
+          },
+          {
+            "name": "after_id",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "After Id"
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 500,
+              "minimum": 1,
+              "default": 100,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AuditView"
+                  },
+                  "title": "Response Audit Api V1 Restaurants  Restaurant Id  Audit Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/restaurants/{restaurant_id}/simulation": {
+      "get": {
+        "tags": [
+          "operations",
+          "simulation"
+        ],
+        "summary": "Get Simulation",
+        "operationId": "get_simulation_api_v1_restaurants__restaurant_id__simulation_get",
+        "parameters": [
+          {
+            "name": "restaurant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "ID do restaurante (tenant)",
+              "title": "Restaurant Id"
+            },
+            "description": "ID do restaurante (tenant)"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SimulationOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "operations",
+          "simulation"
+        ],
+        "summary": "Reset the sandbox and start a scenario (deterministic for a given seed)",
+        "operationId": "start_api_v1_restaurants__restaurant_id__simulation_post",
+        "parameters": [
+          {
+            "name": "restaurant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "ID do restaurante (tenant)",
+              "title": "Restaurant Id"
+            },
+            "description": "ID do restaurante (tenant)"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StartIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SimulationOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/restaurants/{restaurant_id}/simulation/reset": {
+      "post": {
+        "tags": [
+          "operations",
+          "simulation"
+        ],
+        "summary": "Restart the latest scenario with the same seed (deterministic replay)",
+        "operationId": "reset_api_v1_restaurants__restaurant_id__simulation_reset_post",
+        "parameters": [
+          {
+            "name": "restaurant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "ID do restaurante (tenant)",
+              "title": "Restaurant Id"
+            },
+            "description": "ID do restaurante (tenant)"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SimulationOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/restaurants/{restaurant_id}/simulation/pause": {
+      "post": {
+        "tags": [
+          "operations",
+          "simulation"
+        ],
+        "summary": "Pause",
+        "operationId": "pause_api_v1_restaurants__restaurant_id__simulation_pause_post",
+        "parameters": [
+          {
+            "name": "restaurant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "ID do restaurante (tenant)",
+              "title": "Restaurant Id"
+            },
+            "description": "ID do restaurante (tenant)"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SimulationOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/restaurants/{restaurant_id}/simulation/resume": {
+      "post": {
+        "tags": [
+          "operations",
+          "simulation"
+        ],
+        "summary": "Resume",
+        "operationId": "resume_api_v1_restaurants__restaurant_id__simulation_resume_post",
+        "parameters": [
+          {
+            "name": "restaurant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "ID do restaurante (tenant)",
+              "title": "Restaurant Id"
+            },
+            "description": "ID do restaurante (tenant)"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SimulationOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/restaurants/{restaurant_id}/simulation/stop": {
+      "post": {
+        "tags": [
+          "operations",
+          "simulation"
+        ],
+        "summary": "Stop",
+        "operationId": "stop_api_v1_restaurants__restaurant_id__simulation_stop_post",
+        "parameters": [
+          {
+            "name": "restaurant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "ID do restaurante (tenant)",
+              "title": "Restaurant Id"
+            },
+            "description": "ID do restaurante (tenant)"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SimulationOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/restaurants/{restaurant_id}/simulation/step": {
+      "post": {
+        "tags": [
+          "operations",
+          "simulation"
+        ],
+        "summary": "Advance a paused (or running) simulation by N minutes",
+        "operationId": "step_api_v1_restaurants__restaurant_id__simulation_step_post",
+        "parameters": [
+          {
+            "name": "restaurant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "ID do restaurante (tenant)",
+              "title": "Restaurant Id"
+            },
+            "description": "ID do restaurante (tenant)"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StepIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StepOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/restaurants/{restaurant_id}/agent-runs": {
+      "get": {
+        "tags": [
+          "operations",
+          "agents"
+        ],
+        "summary": "Agent Runs",
+        "operationId": "agent_runs_api_v1_restaurants__restaurant_id__agent_runs_get",
+        "parameters": [
+          {
+            "name": "restaurant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "ID do restaurante (tenant)",
+              "title": "Restaurant Id"
+            },
+            "description": "ID do restaurante (tenant)"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 100,
+              "minimum": 1,
+              "default": 50,
+              "title": "Limit"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AgentRunBrief"
+                  },
+                  "title": "Response Agent Runs Api V1 Restaurants  Restaurant Id  Agent Runs Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "operations",
+          "agents"
+        ],
+        "summary": "Request an on-demand analysis by the agents (operator+)",
+        "operationId": "trigger_agent_run_api_v1_restaurants__restaurant_id__agent_runs_post",
+        "parameters": [
+          {
+            "name": "restaurant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "ID do restaurante (tenant)",
+              "title": "Restaurant Id"
+            },
+            "description": "ID do restaurante (tenant)"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentRunBrief"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/restaurants/{restaurant_id}/agent-runs/{run_id}": {
+      "get": {
+        "tags": [
+          "operations",
+          "agents"
+        ],
+        "summary": "Agent Run",
+        "operationId": "agent_run_api_v1_restaurants__restaurant_id__agent_runs__run_id__get",
+        "parameters": [
+          {
+            "name": "run_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Run Id"
+            }
+          },
+          {
+            "name": "restaurant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "ID do restaurante (tenant)",
+              "title": "Restaurant Id"
+            },
+            "description": "ID do restaurante (tenant)"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AgentRunDetail"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/restaurants/{restaurant_id}/approvals": {
+      "get": {
+        "tags": [
+          "operations",
+          "approvals"
+        ],
+        "summary": "Approvals",
+        "operationId": "approvals_api_v1_restaurants__restaurant_id__approvals_get",
+        "parameters": [
+          {
+            "name": "restaurant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "ID do restaurante (tenant)",
+              "title": "Restaurant Id"
+            },
+            "description": "ID do restaurante (tenant)"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "pending",
+                    "approved",
+                    "rejected",
+                    "expired",
+                    "executed",
+                    "failed",
+                    "cancelled"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ApprovalView"
+                  },
+                  "title": "Response Approvals Api V1 Restaurants  Restaurant Id  Approvals Get"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/restaurants/{restaurant_id}/approvals/{approval_id}/decision": {
+      "post": {
+        "tags": [
+          "operations",
+          "approvals"
+        ],
+        "summary": "Approve or reject a sensitive action (manager+). Executes only if approved and still valid.",
+        "operationId": "decide_approval_api_v1_restaurants__restaurant_id__approvals__approval_id__decision_post",
+        "parameters": [
+          {
+            "name": "approval_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Approval Id"
+            }
+          },
+          {
+            "name": "restaurant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "ID do restaurante (tenant)",
+              "title": "Restaurant Id"
+            },
+            "description": "ID do restaurante (tenant)"
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DecisionIn"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApprovalView"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/restaurants/{restaurant_id}/live": {
+      "get": {
+        "tags": [
+          "live"
+        ],
+        "summary": "Live feed for dashboards (in serverless mode, also advances background work)",
+        "operationId": "live_api_v1_restaurants__restaurant_id__live_get",
+        "parameters": [
+          {
+            "name": "restaurant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "description": "ID do restaurante (tenant)",
+              "title": "Restaurant Id"
+            },
+            "description": "ID do restaurante (tenant)"
+          },
+          {
+            "name": "cursor",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "maxLength": 48,
+                  "pattern": "^e\\d{1,18}\\.a\\d{1,18}$"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Cursor"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LiveOut"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/restaurants/{restaurant_id}/stream": {
+      "get": {
+        "tags": [
+          "live"
+        ],
+        "summary": "Server-Sent Events stream for live dashboards",
+        "operationId": "stream_api_v1_restaurants__restaurant_id__stream_get",
+        "parameters": [
+          {
+            "name": "restaurant_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Restaurant Id"
+            }
+          },
+          {
+            "name": "authorization",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Authorization"
+            }
+          },
+          {
+            "name": "Last-Event-ID",
+            "in": "header",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Last-Event-Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AgentRunBrief": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "mode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mode"
+          },
+          "provider": {
+            "type": "string",
+            "title": "Provider"
+          },
+          "model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model"
+          },
+          "trigger": {
+            "type": "string",
+            "title": "Trigger"
+          },
+          "incident_title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Incident Title"
+          },
+          "summary": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Summary"
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time",
+            "title": "As Of"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "started_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Started At"
+          },
+          "finished_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finished At"
+          },
+          "prompt_tokens": {
+            "type": "integer",
+            "title": "Prompt Tokens"
+          },
+          "completion_tokens": {
+            "type": "integer",
+            "title": "Completion Tokens"
+          },
+          "estimated_cost_usd": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Estimated Cost Usd"
+          },
+          "steps": {
+            "type": "integer",
+            "title": "Steps"
+          },
+          "approvals": {
+            "type": "integer",
+            "title": "Approvals"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "status",
+          "mode",
+          "provider",
+          "model",
+          "trigger",
+          "incident_title",
+          "summary",
+          "as_of",
+          "created_at",
+          "started_at",
+          "finished_at",
+          "prompt_tokens",
+          "completion_tokens",
+          "estimated_cost_usd",
+          "steps",
+          "approvals",
+          "error"
+        ],
+        "title": "AgentRunBrief"
+      },
+      "AgentRunDetail": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "mode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mode"
+          },
+          "provider": {
+            "type": "string",
+            "title": "Provider"
+          },
+          "model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model"
+          },
+          "trigger": {
+            "type": "string",
+            "title": "Trigger"
+          },
+          "incident_title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Incident Title"
+          },
+          "summary": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Summary"
+          },
+          "as_of": {
+            "type": "string",
+            "format": "date-time",
+            "title": "As Of"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "started_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Started At"
+          },
+          "finished_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finished At"
+          },
+          "prompt_tokens": {
+            "type": "integer",
+            "title": "Prompt Tokens"
+          },
+          "completion_tokens": {
+            "type": "integer",
+            "title": "Completion Tokens"
+          },
+          "estimated_cost_usd": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Estimated Cost Usd"
+          },
+          "steps": {
+            "type": "integer",
+            "title": "Steps"
+          },
+          "approvals": {
+            "type": "integer",
+            "title": "Approvals"
+          },
+          "error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error"
+          },
+          "plan": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Plan"
+          },
+          "outcomes": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Outcomes"
+          },
+          "incident": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/IncidentView"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "step_list": {
+            "items": {
+              "$ref": "#/components/schemas/StepView"
+            },
+            "type": "array",
+            "title": "Step List"
+          },
+          "approval_list": {
+            "items": {
+              "$ref": "#/components/schemas/ApprovalView"
+            },
+            "type": "array",
+            "title": "Approval List"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "status",
+          "mode",
+          "provider",
+          "model",
+          "trigger",
+          "incident_title",
+          "summary",
+          "as_of",
+          "created_at",
+          "started_at",
+          "finished_at",
+          "prompt_tokens",
+          "completion_tokens",
+          "estimated_cost_usd",
+          "steps",
+          "approvals",
+          "error",
+          "plan",
+          "outcomes",
+          "incident",
+          "step_list",
+          "approval_list"
+        ],
+        "title": "AgentRunDetail"
+      },
+      "ApprovalView": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "run_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Run Id"
+          },
+          "incident_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Incident Id"
+          },
+          "action_type": {
+            "type": "string",
+            "title": "Action Type"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "rationale": {
+            "type": "string",
+            "title": "Rationale"
+          },
+          "expected_impact": {
+            "type": "string",
+            "title": "Expected Impact"
+          },
+          "risk_level": {
+            "type": "string",
+            "title": "Risk Level"
+          },
+          "payload": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Payload"
+          },
+          "evidence": {
+            "items": {},
+            "type": "array",
+            "title": "Evidence"
+          },
+          "required_role": {
+            "type": "string",
+            "title": "Required Role"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "version": {
+            "type": "integer",
+            "title": "Version"
+          },
+          "requested_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Requested At"
+          },
+          "business_time": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Business Time"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Expires At"
+          },
+          "decided_by_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Decided By Label"
+          },
+          "decided_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Decided At"
+          },
+          "decision_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Decision Reason"
+          },
+          "executed_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Executed At"
+          },
+          "execution_result": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Execution Result"
+          },
+          "can_decide": {
+            "type": "boolean",
+            "title": "Can Decide",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "run_id",
+          "incident_id",
+          "action_type",
+          "title",
+          "rationale",
+          "expected_impact",
+          "risk_level",
+          "payload",
+          "evidence",
+          "required_role",
+          "status",
+          "version",
+          "requested_at",
+          "business_time",
+          "expires_at",
+          "decided_by_label",
+          "decided_at",
+          "decision_reason",
+          "executed_at",
+          "execution_result"
+        ],
+        "title": "ApprovalView"
+      },
+      "AuditView": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "actor_type": {
+            "type": "string",
+            "title": "Actor Type"
+          },
+          "actor_label": {
+            "type": "string",
+            "title": "Actor Label"
+          },
+          "action": {
+            "type": "string",
+            "title": "Action"
+          },
+          "target_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Type"
+          },
+          "target_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Id"
+          },
+          "details": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Details"
+          },
+          "business_time": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Business Time"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "actor_type",
+          "actor_label",
+          "action",
+          "target_type",
+          "target_id",
+          "details",
+          "business_time",
+          "created_at"
+        ],
+        "title": "AuditView"
+      },
+      "AvailabilityIn": {
+        "properties": {
+          "available": {
+            "type": "boolean",
+            "title": "Available"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 200
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          }
+        },
+        "type": "object",
+        "required": [
+          "available"
+        ],
+        "title": "AvailabilityIn"
+      },
+      "BacktestReport": {
+        "properties": {
+          "method": {
+            "type": "string",
+            "title": "Method"
+          },
+          "granularity": {
+            "type": "string",
+            "title": "Granularity"
+          },
+          "validation_window": {
+            "prefixItems": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "type": "array",
+            "maxItems": 2,
+            "minItems": 2,
+            "title": "Validation Window"
+          },
+          "test_window": {
+            "prefixItems": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "type": "array",
+            "maxItems": 2,
+            "minItems": 2,
+            "title": "Test Window"
+          },
+          "validation": {
+            "items": {
+              "$ref": "#/components/schemas/ModelScore"
+            },
+            "type": "array",
+            "title": "Validation"
+          },
+          "test": {
+            "items": {
+              "$ref": "#/components/schemas/ModelScore"
+            },
+            "type": "array",
+            "title": "Test"
+          },
+          "selected_model": {
+            "type": "string",
+            "title": "Selected Model"
+          },
+          "dispersion": {
+            "type": "number",
+            "title": "Dispersion"
+          },
+          "interval_level": {
+            "type": "number",
+            "title": "Interval Level"
+          },
+          "interval_coverage_test": {
+            "type": "number",
+            "title": "Interval Coverage Test"
+          },
+          "test_hours": {
+            "type": "integer",
+            "title": "Test Hours"
+          }
+        },
+        "type": "object",
+        "required": [
+          "method",
+          "granularity",
+          "validation_window",
+          "test_window",
+          "validation",
+          "test",
+          "selected_model",
+          "dispersion",
+          "interval_level",
+          "interval_coverage_test",
+          "test_hours"
+        ],
+        "title": "BacktestReport"
+      },
+      "Decision": {
+        "type": "string",
+        "enum": [
+          "approve",
+          "reject"
+        ],
+        "title": "Decision"
+      },
+      "DecisionIn": {
+        "properties": {
+          "decision": {
+            "$ref": "#/components/schemas/Decision"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "expected_version": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expected Version",
+            "description": "Optimistic concurrency check"
+          }
+        },
+        "type": "object",
+        "required": [
+          "decision"
+        ],
+        "title": "DecisionIn"
+      },
+      "DemoIn": {
+        "properties": {
+          "persona": {
+            "type": "string",
+            "enum": [
+              "manager",
+              "operator"
+            ],
+            "title": "Persona",
+            "default": "manager"
+          }
+        },
+        "type": "object",
+        "title": "DemoIn"
+      },
+      "EventIn": {
+        "properties": {
+          "idempotency_key": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9:_\\-\\.]{8,200}$",
+            "title": "Idempotency Key"
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Occurred At"
+          },
+          "payload": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/OrderCreated"
+              },
+              {
+                "$ref": "#/components/schemas/OrderReady"
+              },
+              {
+                "$ref": "#/components/schemas/OrderCancelled"
+              },
+              {
+                "$ref": "#/components/schemas/InventoryReceived"
+              },
+              {
+                "$ref": "#/components/schemas/InventoryAdjusted"
+              },
+              {
+                "$ref": "#/components/schemas/KitchenCapacityChanged"
+              }
+            ],
+            "title": "Payload",
+            "discriminator": {
+              "propertyName": "type",
+              "mapping": {
+                "inventory.adjusted": "#/components/schemas/InventoryAdjusted",
+                "inventory.received": "#/components/schemas/InventoryReceived",
+                "kitchen.capacity_changed": "#/components/schemas/KitchenCapacityChanged",
+                "order.cancelled": "#/components/schemas/OrderCancelled",
+                "order.created": "#/components/schemas/OrderCreated",
+                "order.ready": "#/components/schemas/OrderReady"
+              }
+            }
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "idempotency_key",
+          "occurred_at",
+          "payload"
+        ],
+        "title": "EventIn",
+        "description": "External ingestion contract (e.g. a POS webhook)."
+      },
+      "EventView": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "type": {
+            "type": "string",
+            "title": "Type"
+          },
+          "source": {
+            "type": "string",
+            "title": "Source"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "tick": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tick"
+          },
+          "occurred_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Occurred At"
+          },
+          "received_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Received At"
+          },
+          "attempts": {
+            "type": "integer",
+            "title": "Attempts"
+          },
+          "outcome": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Outcome"
+          },
+          "last_error": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Error"
+          },
+          "payload": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "Payload"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "source",
+          "status",
+          "tick",
+          "occurred_at",
+          "received_at",
+          "attempts",
+          "outcome",
+          "last_error",
+          "payload"
+        ],
+        "title": "EventView"
+      },
+      "ForecastOut": {
+        "properties": {
+          "forecast": {
+            "$ref": "#/components/schemas/ForecastResult"
+          },
+          "history": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "History"
+          },
+          "data_label": {
+            "type": "string",
+            "title": "Data Label"
+          }
+        },
+        "type": "object",
+        "required": [
+          "forecast",
+          "history",
+          "data_label"
+        ],
+        "title": "ForecastOut"
+      },
+      "ForecastResult": {
+        "properties": {
+          "as_of": {
+            "type": "string",
+            "format": "date-time",
+            "title": "As Of"
+          },
+          "horizon_minutes": {
+            "type": "integer",
+            "title": "Horizon Minutes"
+          },
+          "model": {
+            "type": "string",
+            "title": "Model"
+          },
+          "orders": {
+            "$ref": "#/components/schemas/Interval"
+          },
+          "orders_adjusted": {
+            "$ref": "#/components/schemas/Interval"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ItemForecast"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "ingredients": {
+            "items": {
+              "$ref": "#/components/schemas/IngredientForecast"
+            },
+            "type": "array",
+            "title": "Ingredients"
+          },
+          "nowcast": {
+            "$ref": "#/components/schemas/NowcastInfo"
+          },
+          "backtest": {
+            "$ref": "#/components/schemas/BacktestReport"
+          },
+          "disclaimer": {
+            "type": "string",
+            "title": "Disclaimer"
+          }
+        },
+        "type": "object",
+        "required": [
+          "as_of",
+          "horizon_minutes",
+          "model",
+          "orders",
+          "orders_adjusted",
+          "items",
+          "ingredients",
+          "nowcast",
+          "backtest",
+          "disclaimer"
+        ],
+        "title": "ForecastResult"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "IncidentView": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "severity": {
+            "type": "string",
+            "title": "Severity"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "detected_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Detected At"
+          },
+          "tick": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tick"
+          },
+          "signals": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array",
+            "title": "Signals"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "severity",
+          "status",
+          "detected_at",
+          "tick",
+          "signals"
+        ],
+        "title": "IncidentView"
+      },
+      "IngestOut": {
+        "properties": {
+          "event_id": {
+            "type": "integer",
+            "title": "Event Id"
+          },
+          "created": {
+            "type": "boolean",
+            "title": "Created"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "outcome": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Outcome"
+          }
+        },
+        "type": "object",
+        "required": [
+          "event_id",
+          "created",
+          "status",
+          "outcome"
+        ],
+        "title": "IngestOut"
+      },
+      "IngredientForecast": {
+        "properties": {
+          "ingredient_key": {
+            "type": "string",
+            "title": "Ingredient Key"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "unit": {
+            "type": "string",
+            "title": "Unit"
+          },
+          "baseline": {
+            "$ref": "#/components/schemas/Interval"
+          },
+          "adjusted": {
+            "$ref": "#/components/schemas/Interval"
+          }
+        },
+        "type": "object",
+        "required": [
+          "ingredient_key",
+          "name",
+          "unit",
+          "baseline",
+          "adjusted"
+        ],
+        "title": "IngredientForecast"
+      },
+      "IngredientRisk": {
+        "properties": {
+          "ingredient_key": {
+            "type": "string",
+            "title": "Ingredient Key"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "unit": {
+            "type": "string",
+            "title": "Unit"
+          },
+          "stock": {
+            "type": "number",
+            "title": "Stock"
+          },
+          "safety_stock": {
+            "type": "number",
+            "title": "Safety Stock"
+          },
+          "consumption_per_hour": {
+            "type": "number",
+            "title": "Consumption Per Hour"
+          },
+          "eta_minutes": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Eta Minutes"
+          },
+          "eta_to_safety_minutes": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Eta To Safety Minutes"
+          },
+          "risk": {
+            "type": "string",
+            "title": "Risk"
+          }
+        },
+        "type": "object",
+        "required": [
+          "ingredient_key",
+          "name",
+          "unit",
+          "stock",
+          "safety_stock",
+          "consumption_per_hour",
+          "eta_minutes",
+          "eta_to_safety_minutes",
+          "risk"
+        ],
+        "title": "IngredientRisk"
+      },
+      "IngredientView": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "key": {
+            "type": "string",
+            "title": "Key"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "unit": {
+            "type": "string",
+            "title": "Unit"
+          },
+          "stock": {
+            "type": "number",
+            "title": "Stock"
+          },
+          "safety_stock": {
+            "type": "number",
+            "title": "Safety Stock"
+          },
+          "consumption_per_hour": {
+            "type": "number",
+            "title": "Consumption Per Hour"
+          },
+          "eta_minutes": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Eta Minutes"
+          },
+          "risk": {
+            "type": "string",
+            "title": "Risk"
+          },
+          "pack_size": {
+            "type": "number",
+            "title": "Pack Size"
+          },
+          "lead_time_minutes": {
+            "type": "integer",
+            "title": "Lead Time Minutes"
+          },
+          "unit_cost_cents": {
+            "type": "integer",
+            "title": "Unit Cost Cents"
+          },
+          "open_po_qty": {
+            "type": "number",
+            "title": "Open Po Qty"
+          },
+          "used_by": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Used By"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "key",
+          "name",
+          "unit",
+          "stock",
+          "safety_stock",
+          "consumption_per_hour",
+          "eta_minutes",
+          "risk",
+          "pack_size",
+          "lead_time_minutes",
+          "unit_cost_cents",
+          "open_po_qty",
+          "used_by"
+        ],
+        "title": "IngredientView"
+      },
+      "Interval": {
+        "properties": {
+          "expected": {
+            "type": "number",
+            "title": "Expected"
+          },
+          "p10": {
+            "type": "number",
+            "title": "P10"
+          },
+          "p90": {
+            "type": "number",
+            "title": "P90"
+          }
+        },
+        "type": "object",
+        "required": [
+          "expected",
+          "p10",
+          "p90"
+        ],
+        "title": "Interval"
+      },
+      "InventoryAdjusted": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "const": "inventory.adjusted",
+            "title": "Type",
+            "default": "inventory.adjusted"
+          },
+          "ingredient_key": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]{1,63}$",
+            "title": "Ingredient Key"
+          },
+          "delta": {
+            "type": "number",
+            "maximum": 1000000.0,
+            "minimum": -1000000.0,
+            "title": "Delta"
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 2,
+            "title": "Reason"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "ingredient_key",
+          "delta",
+          "reason"
+        ],
+        "title": "InventoryAdjusted"
+      },
+      "InventoryReceived": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "const": "inventory.received",
+            "title": "Type",
+            "default": "inventory.received"
+          },
+          "ingredient_key": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]{1,63}$",
+            "title": "Ingredient Key"
+          },
+          "quantity": {
+            "type": "number",
+            "maximum": 1000000.0,
+            "exclusiveMinimum": 0.0,
+            "title": "Quantity"
+          },
+          "purchase_order_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 64
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Purchase Order Id"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "ingredient_key",
+          "quantity"
+        ],
+        "title": "InventoryReceived"
+      },
+      "InventoryView": {
+        "properties": {
+          "business_time": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Business Time"
+          },
+          "ingredients": {
+            "items": {
+              "$ref": "#/components/schemas/IngredientView"
+            },
+            "type": "array",
+            "title": "Ingredients"
+          },
+          "menu_items": {
+            "items": {
+              "$ref": "#/components/schemas/MenuItemView"
+            },
+            "type": "array",
+            "title": "Menu Items"
+          },
+          "purchase_orders": {
+            "items": {
+              "$ref": "#/components/schemas/PurchaseOrderView"
+            },
+            "type": "array",
+            "title": "Purchase Orders"
+          }
+        },
+        "type": "object",
+        "required": [
+          "business_time",
+          "ingredients",
+          "menu_items",
+          "purchase_orders"
+        ],
+        "title": "InventoryView"
+      },
+      "ItemForecast": {
+        "properties": {
+          "item_key": {
+            "type": "string",
+            "title": "Item Key"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "baseline": {
+            "$ref": "#/components/schemas/Interval"
+          },
+          "adjusted": {
+            "$ref": "#/components/schemas/Interval"
+          }
+        },
+        "type": "object",
+        "required": [
+          "item_key",
+          "name",
+          "baseline",
+          "adjusted"
+        ],
+        "title": "ItemForecast"
+      },
+      "KitchenCapacityChanged": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "const": "kitchen.capacity_changed",
+            "title": "Type",
+            "default": "kitchen.capacity_changed"
+          },
+          "lines_available": {
+            "type": "integer",
+            "maximum": 50.0,
+            "minimum": 0.0,
+            "title": "Lines Available"
+          },
+          "lines_total": {
+            "type": "integer",
+            "maximum": 50.0,
+            "minimum": 1.0,
+            "title": "Lines Total"
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 2,
+            "title": "Reason"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "lines_available",
+          "lines_total",
+          "reason"
+        ],
+        "title": "KitchenCapacityChanged"
+      },
+      "Kpis": {
+        "properties": {
+          "orders_last_60": {
+            "type": "integer",
+            "title": "Orders Last 60"
+          },
+          "revenue_last_60_cents": {
+            "type": "integer",
+            "title": "Revenue Last 60 Cents"
+          },
+          "queue_length": {
+            "type": "integer",
+            "title": "Queue Length"
+          },
+          "oldest_open_minutes": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Oldest Open Minutes"
+          },
+          "avg_prep_minutes": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avg Prep Minutes"
+          },
+          "p90_prep_minutes": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "P90 Prep Minutes"
+          },
+          "sla_minutes": {
+            "type": "integer",
+            "title": "Sla Minutes"
+          },
+          "sla_breach_rate": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sla Breach Rate"
+          },
+          "lost_orders_total": {
+            "type": "integer",
+            "title": "Lost Orders Total"
+          },
+          "lost_revenue_total_cents": {
+            "type": "integer",
+            "title": "Lost Revenue Total Cents"
+          },
+          "orders_total": {
+            "type": "integer",
+            "title": "Orders Total"
+          },
+          "revenue_total_cents": {
+            "type": "integer",
+            "title": "Revenue Total Cents"
+          },
+          "kitchen_lines": {
+            "type": "integer",
+            "title": "Kitchen Lines"
+          },
+          "kitchen_lines_available": {
+            "type": "integer",
+            "title": "Kitchen Lines Available"
+          },
+          "open_incidents": {
+            "type": "integer",
+            "title": "Open Incidents"
+          },
+          "pending_approvals": {
+            "type": "integer",
+            "title": "Pending Approvals"
+          },
+          "ingredients_at_risk": {
+            "type": "integer",
+            "title": "Ingredients At Risk"
+          }
+        },
+        "type": "object",
+        "required": [
+          "orders_last_60",
+          "revenue_last_60_cents",
+          "queue_length",
+          "oldest_open_minutes",
+          "avg_prep_minutes",
+          "p90_prep_minutes",
+          "sla_minutes",
+          "sla_breach_rate",
+          "lost_orders_total",
+          "lost_revenue_total_cents",
+          "orders_total",
+          "revenue_total_cents",
+          "kitchen_lines",
+          "kitchen_lines_available",
+          "open_incidents",
+          "pending_approvals",
+          "ingredients_at_risk"
+        ],
+        "title": "Kpis"
+      },
+      "LiveAuditOut": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "action": {
+            "type": "string",
+            "title": "Action"
+          },
+          "actor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Actor"
+          },
+          "actor_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Actor Type"
+          },
+          "target_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Type"
+          },
+          "target_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Target Id"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "created_at": {
+            "type": "string",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "action",
+          "created_at"
+        ],
+        "title": "LiveAuditOut"
+      },
+      "LiveEventOut": {
+        "properties": {
+          "id": {
+            "type": "integer",
+            "title": "Id"
+          },
+          "type": {
+            "type": "string",
+            "title": "Type"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "tick": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tick"
+          },
+          "occurred_at": {
+            "type": "string",
+            "title": "Occurred At"
+          },
+          "order_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Order Ref"
+          },
+          "outcome": {
+            "title": "Outcome"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "type",
+          "status",
+          "tick",
+          "occurred_at"
+        ],
+        "title": "LiveEventOut"
+      },
+      "LiveOut": {
+        "properties": {
+          "events": {
+            "items": {
+              "$ref": "#/components/schemas/LiveEventOut"
+            },
+            "type": "array",
+            "title": "Events"
+          },
+          "audits": {
+            "items": {
+              "$ref": "#/components/schemas/LiveAuditOut"
+            },
+            "type": "array",
+            "title": "Audits"
+          },
+          "status": {
+            "$ref": "#/components/schemas/LiveStatusOut"
+          },
+          "cursor": {
+            "type": "string",
+            "title": "Cursor"
+          }
+        },
+        "type": "object",
+        "required": [
+          "events",
+          "audits",
+          "status",
+          "cursor"
+        ],
+        "title": "LiveOut"
+      },
+      "LiveStatusOut": {
+        "properties": {
+          "simulation": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Simulation"
+          },
+          "business_time": {
+            "type": "string",
+            "title": "Business Time"
+          },
+          "agents_running": {
+            "type": "integer",
+            "title": "Agents Running"
+          },
+          "pending_approvals": {
+            "type": "integer",
+            "title": "Pending Approvals"
+          }
+        },
+        "type": "object",
+        "required": [
+          "simulation",
+          "business_time",
+          "agents_running",
+          "pending_approvals"
+        ],
+        "title": "LiveStatusOut"
+      },
+      "LoginIn": {
+        "properties": {
+          "email": {
+            "type": "string",
+            "maxLength": 254,
+            "minLength": 3,
+            "title": "Email"
+          },
+          "password": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 8,
+            "title": "Password"
+          }
+        },
+        "type": "object",
+        "required": [
+          "email",
+          "password"
+        ],
+        "title": "LoginIn"
+      },
+      "MeOut": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "display_name": {
+            "type": "string",
+            "title": "Display Name"
+          },
+          "is_demo": {
+            "type": "boolean",
+            "title": "Is Demo"
+          },
+          "demo_expires_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Demo Expires At"
+          },
+          "restaurants": {
+            "items": {
+              "$ref": "#/components/schemas/RestaurantView"
+            },
+            "type": "array",
+            "title": "Restaurants"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "display_name",
+          "is_demo",
+          "demo_expires_at",
+          "restaurants"
+        ],
+        "title": "MeOut"
+      },
+      "MenuItemView": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "key": {
+            "type": "string",
+            "title": "Key"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "category": {
+            "type": "string",
+            "title": "Category"
+          },
+          "course": {
+            "type": "string",
+            "title": "Course"
+          },
+          "price_cents": {
+            "type": "integer",
+            "title": "Price Cents"
+          },
+          "is_available": {
+            "type": "boolean",
+            "title": "Is Available"
+          },
+          "unavailable_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Unavailable Reason"
+          },
+          "recipe": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Recipe"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "key",
+          "name",
+          "category",
+          "course",
+          "price_cents",
+          "is_available",
+          "unavailable_reason",
+          "recipe"
+        ],
+        "title": "MenuItemView"
+      },
+      "ModelScore": {
+        "properties": {
+          "model": {
+            "type": "string",
+            "title": "Model"
+          },
+          "mae": {
+            "type": "number",
+            "title": "Mae"
+          },
+          "wape": {
+            "type": "number",
+            "title": "Wape"
+          }
+        },
+        "type": "object",
+        "required": [
+          "model",
+          "mae",
+          "wape"
+        ],
+        "title": "ModelScore"
+      },
+      "NowcastInfo": {
+        "properties": {
+          "window_minutes": {
+            "type": "number",
+            "title": "Window Minutes"
+          },
+          "observed_orders": {
+            "type": "integer",
+            "title": "Observed Orders"
+          },
+          "expected_orders": {
+            "type": "number",
+            "title": "Expected Orders"
+          },
+          "raw_ratio": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Raw Ratio"
+          },
+          "applied_ratio": {
+            "type": "number",
+            "title": "Applied Ratio"
+          },
+          "note": {
+            "type": "string",
+            "title": "Note"
+          }
+        },
+        "type": "object",
+        "required": [
+          "window_minutes",
+          "observed_orders",
+          "expected_orders",
+          "raw_ratio",
+          "applied_ratio",
+          "note"
+        ],
+        "title": "NowcastInfo"
+      },
+      "OrderCancelled": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "const": "order.cancelled",
+            "title": "Type",
+            "default": "order.cancelled"
+          },
+          "order_ref": {
+            "type": "string",
+            "pattern": "^[A-Z0-9][A-Z0-9\\-]{2,39}$",
+            "title": "Order Ref"
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 2,
+            "title": "Reason"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "order_ref",
+          "reason"
+        ],
+        "title": "OrderCancelled"
+      },
+      "OrderCreated": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "const": "order.created",
+            "title": "Type",
+            "default": "order.created"
+          },
+          "order_ref": {
+            "type": "string",
+            "pattern": "^[A-Z0-9][A-Z0-9\\-]{2,39}$",
+            "title": "Order Ref"
+          },
+          "channel": {
+            "type": "string",
+            "enum": [
+              "app_delivery",
+              "dine_in",
+              "takeout"
+            ],
+            "title": "Channel"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/OrderItemIn"
+            },
+            "type": "array",
+            "maxItems": 20,
+            "minItems": 1,
+            "title": "Items"
+          },
+          "promised_prep_minutes": {
+            "type": "integer",
+            "maximum": 240.0,
+            "minimum": 1.0,
+            "title": "Promised Prep Minutes",
+            "default": 18
+          },
+          "customer_note": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 500
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Customer Note"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "order_ref",
+          "channel",
+          "items"
+        ],
+        "title": "OrderCreated"
+      },
+      "OrderItemIn": {
+        "properties": {
+          "item_key": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]{1,63}$",
+            "title": "Item Key"
+          },
+          "qty": {
+            "type": "integer",
+            "maximum": 20.0,
+            "minimum": 1.0,
+            "title": "Qty"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "item_key",
+          "qty"
+        ],
+        "title": "OrderItemIn"
+      },
+      "OrderItemView": {
+        "properties": {
+          "item_key": {
+            "type": "string",
+            "title": "Item Key"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "qty": {
+            "type": "integer",
+            "title": "Qty"
+          },
+          "unit_price_cents": {
+            "type": "integer",
+            "title": "Unit Price Cents"
+          }
+        },
+        "type": "object",
+        "required": [
+          "item_key",
+          "name",
+          "qty",
+          "unit_price_cents"
+        ],
+        "title": "OrderItemView"
+      },
+      "OrderReady": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "const": "order.ready",
+            "title": "Type",
+            "default": "order.ready"
+          },
+          "order_ref": {
+            "type": "string",
+            "pattern": "^[A-Z0-9][A-Z0-9\\-]{2,39}$",
+            "title": "Order Ref"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "order_ref"
+        ],
+        "title": "OrderReady"
+      },
+      "OrderView": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "order_ref": {
+            "type": "string",
+            "title": "Order Ref"
+          },
+          "channel": {
+            "type": "string",
+            "title": "Channel"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          },
+          "ready_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ready At"
+          },
+          "prep_minutes": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Prep Minutes"
+          },
+          "total_cents": {
+            "type": "integer",
+            "title": "Total Cents"
+          },
+          "reject_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reject Reason"
+          },
+          "customer_note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Customer Note"
+          },
+          "note_flags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Note Flags"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/OrderItemView"
+            },
+            "type": "array",
+            "title": "Items"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "order_ref",
+          "channel",
+          "status",
+          "created_at",
+          "ready_at",
+          "prep_minutes",
+          "total_cents",
+          "reject_reason",
+          "customer_note",
+          "note_flags",
+          "items"
+        ],
+        "title": "OrderView"
+      },
+      "Overview": {
+        "properties": {
+          "restaurant": {
+            "$ref": "#/components/schemas/RestaurantView"
+          },
+          "business_time": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Business Time"
+          },
+          "clock_mode": {
+            "type": "string",
+            "title": "Clock Mode"
+          },
+          "data_label": {
+            "type": "string",
+            "title": "Data Label"
+          },
+          "simulation": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SimulationView"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "kpis": {
+            "$ref": "#/components/schemas/Kpis"
+          },
+          "ingredients_at_risk": {
+            "items": {
+              "$ref": "#/components/schemas/IngredientRisk"
+            },
+            "type": "array",
+            "title": "Ingredients At Risk"
+          },
+          "latest_agent_run": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AgentRunBrief"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "restaurant",
+          "business_time",
+          "clock_mode",
+          "data_label",
+          "simulation",
+          "kpis",
+          "ingredients_at_risk",
+          "latest_agent_run"
+        ],
+        "title": "Overview"
+      },
+      "Page_OrderView_": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/OrderView"
+            },
+            "type": "array",
+            "title": "Items"
+          },
+          "next_cursor": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Cursor"
+          },
+          "total": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Total"
+          }
+        },
+        "type": "object",
+        "required": [
+          "items"
+        ],
+        "title": "Page[OrderView]"
+      },
+      "PurchaseOrderView": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "ingredient_key": {
+            "type": "string",
+            "title": "Ingredient Key"
+          },
+          "ingredient_name": {
+            "type": "string",
+            "title": "Ingredient Name"
+          },
+          "quantity": {
+            "type": "number",
+            "title": "Quantity"
+          },
+          "unit": {
+            "type": "string",
+            "title": "Unit"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "estimated_cost_cents": {
+            "type": "integer",
+            "title": "Estimated Cost Cents"
+          },
+          "expected_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Expected At"
+          },
+          "received_at": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Received At"
+          },
+          "approval_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Approval Id"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "ingredient_key",
+          "ingredient_name",
+          "quantity",
+          "unit",
+          "status",
+          "estimated_cost_cents",
+          "expected_at",
+          "received_at",
+          "approval_id",
+          "created_at"
+        ],
+        "title": "PurchaseOrderView"
+      },
+      "RestaurantView": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "template_key": {
+            "type": "string",
+            "title": "Template Key"
+          },
+          "timezone": {
+            "type": "string",
+            "title": "Timezone"
+          },
+          "kitchen_lines": {
+            "type": "integer",
+            "title": "Kitchen Lines"
+          },
+          "kitchen_lines_available": {
+            "type": "integer",
+            "title": "Kitchen Lines Available"
+          },
+          "prep_sla_minutes": {
+            "type": "integer",
+            "title": "Prep Sla Minutes"
+          },
+          "is_demo": {
+            "type": "boolean",
+            "title": "Is Demo"
+          },
+          "role": {
+            "type": "string",
+            "title": "Role"
+          },
+          "permissions": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Permissions"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "name",
+          "template_key",
+          "timezone",
+          "kitchen_lines",
+          "kitchen_lines_available",
+          "prep_sla_minutes",
+          "is_demo",
+          "role",
+          "permissions"
+        ],
+        "title": "RestaurantView"
+      },
+      "ScenarioView": {
+        "properties": {
+          "key": {
+            "type": "string",
+            "title": "Key"
+          },
+          "name": {
+            "type": "string",
+            "title": "Name"
+          },
+          "description": {
+            "type": "string",
+            "title": "Description"
+          },
+          "total_ticks": {
+            "type": "integer",
+            "title": "Total Ticks"
+          },
+          "featured": {
+            "type": "boolean",
+            "title": "Featured"
+          },
+          "tags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Tags"
+          },
+          "auto_pause_on_approval": {
+            "type": "boolean",
+            "title": "Auto Pause On Approval"
+          }
+        },
+        "type": "object",
+        "required": [
+          "key",
+          "name",
+          "description",
+          "total_ticks",
+          "featured",
+          "tags",
+          "auto_pause_on_approval"
+        ],
+        "title": "ScenarioView"
+      },
+      "SessionOut": {
+        "properties": {
+          "access_token": {
+            "type": "string",
+            "title": "Access Token"
+          },
+          "token_type": {
+            "type": "string",
+            "title": "Token Type",
+            "default": "bearer"
+          },
+          "expires_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Expires At"
+          },
+          "user": {
+            "additionalProperties": true,
+            "type": "object",
+            "title": "User"
+          },
+          "restaurants": {
+            "items": {
+              "$ref": "#/components/schemas/RestaurantView"
+            },
+            "type": "array",
+            "title": "Restaurants"
+          }
+        },
+        "type": "object",
+        "required": [
+          "access_token",
+          "expires_at",
+          "user",
+          "restaurants"
+        ],
+        "title": "SessionOut"
+      },
+      "SimulationOut": {
+        "properties": {
+          "simulation": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SimulationView"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "simulation"
+        ],
+        "title": "SimulationOut"
+      },
+      "SimulationView": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "scenario_key": {
+            "type": "string",
+            "title": "Scenario Key"
+          },
+          "scenario_name": {
+            "type": "string",
+            "title": "Scenario Name"
+          },
+          "seed": {
+            "type": "integer",
+            "title": "Seed"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "pause_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pause Reason"
+          },
+          "current_tick": {
+            "type": "integer",
+            "title": "Current Tick"
+          },
+          "total_ticks": {
+            "type": "integer",
+            "title": "Total Ticks"
+          },
+          "tick_interval_ms": {
+            "type": "integer",
+            "title": "Tick Interval Ms"
+          },
+          "auto_pause_on_approval": {
+            "type": "boolean",
+            "title": "Auto Pause On Approval"
+          },
+          "sim_start": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Sim Start"
+          },
+          "business_time": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Business Time"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "scenario_key",
+          "scenario_name",
+          "seed",
+          "status",
+          "pause_reason",
+          "current_tick",
+          "total_ticks",
+          "tick_interval_ms",
+          "auto_pause_on_approval",
+          "sim_start",
+          "business_time",
+          "created_at"
+        ],
+        "title": "SimulationView"
+      },
+      "StartIn": {
+        "properties": {
+          "scenario_key": {
+            "type": "string",
+            "pattern": "^[a-z_]{3,40}$",
+            "title": "Scenario Key",
+            "default": "rush_stockout"
+          },
+          "seed": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 2147483647.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Seed"
+          },
+          "tick_interval_ms": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 10000.0,
+                "minimum": 100.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tick Interval Ms"
+          },
+          "auto_pause_on_approval": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Auto Pause On Approval"
+          }
+        },
+        "type": "object",
+        "title": "StartIn"
+      },
+      "StepIn": {
+        "properties": {
+          "ticks": {
+            "type": "integer",
+            "maximum": 30.0,
+            "minimum": 1.0,
+            "title": "Ticks",
+            "default": 1
+          }
+        },
+        "type": "object",
+        "title": "StepIn"
+      },
+      "StepOut": {
+        "properties": {
+          "simulation": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SimulationView"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "ticks_run": {
+            "type": "integer",
+            "title": "Ticks Run"
+          },
+          "incident_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Incident Id"
+          },
+          "agent_run_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Agent Run Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "simulation",
+          "ticks_run",
+          "incident_id",
+          "agent_run_id"
+        ],
+        "title": "StepOut"
+      },
+      "StepView": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "seq": {
+            "type": "integer",
+            "title": "Seq"
+          },
+          "agent": {
+            "type": "string",
+            "title": "Agent"
+          },
+          "kind": {
+            "type": "string",
+            "title": "Kind"
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "tool_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tool Name"
+          },
+          "input": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Input"
+          },
+          "output": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Output"
+          },
+          "status": {
+            "type": "string",
+            "title": "Status"
+          },
+          "latency_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Latency Ms"
+          },
+          "flags": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Flags"
+          },
+          "created_at": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Created At"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "seq",
+          "agent",
+          "kind",
+          "title",
+          "tool_name",
+          "input",
+          "output",
+          "status",
+          "latency_ms",
+          "flags",
+          "created_at"
+        ],
+        "title": "StepView"
+      },
+      "Timeseries": {
+        "properties": {
+          "bucket_minutes": {
+            "type": "integer",
+            "title": "Bucket Minutes"
+          },
+          "start": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Start"
+          },
+          "end": {
+            "type": "string",
+            "format": "date-time",
+            "title": "End"
+          },
+          "ingredients": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "type": "object",
+            "title": "Ingredients"
+          },
+          "points": {
+            "items": {
+              "$ref": "#/components/schemas/TimeseriesPoint"
+            },
+            "type": "array",
+            "title": "Points"
+          }
+        },
+        "type": "object",
+        "required": [
+          "bucket_minutes",
+          "start",
+          "end",
+          "ingredients",
+          "points"
+        ],
+        "title": "Timeseries"
+      },
+      "TimeseriesPoint": {
+        "properties": {
+          "t": {
+            "type": "string",
+            "format": "date-time",
+            "title": "T"
+          },
+          "orders": {
+            "type": "integer",
+            "title": "Orders"
+          },
+          "rejected": {
+            "type": "integer",
+            "title": "Rejected"
+          },
+          "avg_prep_minutes": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Avg Prep Minutes"
+          },
+          "queue_length": {
+            "type": "integer",
+            "title": "Queue Length"
+          },
+          "stock": {
+            "additionalProperties": {
+              "type": "number"
+            },
+            "type": "object",
+            "title": "Stock"
+          }
+        },
+        "type": "object",
+        "required": [
+          "t",
+          "orders",
+          "rejected",
+          "avg_prep_minutes",
+          "queue_length"
+        ],
+        "title": "TimeseriesPoint"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}

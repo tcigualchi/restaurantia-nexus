@@ -1,0 +1,89 @@
+# Local stack: PostgreSQL (with pgvector, ready for the RAG phase), API, worker and web.
+#   cp .env.example .env   # optional: every variable has a safe local default
+#   docker compose up --build
+#   open http://localhost:3000
+name: restaurantia-nexus
+
+x-api-env: &api-env
+  APP_ENV: ${APP_ENV:-development}
+  DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-nexus}:${POSTGRES_PASSWORD:-nexus}@db:5432/${POSTGRES_DB:-nexus}
+  # Empty in development => an ephemeral random secret is generated at startup.
+  # Production refuses to start without a strong JWT_SECRET.
+  JWT_SECRET: ${JWT_SECRET:-}
+  CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000}
+  # Set both in production so the API can attribute rate limits to real clients behind the web BFF.
+  TRUST_PROXY_HEADERS: ${TRUST_PROXY_HEADERS:-false}
+  PROXY_SHARED_SECRET: ${PROXY_SHARED_SECRET:-}
+  DEMO_MAX_SESSIONS_PER_IP_PER_HOUR: ${DEMO_MAX_SESSIONS_PER_IP_PER_HOUR:-30}
+  LLM_PROVIDER: ${LLM_PROVIDER:-deterministic}
+  LLM_BASE_URL: ${LLM_BASE_URL:-https://api.openai.com/v1}
+  LLM_API_KEY: ${LLM_API_KEY:-}
+  LLM_MODEL: ${LLM_MODEL:-}
+  LLM_PRICE_INPUT_PER_MTOK_USD: ${LLM_PRICE_INPUT_PER_MTOK_USD:-}
+  LLM_PRICE_OUTPUT_PER_MTOK_USD: ${LLM_PRICE_OUTPUT_PER_MTOK_USD:-}
+  AGENT_CHECKPOINTER: ${AGENT_CHECKPOINTER:-postgres}
+  LOG_LEVEL: ${LOG_LEVEL:-INFO}
+
+# API and worker run the same image. Both build it (BuildKit reuses the cached layers) instead of
+# sharing a fixed `image:` tag, so Compose never tries to pull a local-only image from Docker Hub.
+x-api-build: &api-build
+  context: .
+  dockerfile: apps/api/Dockerfile
+
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-nexus}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-nexus}
+      POSTGRES_DB: ${POSTGRES_DB:-nexus}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  api:
+    build: *api-build
+    command: ["api"]
+    environment:
+      <<: *api-env
+      RUN_MIGRATIONS_ON_START: "true"
+      FORWARDED_ALLOW_IPS: "*"
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:8000:8000"
+
+  worker:
+    build: *api-build
+    command: ["worker"]
+    environment:
+      <<: *api-env
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      disable: true
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    environment:
+      API_INTERNAL_URL: http://api:8000
+      PROXY_SHARED_SECRET: ${PROXY_SHARED_SECRET:-}
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - "3000:3000"
+
+volumes:
+  pgdata:

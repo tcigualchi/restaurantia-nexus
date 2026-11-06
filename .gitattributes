@@ -1,0 +1,7 @@
+# Keep LF line endings everywhere: shell scripts and Dockerfiles break inside Linux containers
+# when a Windows checkout converts them to CRLF.
+* text=auto eol=lf
+*.png binary
+*.webp binary
+*.jpg binary
+*.mp4 binary

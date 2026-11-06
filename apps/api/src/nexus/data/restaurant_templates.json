@@ -1,0 +1,77 @@
+{
+  "$comment": "Dados 100% sintéticos para demonstração. Restaurantes, cardápios, preços e estoques são fictícios e não representam nenhuma empresa real.",
+  "version": "2026.11.1",
+  "templates": [
+    {
+      "key": "aurora_pinheiros",
+      "name": "Aurora Burger & Bowl — Pinheiros",
+      "timezone": "America/Sao_Paulo",
+      "kitchen_lines": 10,
+      "prep_sla_minutes": 18,
+      "peak_orders_per_hour": 57,
+      "history_seed": 4101,
+      "ingredients": [
+        {"key": "ing_pao_brioche", "name": "Pão brioche", "unit": "un", "stock": 420, "safety_stock": 50, "unit_cost_cents": 150, "pack_size": 24, "lead_time_minutes": 60},
+        {"key": "ing_blend_bovino", "name": "Blend bovino 90 g", "unit": "un", "stock": 400, "safety_stock": 60, "unit_cost_cents": 450, "pack_size": 20, "lead_time_minutes": 60},
+        {"key": "ing_costela", "name": "Costela bovina desfiada", "unit": "g", "stock": 30000, "safety_stock": 3000, "unit_cost_cents": 9, "pack_size": 1000, "lead_time_minutes": 40},
+        {"key": "ing_cheddar", "name": "Queijo cheddar (fatia)", "unit": "un", "stock": 560, "safety_stock": 100, "unit_cost_cents": 60, "pack_size": 50, "lead_time_minutes": 60},
+        {"key": "ing_bacon", "name": "Bacon fatiado", "unit": "g", "stock": 6000, "safety_stock": 1000, "unit_cost_cents": 6, "pack_size": 1000, "lead_time_minutes": 60},
+        {"key": "ing_massa_pastel", "name": "Massa de pastel", "unit": "un", "stock": 360, "safety_stock": 60, "unit_cost_cents": 40, "pack_size": 50, "lead_time_minutes": 60},
+        {"key": "ing_grao_bico", "name": "Grão-de-bico cozido", "unit": "g", "stock": 12000, "safety_stock": 1500, "unit_cost_cents": 2, "pack_size": 1000, "lead_time_minutes": 60},
+        {"key": "ing_arroz", "name": "Arroz cozido", "unit": "g", "stock": 30000, "safety_stock": 3000, "unit_cost_cents": 1, "pack_size": 2000, "lead_time_minutes": 60},
+        {"key": "ing_batata", "name": "Batata rústica pré-cozida", "unit": "g", "stock": 45000, "safety_stock": 8000, "unit_cost_cents": 1, "pack_size": 2500, "lead_time_minutes": 60},
+        {"key": "ing_cebola", "name": "Cebola", "unit": "g", "stock": 26000, "safety_stock": 2000, "unit_cost_cents": 1, "pack_size": 1000, "lead_time_minutes": 60},
+        {"key": "ing_oleo", "name": "Óleo de fritura", "unit": "ml", "stock": 36000, "safety_stock": 6000, "unit_cost_cents": 1, "pack_size": 900, "lead_time_minutes": 60},
+        {"key": "ing_molho_casa", "name": "Molho da casa", "unit": "ml", "stock": 13000, "safety_stock": 1200, "unit_cost_cents": 3, "pack_size": 1000, "lead_time_minutes": 60},
+        {"key": "ing_refri_lata", "name": "Refrigerante lata 350 ml", "unit": "un", "stock": 320, "safety_stock": 72, "unit_cost_cents": 280, "pack_size": 12, "lead_time_minutes": 60},
+        {"key": "ing_limao", "name": "Limão tahiti", "unit": "un", "stock": 400, "safety_stock": 50, "unit_cost_cents": 40, "pack_size": 50, "lead_time_minutes": 60},
+        {"key": "ing_brownie", "name": "Brownie", "unit": "un", "stock": 70, "safety_stock": 12, "unit_cost_cents": 450, "pack_size": 12, "lead_time_minutes": 60},
+        {"key": "ing_sorvete", "name": "Sorvete de creme", "unit": "g", "stock": 7000, "safety_stock": 1200, "unit_cost_cents": 3, "pack_size": 2000, "lead_time_minutes": 60}
+      ],
+      "menu_items": [
+        {"key": "item_smash_classico", "name": "Smash Burger Clássico", "category": "burgers", "course": "main", "price_cents": 3290, "prep_minutes": 6.0, "popularity": 18, "recipe": {"ing_pao_brioche": 1, "ing_blend_bovino": 1, "ing_cheddar": 1, "ing_molho_casa": 30, "ing_cebola": 20}},
+        {"key": "item_smash_duplo_bacon", "name": "Smash Duplo Bacon", "category": "burgers", "course": "main", "price_cents": 4190, "prep_minutes": 7.0, "popularity": 12, "recipe": {"ing_pao_brioche": 1, "ing_blend_bovino": 2, "ing_cheddar": 2, "ing_bacon": 40, "ing_molho_casa": 30}},
+        {"key": "item_burger_costela", "name": "Burger de Costela", "category": "burgers", "course": "main", "price_cents": 4490, "prep_minutes": 8.0, "popularity": 14, "recipe": {"ing_pao_brioche": 1, "ing_costela": 180, "ing_cheddar": 1, "ing_cebola": 30, "ing_molho_casa": 20}},
+        {"key": "item_bowl_costela", "name": "Bowl de Costela", "category": "bowls", "course": "main", "price_cents": 3990, "prep_minutes": 6.0, "popularity": 8, "recipe": {"ing_costela": 150, "ing_arroz": 200, "ing_cebola": 20, "ing_molho_casa": 20}},
+        {"key": "item_pastel_costela", "name": "Pastel de Costela (4 un.)", "category": "porcoes", "course": "main", "price_cents": 2490, "prep_minutes": 5.0, "popularity": 10, "recipe": {"ing_massa_pastel": 4, "ing_costela": 120, "ing_oleo": 60}},
+        {"key": "item_bowl_vegano", "name": "Bowl Vegano de Grão-de-Bico", "category": "bowls", "course": "main", "price_cents": 3490, "prep_minutes": 5.0, "popularity": 6, "recipe": {"ing_grao_bico": 180, "ing_arroz": 200, "ing_cebola": 20, "ing_limao": 1}},
+        {"key": "item_batata_rustica", "name": "Batata Rústica", "category": "acompanhamentos", "course": "side", "price_cents": 1890, "prep_minutes": 4.0, "popularity": 16, "recipe": {"ing_batata": 300, "ing_oleo": 80}},
+        {"key": "item_onion_rings", "name": "Onion Rings", "category": "acompanhamentos", "course": "side", "price_cents": 1990, "prep_minutes": 4.0, "popularity": 7, "recipe": {"ing_cebola": 200, "ing_oleo": 80}},
+        {"key": "item_refrigerante", "name": "Refrigerante lata", "category": "bebidas", "course": "drink", "price_cents": 790, "prep_minutes": 0.3, "popularity": 14, "recipe": {"ing_refri_lata": 1}},
+        {"key": "item_limonada", "name": "Limonada da casa", "category": "bebidas", "course": "drink", "price_cents": 1190, "prep_minutes": 1.5, "popularity": 9, "recipe": {"ing_limao": 2}},
+        {"key": "item_brownie", "name": "Brownie com sorvete", "category": "sobremesas", "course": "dessert", "price_cents": 2190, "prep_minutes": 2.0, "popularity": 5, "recipe": {"ing_brownie": 1, "ing_sorvete": 80}}
+      ],
+      "scenario_overrides": {"rush_stockout": {"stock": {"ing_costela": 7200}}, "ingredient_stockout": {"stock": {"ing_costela": 3400}}}
+    },
+    {
+      "key": "sora_moema",
+      "name": "Sora Sushi & Lámen — Moema",
+      "timezone": "America/Sao_Paulo",
+      "kitchen_lines": 8,
+      "prep_sla_minutes": 20,
+      "peak_orders_per_hour": 40,
+      "history_seed": 5202,
+      "ingredients": [
+        {"key": "ing_salmao", "name": "Salmão fresco", "unit": "g", "stock": 30000, "safety_stock": 2000, "unit_cost_cents": 12, "pack_size": 1000, "lead_time_minutes": 45},
+        {"key": "ing_arroz_japones", "name": "Arroz japonês temperado", "unit": "g", "stock": 40000, "safety_stock": 3000, "unit_cost_cents": 1, "pack_size": 2000, "lead_time_minutes": 60},
+        {"key": "ing_nori", "name": "Alga nori (folha)", "unit": "un", "stock": 400, "safety_stock": 80, "unit_cost_cents": 35, "pack_size": 50, "lead_time_minutes": 60},
+        {"key": "ing_cream_cheese", "name": "Cream cheese", "unit": "g", "stock": 9000, "safety_stock": 800, "unit_cost_cents": 4, "pack_size": 1000, "lead_time_minutes": 60},
+        {"key": "ing_massa_lamen", "name": "Massa de lámen", "unit": "g", "stock": 16000, "safety_stock": 1500, "unit_cost_cents": 2, "pack_size": 1000, "lead_time_minutes": 60},
+        {"key": "ing_caldo_tonkotsu", "name": "Caldo tonkotsu", "unit": "ml", "stock": 50000, "safety_stock": 6000, "unit_cost_cents": 1, "pack_size": 2000, "lead_time_minutes": 90},
+        {"key": "ing_ovo_marinado", "name": "Ovo marinado", "unit": "un", "stock": 160, "safety_stock": 24, "unit_cost_cents": 120, "pack_size": 12, "lead_time_minutes": 60},
+        {"key": "ing_cebolinha", "name": "Cebolinha", "unit": "g", "stock": 2000, "safety_stock": 300, "unit_cost_cents": 2, "pack_size": 200, "lead_time_minutes": 60},
+        {"key": "ing_gyoza", "name": "Gyoza congelado", "unit": "un", "stock": 900, "safety_stock": 60, "unit_cost_cents": 90, "pack_size": 30, "lead_time_minutes": 60},
+        {"key": "ing_cha_gelado", "name": "Chá gelado (garrafa)", "unit": "un", "stock": 300, "safety_stock": 36, "unit_cost_cents": 320, "pack_size": 12, "lead_time_minutes": 60}
+      ],
+      "menu_items": [
+        {"key": "item_combo_salmao", "name": "Combo Salmão 16 peças", "category": "sushi", "course": "main", "price_cents": 7990, "prep_minutes": 9.0, "popularity": 14, "recipe": {"ing_salmao": 220, "ing_arroz_japones": 260, "ing_nori": 2, "ing_cream_cheese": 40}},
+        {"key": "item_uramaki_philadelphia", "name": "Uramaki Philadelphia (8 un.)", "category": "sushi", "course": "main", "price_cents": 3890, "prep_minutes": 6.0, "popularity": 12, "recipe": {"ing_salmao": 90, "ing_arroz_japones": 160, "ing_nori": 1, "ing_cream_cheese": 50}},
+        {"key": "item_temaki_salmao", "name": "Temaki de Salmão", "category": "sushi", "course": "main", "price_cents": 3290, "prep_minutes": 4.0, "popularity": 10, "recipe": {"ing_salmao": 80, "ing_arroz_japones": 90, "ing_nori": 1, "ing_cebolinha": 5}},
+        {"key": "item_lamen_tonkotsu", "name": "Lámen Tonkotsu", "category": "lamen", "course": "main", "price_cents": 4590, "prep_minutes": 8.0, "popularity": 13, "recipe": {"ing_massa_lamen": 150, "ing_caldo_tonkotsu": 450, "ing_ovo_marinado": 1, "ing_cebolinha": 10}},
+        {"key": "item_gyoza", "name": "Gyoza (6 un.)", "category": "entradas", "course": "side", "price_cents": 2690, "prep_minutes": 5.0, "popularity": 9, "recipe": {"ing_gyoza": 6}},
+        {"key": "item_cha_gelado", "name": "Chá gelado", "category": "bebidas", "course": "drink", "price_cents": 1290, "prep_minutes": 0.3, "popularity": 10, "recipe": {"ing_cha_gelado": 1}}
+      ],
+      "scenario_overrides": {"rush_stockout": {"stock": {"ing_salmao": 8000}}, "ingredient_stockout": {"stock": {"ing_salmao": 4500}}}
+    }
+  ]
+}
