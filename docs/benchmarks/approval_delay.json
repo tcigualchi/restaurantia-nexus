@@ -1,0 +1,3438 @@
+{
+  "generated_at": "2026-11-07T15:57:22.294294+00:00",
+  "seeds": 10,
+  "mode": "deterministic agents (no LLM)",
+  "scenario": "rush_stockout",
+  "template": "aurora_pinheiros",
+  "delay": "simulated minutes from each proposal to the manager's answer; the restaurant keeps operating meanwhile",
+  "approval_ttl_minutes": 30,
+  "first_proposal_minute_mean": 26.3,
+  "no_action_reference": {
+    "reject_all": {
+      "runs": 10,
+      "lost_orders_mean": 55.9,
+      "lost_orders_min": 39,
+      "lost_orders_max": 71,
+      "lost_revenue_mean_brl": 4765.63,
+      "orders_mean": 153
+    }
+  },
+  "delays": {
+    "0": {
+      "approve_all": {
+        "runs": 10,
+        "lost_orders_mean": 0,
+        "lost_orders_min": 0,
+        "lost_orders_max": 0,
+        "lost_revenue_mean_brl": 0.0,
+        "orders_mean": 153,
+        "seeds_with_losses": 0,
+        "share_of_no_action_loss": 0.0,
+        "first_purchase_order_arrival_minute_mean": 66.3,
+        "first_lost_order_minute_mean": null,
+        "approvals": {
+          "executed": 36,
+          "failed": 1
+        },
+        "failed_approvals": {
+          "duplicate_purchase_order": 1
+        }
+      },
+      "po_only": {
+        "runs": 10,
+        "lost_orders_mean": 8.2,
+        "lost_orders_min": 0,
+        "lost_orders_max": 23,
+        "lost_revenue_mean_brl": 666.06,
+        "orders_mean": 153,
+        "seeds_with_losses": 7,
+        "share_of_no_action_loss": 0.14584884375754634,
+        "first_purchase_order_arrival_minute_mean": 66.3,
+        "first_lost_order_minute_mean": 59.01428571428571,
+        "approvals": {
+          "executed": 10,
+          "rejected": 20,
+          "failed": 6
+        },
+        "failed_approvals": {
+          "duplicate_purchase_order": 6
+        }
+      }
+    },
+    "5": {
+      "approve_all": {
+        "runs": 10,
+        "lost_orders_mean": 0,
+        "lost_orders_min": 0,
+        "lost_orders_max": 0,
+        "lost_revenue_mean_brl": 0.0,
+        "orders_mean": 153,
+        "seeds_with_losses": 0,
+        "share_of_no_action_loss": 0.0,
+        "first_purchase_order_arrival_minute_mean": 71.3,
+        "first_lost_order_minute_mean": null,
+        "approvals": {
+          "executed": 34,
+          "failed": 1,
+          "unanswered": 1
+        },
+        "failed_approvals": {
+          "duplicate_purchase_order": 1
+        }
+      },
+      "po_only": {
+        "runs": 10,
+        "lost_orders_mean": 12.5,
+        "lost_orders_min": 1,
+        "lost_orders_max": 26,
+        "lost_revenue_mean_brl": 1037.16,
+        "orders_mean": 153,
+        "seeds_with_losses": 10,
+        "share_of_no_action_loss": 0.22380427196446,
+        "first_purchase_order_arrival_minute_mean": 71.3,
+        "first_lost_order_minute_mean": 59.51,
+        "approvals": {
+          "executed": 10,
+          "rejected": 20,
+          "failed": 6
+        },
+        "failed_approvals": {
+          "duplicate_purchase_order": 6
+        }
+      }
+    },
+    "10": {
+      "approve_all": {
+        "runs": 10,
+        "lost_orders_mean": 0.4,
+        "lost_orders_min": 0,
+        "lost_orders_max": 4,
+        "lost_revenue_mean_brl": 34.48,
+        "orders_mean": 153,
+        "seeds_with_losses": 1,
+        "share_of_no_action_loss": 0.005633802816901409,
+        "first_purchase_order_arrival_minute_mean": 76.3,
+        "first_lost_order_minute_mean": 65.0,
+        "approvals": {
+          "executed": 33,
+          "failed": 1
+        },
+        "failed_approvals": {
+          "duplicate_purchase_order": 1
+        }
+      },
+      "po_only": {
+        "runs": 10,
+        "lost_orders_mean": 17.8,
+        "lost_orders_min": 9,
+        "lost_orders_max": 28,
+        "lost_revenue_mean_brl": 1505.17,
+        "orders_mean": 153,
+        "seeds_with_losses": 10,
+        "share_of_no_action_loss": 0.32470863802090627,
+        "first_purchase_order_arrival_minute_mean": 76.3,
+        "first_lost_order_minute_mean": 59.51,
+        "approvals": {
+          "executed": 10,
+          "rejected": 20,
+          "failed": 6
+        },
+        "failed_approvals": {
+          "duplicate_purchase_order": 6
+        }
+      }
+    },
+    "15": {
+      "approve_all": {
+        "runs": 10,
+        "lost_orders_mean": 2.5,
+        "lost_orders_min": 0,
+        "lost_orders_max": 15,
+        "lost_revenue_mean_brl": 224.89,
+        "orders_mean": 153,
+        "seeds_with_losses": 4,
+        "share_of_no_action_loss": 0.04073482030444343,
+        "first_purchase_order_arrival_minute_mean": 81.3,
+        "first_lost_order_minute_mean": 77.5,
+        "approvals": {
+          "executed": 32,
+          "failed": 1,
+          "unanswered": 1
+        },
+        "failed_approvals": {
+          "duplicate_purchase_order": 1
+        }
+      },
+      "po_only": {
+        "runs": 10,
+        "lost_orders_mean": 23.7,
+        "lost_orders_min": 15,
+        "lost_orders_max": 35,
+        "lost_revenue_mean_brl": 2051.81,
+        "orders_mean": 153,
+        "seeds_with_losses": 10,
+        "share_of_no_action_loss": 0.4339313058389348,
+        "first_purchase_order_arrival_minute_mean": 81.3,
+        "first_lost_order_minute_mean": 59.51,
+        "approvals": {
+          "executed": 10,
+          "rejected": 20,
+          "failed": 6
+        },
+        "failed_approvals": {
+          "duplicate_purchase_order": 6
+        }
+      }
+    },
+    "20": {
+      "approve_all": {
+        "runs": 10,
+        "lost_orders_mean": 5.9,
+        "lost_orders_min": 0,
+        "lost_orders_max": 17,
+        "lost_revenue_mean_brl": 520.92,
+        "orders_mean": 153,
+        "seeds_with_losses": 7,
+        "share_of_no_action_loss": 0.10651245222677473,
+        "first_purchase_order_arrival_minute_mean": 86.3,
+        "first_lost_order_minute_mean": 72.18571428571428,
+        "approvals": {
+          "executed": 40,
+          "failed": 5,
+          "unanswered": 1
+        },
+        "failed_approvals": {
+          "duplicate_purchase_order": 5
+        }
+      },
+      "po_only": {
+        "runs": 10,
+        "lost_orders_mean": 28.4,
+        "lost_orders_min": 19,
+        "lost_orders_max": 38,
+        "lost_revenue_mean_brl": 2476.91,
+        "orders_mean": 153,
+        "seeds_with_losses": 10,
+        "share_of_no_action_loss": 0.5209538441821572,
+        "first_purchase_order_arrival_minute_mean": 86.3,
+        "first_lost_order_minute_mean": 59.51,
+        "approvals": {
+          "executed": 10,
+          "rejected": 29,
+          "failed": 6
+        },
+        "failed_approvals": {
+          "duplicate_purchase_order": 6
+        }
+      }
+    },
+    "25": {
+      "approve_all": {
+        "runs": 10,
+        "lost_orders_mean": 10.7,
+        "lost_orders_min": 0,
+        "lost_orders_max": 23,
+        "lost_revenue_mean_brl": 972.7,
+        "orders_mean": 153,
+        "seeds_with_losses": 9,
+        "share_of_no_action_loss": 0.1926268995839182,
+        "first_purchase_order_arrival_minute_mean": 91.3,
+        "first_lost_order_minute_mean": 65.32222222222222,
+        "approvals": {
+          "executed": 43,
+          "failed": 7,
+          "unanswered": 1
+        },
+        "failed_approvals": {
+          "duplicate_purchase_order": 7
+        }
+      },
+      "po_only": {
+        "runs": 10,
+        "lost_orders_mean": 32.9,
+        "lost_orders_min": 22,
+        "lost_orders_max": 42,
+        "lost_revenue_mean_brl": 2864.49,
+        "orders_mean": 153,
+        "seeds_with_losses": 10,
+        "share_of_no_action_loss": 0.6032107919462046,
+        "first_purchase_order_arrival_minute_mean": 91.3,
+        "first_lost_order_minute_mean": 59.51,
+        "approvals": {
+          "executed": 10,
+          "rejected": 33,
+          "failed": 7
+        },
+        "failed_approvals": {
+          "duplicate_purchase_order": 7
+        }
+      }
+    },
+    "30": {
+      "approve_all": {
+        "runs": 10,
+        "lost_orders_mean": 16.1,
+        "lost_orders_min": 5,
+        "lost_orders_max": 31,
+        "lost_revenue_mean_brl": 1455.54,
+        "orders_mean": 153,
+        "seeds_with_losses": 10,
+        "share_of_no_action_loss": 0.28804546213711624,
+        "first_purchase_order_arrival_minute_mean": 96.3,
+        "first_lost_order_minute_mean": 63.1,
+        "approvals": {
+          "executed": 43,
+          "failed": 7,
+          "unanswered": 1
+        },
+        "failed_approvals": {
+          "duplicate_purchase_order": 7
+        }
+      },
+      "po_only": {
+        "runs": 10,
+        "lost_orders_mean": 37.4,
+        "lost_orders_min": 22,
+        "lost_orders_max": 49,
+        "lost_revenue_mean_brl": 3246.46,
+        "orders_mean": 153,
+        "seeds_with_losses": 10,
+        "share_of_no_action_loss": 0.682275488999597,
+        "first_purchase_order_arrival_minute_mean": 96.3,
+        "first_lost_order_minute_mean": 59.51,
+        "approvals": {
+          "executed": 10,
+          "rejected": 33,
+          "failed": 7
+        },
+        "failed_approvals": {
+          "duplicate_purchase_order": 7
+        }
+      }
+    }
+  },
+  "runs": [
+    {
+      "seed": 1,
+      "policy": "reject_all",
+      "approval_delay_minutes": 0,
+      "orders": 169,
+      "lost_orders": 61,
+      "lost_revenue_cents": 540880,
+      "agent_runs": 2,
+      "purchase_orders": 0,
+      "first_proposal_minute": 24.0,
+      "first_lost_order_minute": 64.5,
+      "purchase_order_arrival_minutes": [],
+      "approvals": {
+        "rejected": 3
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 1,
+      "policy": "approve_all",
+      "approval_delay_minutes": 0,
+      "orders": 169,
+      "lost_orders": 0,
+      "lost_revenue_cents": 0,
+      "agent_runs": 3,
+      "purchase_orders": 2,
+      "first_proposal_minute": 24.0,
+      "first_lost_order_minute": null,
+      "purchase_order_arrival_minutes": [
+        64,
+        152
+      ],
+      "approvals": {
+        "executed": 4,
+        "failed": 1
+      },
+      "failed_approvals": {
+        "duplicate_purchase_order": 1
+      }
+    },
+    {
+      "seed": 1,
+      "policy": "po_only",
+      "approval_delay_minutes": 0,
+      "orders": 169,
+      "lost_orders": 0,
+      "lost_revenue_cents": 0,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 24.0,
+      "first_lost_order_minute": null,
+      "purchase_order_arrival_minutes": [
+        64
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 2,
+        "failed": 1
+      },
+      "failed_approvals": {
+        "duplicate_purchase_order": 1
+      }
+    },
+    {
+      "seed": 1,
+      "policy": "approve_all",
+      "approval_delay_minutes": 5,
+      "orders": 169,
+      "lost_orders": 0,
+      "lost_revenue_cents": 0,
+      "agent_runs": 3,
+      "purchase_orders": 2,
+      "first_proposal_minute": 24.0,
+      "first_lost_order_minute": null,
+      "purchase_order_arrival_minutes": [
+        69,
+        157
+      ],
+      "approvals": {
+        "executed": 4,
+        "failed": 1
+      },
+      "failed_approvals": {
+        "duplicate_purchase_order": 1
+      }
+    },
+    {
+      "seed": 1,
+      "policy": "po_only",
+      "approval_delay_minutes": 5,
+      "orders": 169,
+      "lost_orders": 4,
+      "lost_revenue_cents": 44350,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 24.0,
+      "first_lost_order_minute": 64.5,
+      "purchase_order_arrival_minutes": [
+        69
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 2,
+        "failed": 1
+      },
+      "failed_approvals": {
+        "duplicate_purchase_order": 1
+      }
+    },
+    {
+      "seed": 1,
+      "policy": "approve_all",
+      "approval_delay_minutes": 10,
+      "orders": 169,
+      "lost_orders": 0,
+      "lost_revenue_cents": 0,
+      "agent_runs": 3,
+      "purchase_orders": 2,
+      "first_proposal_minute": 24.0,
+      "first_lost_order_minute": null,
+      "purchase_order_arrival_minutes": [
+        74,
+        162
+      ],
+      "approvals": {
+        "executed": 4,
+        "failed": 1
+      },
+      "failed_approvals": {
+        "duplicate_purchase_order": 1
+      }
+    },
+    {
+      "seed": 1,
+      "policy": "po_only",
+      "approval_delay_minutes": 10,
+      "orders": 169,
+      "lost_orders": 9,
+      "lost_revenue_cents": 94260,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 24.0,
+      "first_lost_order_minute": 64.5,
+      "purchase_order_arrival_minutes": [
+        74
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 2,
+        "failed": 1
+      },
+      "failed_approvals": {
+        "duplicate_purchase_order": 1
+      }
+    },
+    {
+      "seed": 1,
+      "policy": "approve_all",
+      "approval_delay_minutes": 15,
+      "orders": 169,
+      "lost_orders": 3,
+      "lost_revenue_cents": 27310,
+      "agent_runs": 3,
+      "purchase_orders": 2,
+      "first_proposal_minute": 24.0,
+      "first_lost_order_minute": 75.7,
+      "purchase_order_arrival_minutes": [
+        79,
+        167
+      ],
+      "approvals": {
+        "executed": 4,
+        "failed": 1
+      },
+      "failed_approvals": {
+        "duplicate_purchase_order": 1
+      }
+    },
+    {
+      "seed": 1,
+      "policy": "po_only",
+      "approval_delay_minutes": 15,
+      "orders": 169,
+      "lost_orders": 15,
+      "lost_revenue_cents": 146370,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 24.0,
+      "first_lost_order_minute": 64.5,
+      "purchase_order_arrival_minutes": [
+        79
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 2,
+        "failed": 1
+      },
+      "failed_approvals": {
+        "duplicate_purchase_order": 1
+      }
+    },
+    {
+      "seed": 1,
+      "policy": "approve_all",
+      "approval_delay_minutes": 20,
+      "orders": 169,
+      "lost_orders": 8,
+      "lost_revenue_cents": 62800,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 24.0,
+      "first_lost_order_minute": 71.2,
+      "purchase_order_arrival_minutes": [
+        84
+      ],
+      "approvals": {
+        "executed": 4,
+        "failed": 1
+      },
+      "failed_approvals": {
+        "duplicate_purchase_order": 1
+      }
+    },
+    {
+      "seed": 1,
+      "policy": "po_only",
+      "approval_delay_minutes": 20,
+      "orders": 169,
+      "lost_orders": 24,
+      "lost_revenue_cents": 233270,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 24.0,
+      "first_lost_order_minute": 64.5,
+      "purchase_order_arrival_minutes": [
+        84
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 3,
+        "failed": 1
+      },
+      "failed_approvals": {
+        "duplicate_purchase_order": 1
+      }
+    },
+    {
+      "seed": 1,
+      "policy": "approve_all",
+      "approval_delay_minutes": 25,
+      "orders": 169,
+      "lost_orders": 11,
+      "lost_revenue_cents": 99870,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 24.0,
+      "first_lost_order_minute": 64.5,
+      "purchase_order_arrival_minutes": [
+        89
+      ],
+      "approvals": {
+        "executed": 4,
+        "failed": 1
+      },
+      "failed_approvals": {
+        "duplicate_purchase_order": 1
+      }
+    },
+    {
+      "seed": 1,
+      "policy": "po_only",
+      "approval_delay_minutes": 25,
+      "orders": 169,
+      "lost_orders": 27,
+      "lost_revenue_cents": 265960,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 24.0,
+      "first_lost_order_minute": 64.5,
+      "purchase_order_arrival_minutes": [
+        89
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 3,
+        "failed": 1
+      },
+      "failed_approvals": {
+        "duplicate_purchase_order": 1
+      }
+    },
+    {
+      "seed": 1,
+      "policy": "approve_all",
+      "approval_delay_minutes": 30,
+      "orders": 169,
+      "lost_orders": 16,
+      "lost_revenue_cents": 155670,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 24.0,
+      "first_lost_order_minute": 64.5,
+      "purchase_order_arrival_minutes": [
+        94
+      ],
+      "approvals": {
+        "executed": 4,
+        "failed": 1
+      },
+      "failed_approvals": {
+        "duplicate_purchase_order": 1
+      }
+    },
+    {
+      "seed": 1,
+      "policy": "po_only",
+      "approval_delay_minutes": 30,
+      "orders": 169,
+      "lost_orders": 35,
+      "lost_revenue_cents": 331010,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 24.0,
+      "first_lost_order_minute": 64.5,
+      "purchase_order_arrival_minutes": [
+        94
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 3,
+        "failed": 1
+      },
+      "failed_approvals": {
+        "duplicate_purchase_order": 1
+      }
+    },
+    {
+      "seed": 2,
+      "policy": "reject_all",
+      "approval_delay_minutes": 0,
+      "orders": 154,
+      "lost_orders": 53,
+      "lost_revenue_cents": 451420,
+      "agent_runs": 2,
+      "purchase_orders": 0,
+      "first_proposal_minute": 34.0,
+      "first_lost_order_minute": 54.9,
+      "purchase_order_arrival_minutes": [],
+      "approvals": {
+        "rejected": 3
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 2,
+      "policy": "approve_all",
+      "approval_delay_minutes": 0,
+      "orders": 154,
+      "lost_orders": 0,
+      "lost_revenue_cents": 0,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 34.0,
+      "first_lost_order_minute": null,
+      "purchase_order_arrival_minutes": [
+        74
+      ],
+      "approvals": {
+        "executed": 3
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 2,
+      "policy": "po_only",
+      "approval_delay_minutes": 0,
+      "orders": 154,
+      "lost_orders": 12,
+      "lost_revenue_cents": 95750,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 34.0,
+      "first_lost_order_minute": 54.9,
+      "purchase_order_arrival_minutes": [
+        74
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 2,
+        "failed": 1
+      },
+      "failed_approvals": {
+        "duplicate_purchase_order": 1
+      }
+    },
+    {
+      "seed": 2,
+      "policy": "approve_all",
+      "approval_delay_minutes": 5,
+      "orders": 154,
+      "lost_orders": 0,
+      "lost_revenue_cents": 0,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 34.0,
+      "first_lost_order_minute": null,
+      "purchase_order_arrival_minutes": [
+        79
+      ],
+      "approvals": {
+        "executed": 3
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 2,
+      "policy": "po_only",
+      "approval_delay_minutes": 5,
+      "orders": 154,
+      "lost_orders": 15,
+      "lost_revenue_cents": 119160,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 34.0,
+      "first_lost_order_minute": 54.9,
+      "purchase_order_arrival_minutes": [
+        79
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 2,
+        "failed": 1
+      },
+      "failed_approvals": {
+        "duplicate_purchase_order": 1
+      }
+    },
+    {
+      "seed": 2,
+      "policy": "approve_all",
+      "approval_delay_minutes": 10,
+      "orders": 154,
+      "lost_orders": 0,
+      "lost_revenue_cents": 0,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 34.0,
+      "first_lost_order_minute": null,
+      "purchase_order_arrival_minutes": [
+        84
+      ],
+      "approvals": {
+        "executed": 3
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 2,
+      "policy": "po_only",
+      "approval_delay_minutes": 10,
+      "orders": 154,
+      "lost_orders": 22,
+      "lost_revenue_cents": 179640,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 34.0,
+      "first_lost_order_minute": 54.9,
+      "purchase_order_arrival_minutes": [
+        84
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 2,
+        "failed": 1
+      },
+      "failed_approvals": {
+        "duplicate_purchase_order": 1
+      }
+    },
+    {
+      "seed": 2,
+      "policy": "approve_all",
+      "approval_delay_minutes": 15,
+      "orders": 154,
+      "lost_orders": 4,
+      "lost_revenue_cents": 36860,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 34.0,
+      "first_lost_order_minute": 79.6,
+      "purchase_order_arrival_minutes": [
+        89
+      ],
+      "approvals": {
+        "executed": 3
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 2,
+      "policy": "po_only",
+      "approval_delay_minutes": 15,
+      "orders": 154,
+      "lost_orders": 26,
+      "lost_revenue_cents": 217010,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 34.0,
+      "first_lost_order_minute": 54.9,
+      "purchase_order_arrival_minutes": [
+        89
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 2,
+        "failed": 1
+      },
+      "failed_approvals": {
+        "duplicate_purchase_order": 1
+      }
+    },
+    {
+      "seed": 2,
+      "policy": "approve_all",
+      "approval_delay_minutes": 20,
+      "orders": 154,
+      "lost_orders": 8,
+      "lost_revenue_cents": 72410,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 34.0,
+      "first_lost_order_minute": 64.1,
+      "purchase_order_arrival_minutes": [
+        94
+      ],
+      "approvals": {
+        "executed": 5,
+        "failed": 1
+      },
+      "failed_approvals": {
+        "duplicate_purchase_order": 1
+      }
+    },
+    {
+      "seed": 2,
+      "policy": "po_only",
+      "approval_delay_minutes": 20,
+      "orders": 154,
+      "lost_orders": 30,
+      "lost_revenue_cents": 264530,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 34.0,
+      "first_lost_order_minute": 54.9,
+      "purchase_order_arrival_minutes": [
+        94
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 4,
+        "failed": 1
+      },
+      "failed_approvals": {
+        "duplicate_purchase_order": 1
+      }
+    },
+    {
+      "seed": 2,
+      "policy": "approve_all",
+      "approval_delay_minutes": 25,
+      "orders": 154,
+      "lost_orders": 15,
+      "lost_revenue_cents": 138770,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 34.0,
+      "first_lost_order_minute": 54.9,
+      "purchase_order_arrival_minutes": [
+        99
+      ],
+      "approvals": {
+        "executed": 5,
+        "failed": 1
+      },
+      "failed_approvals": {
+        "duplicate_purchase_order": 1
+      }
+    },
+    {
+      "seed": 2,
+      "policy": "po_only",
+      "approval_delay_minutes": 25,
+      "orders": 154,
+      "lost_orders": 37,
+      "lost_revenue_cents": 336470,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 34.0,
+      "first_lost_order_minute": 54.9,
+      "purchase_order_arrival_minutes": [
+        99
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 4,
+        "failed": 1
+      },
+      "failed_approvals": {
+        "duplicate_purchase_order": 1
+      }
+    },
+    {
+      "seed": 2,
+      "policy": "approve_all",
+      "approval_delay_minutes": 30,
+      "orders": 154,
+      "lost_orders": 18,
+      "lost_revenue_cents": 161480,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 34.0,
+      "first_lost_order_minute": 54.9,
+      "purchase_order_arrival_minutes": [
+        104
+      ],
+      "approvals": {
+        "executed": 5,
+        "failed": 1
+      },
+      "failed_approvals": {
+        "duplicate_purchase_order": 1
+      }
+    },
+    {
+      "seed": 2,
+      "policy": "po_only",
+      "approval_delay_minutes": 30,
+      "orders": 154,
+      "lost_orders": 42,
+      "lost_revenue_cents": 376720,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 34.0,
+      "first_lost_order_minute": 54.9,
+      "purchase_order_arrival_minutes": [
+        104
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 4,
+        "failed": 1
+      },
+      "failed_approvals": {
+        "duplicate_purchase_order": 1
+      }
+    },
+    {
+      "seed": 3,
+      "policy": "reject_all",
+      "approval_delay_minutes": 0,
+      "orders": 127,
+      "lost_orders": 42,
+      "lost_revenue_cents": 356110,
+      "agent_runs": 1,
+      "purchase_orders": 0,
+      "first_proposal_minute": 42.0,
+      "first_lost_order_minute": 71.4,
+      "purchase_order_arrival_minutes": [],
+      "approvals": {
+        "rejected": 3
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 3,
+      "policy": "approve_all",
+      "approval_delay_minutes": 0,
+      "orders": 127,
+      "lost_orders": 0,
+      "lost_revenue_cents": 0,
+      "agent_runs": 1,
+      "purchase_orders": 1,
+      "first_proposal_minute": 42.0,
+      "first_lost_order_minute": null,
+      "purchase_order_arrival_minutes": [
+        82
+      ],
+      "approvals": {
+        "executed": 3
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 3,
+      "policy": "po_only",
+      "approval_delay_minutes": 0,
+      "orders": 127,
+      "lost_orders": 11,
+      "lost_revenue_cents": 98330,
+      "agent_runs": 1,
+      "purchase_orders": 1,
+      "first_proposal_minute": 42.0,
+      "first_lost_order_minute": 71.4,
+      "purchase_order_arrival_minutes": [
+        82
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 2
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 3,
+      "policy": "approve_all",
+      "approval_delay_minutes": 5,
+      "orders": 127,
+      "lost_orders": 0,
+      "lost_revenue_cents": 0,
+      "agent_runs": 1,
+      "purchase_orders": 1,
+      "first_proposal_minute": 42.0,
+      "first_lost_order_minute": null,
+      "purchase_order_arrival_minutes": [
+        87
+      ],
+      "approvals": {
+        "executed": 3
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 3,
+      "policy": "po_only",
+      "approval_delay_minutes": 5,
+      "orders": 127,
+      "lost_orders": 18,
+      "lost_revenue_cents": 164420,
+      "agent_runs": 1,
+      "purchase_orders": 1,
+      "first_proposal_minute": 42.0,
+      "first_lost_order_minute": 71.4,
+      "purchase_order_arrival_minutes": [
+        87
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 2
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 3,
+      "policy": "approve_all",
+      "approval_delay_minutes": 10,
+      "orders": 127,
+      "lost_orders": 0,
+      "lost_revenue_cents": 0,
+      "agent_runs": 1,
+      "purchase_orders": 1,
+      "first_proposal_minute": 42.0,
+      "first_lost_order_minute": null,
+      "purchase_order_arrival_minutes": [
+        92
+      ],
+      "approvals": {
+        "executed": 3
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 3,
+      "policy": "po_only",
+      "approval_delay_minutes": 10,
+      "orders": 127,
+      "lost_orders": 21,
+      "lost_revenue_cents": 185950,
+      "agent_runs": 1,
+      "purchase_orders": 1,
+      "first_proposal_minute": 42.0,
+      "first_lost_order_minute": 71.4,
+      "purchase_order_arrival_minutes": [
+        92
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 2
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 3,
+      "policy": "approve_all",
+      "approval_delay_minutes": 15,
+      "orders": 127,
+      "lost_orders": 3,
+      "lost_revenue_cents": 29490,
+      "agent_runs": 1,
+      "purchase_orders": 1,
+      "first_proposal_minute": 42.0,
+      "first_lost_order_minute": 93.3,
+      "purchase_order_arrival_minutes": [
+        97
+      ],
+      "approvals": {
+        "executed": 3
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 3,
+      "policy": "po_only",
+      "approval_delay_minutes": 15,
+      "orders": 127,
+      "lost_orders": 31,
+      "lost_revenue_cents": 260850,
+      "agent_runs": 1,
+      "purchase_orders": 1,
+      "first_proposal_minute": 42.0,
+      "first_lost_order_minute": 71.4,
+      "purchase_order_arrival_minutes": [
+        97
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 2
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 3,
+      "policy": "approve_all",
+      "approval_delay_minutes": 20,
+      "orders": 127,
+      "lost_orders": 12,
+      "lost_revenue_cents": 113200,
+      "agent_runs": 1,
+      "purchase_orders": 1,
+      "first_proposal_minute": 42.0,
+      "first_lost_order_minute": 81.8,
+      "purchase_order_arrival_minutes": [
+        102
+      ],
+      "approvals": {
+        "executed": 3
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 3,
+      "policy": "po_only",
+      "approval_delay_minutes": 20,
+      "orders": 127,
+      "lost_orders": 37,
+      "lost_revenue_cents": 313760,
+      "agent_runs": 1,
+      "purchase_orders": 1,
+      "first_proposal_minute": 42.0,
+      "first_lost_order_minute": 71.4,
+      "purchase_order_arrival_minutes": [
+        102
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 2
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 3,
+      "policy": "approve_all",
+      "approval_delay_minutes": 25,
+      "orders": 127,
+      "lost_orders": 15,
+      "lost_revenue_cents": 147280,
+      "agent_runs": 1,
+      "purchase_orders": 1,
+      "first_proposal_minute": 42.0,
+      "first_lost_order_minute": 71.4,
+      "purchase_order_arrival_minutes": [
+        107
+      ],
+      "approvals": {
+        "executed": 3
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 3,
+      "policy": "po_only",
+      "approval_delay_minutes": 25,
+      "orders": 127,
+      "lost_orders": 38,
+      "lost_revenue_cents": 323820,
+      "agent_runs": 1,
+      "purchase_orders": 1,
+      "first_proposal_minute": 42.0,
+      "first_lost_order_minute": 71.4,
+      "purchase_order_arrival_minutes": [
+        107
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 2
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 3,
+      "policy": "approve_all",
+      "approval_delay_minutes": 30,
+      "orders": 127,
+      "lost_orders": 16,
+      "lost_revenue_cents": 156540,
+      "agent_runs": 1,
+      "purchase_orders": 1,
+      "first_proposal_minute": 42.0,
+      "first_lost_order_minute": 71.4,
+      "purchase_order_arrival_minutes": [
+        112
+      ],
+      "approvals": {
+        "executed": 3
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 3,
+      "policy": "po_only",
+      "approval_delay_minutes": 30,
+      "orders": 127,
+      "lost_orders": 38,
+      "lost_revenue_cents": 323820,
+      "agent_runs": 1,
+      "purchase_orders": 1,
+      "first_proposal_minute": 42.0,
+      "first_lost_order_minute": 71.4,
+      "purchase_order_arrival_minutes": [
+        112
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 2
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 4,
+      "policy": "reject_all",
+      "approval_delay_minutes": 0,
+      "orders": 155,
+      "lost_orders": 43,
+      "lost_revenue_cents": 374420,
+      "agent_runs": 1,
+      "purchase_orders": 0,
+      "first_proposal_minute": 18.0,
+      "first_lost_order_minute": 61.9,
+      "purchase_order_arrival_minutes": [],
+      "approvals": {
+        "rejected": 3
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 4,
+      "policy": "approve_all",
+      "approval_delay_minutes": 0,
+      "orders": 155,
+      "lost_orders": 0,
+      "lost_revenue_cents": 0,
+      "agent_runs": 1,
+      "purchase_orders": 1,
+      "first_proposal_minute": 18.0,
+      "first_lost_order_minute": null,
+      "purchase_order_arrival_minutes": [
+        58
+      ],
+      "approvals": {
+        "executed": 3
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 4,
+      "policy": "po_only",
+      "approval_delay_minutes": 0,
+      "orders": 155,
+      "lost_orders": 0,
+      "lost_revenue_cents": 0,
+      "agent_runs": 1,
+      "purchase_orders": 1,
+      "first_proposal_minute": 18.0,
+      "first_lost_order_minute": null,
+      "purchase_order_arrival_minutes": [
+        58
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 2
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 4,
+      "policy": "approve_all",
+      "approval_delay_minutes": 5,
+      "orders": 155,
+      "lost_orders": 0,
+      "lost_revenue_cents": 0,
+      "agent_runs": 1,
+      "purchase_orders": 1,
+      "first_proposal_minute": 18.0,
+      "first_lost_order_minute": null,
+      "purchase_order_arrival_minutes": [
+        63
+      ],
+      "approvals": {
+        "executed": 3
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 4,
+      "policy": "po_only",
+      "approval_delay_minutes": 5,
+      "orders": 155,
+      "lost_orders": 1,
+      "lost_revenue_cents": 10870,
+      "agent_runs": 1,
+      "purchase_orders": 1,
+      "first_proposal_minute": 18.0,
+      "first_lost_order_minute": 61.9,
+      "purchase_order_arrival_minutes": [
+        63
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 2
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 4,
+      "policy": "approve_all",
+      "approval_delay_minutes": 10,
+      "orders": 155,
+      "lost_orders": 0,
+      "lost_revenue_cents": 0,
+      "agent_runs": 1,
+      "purchase_orders": 1,
+      "first_proposal_minute": 18.0,
+      "first_lost_order_minute": null,
+      "purchase_order_arrival_minutes": [
+        68
+      ],
+      "approvals": {
+        "executed": 3
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 4,
+      "policy": "po_only",
+      "approval_delay_minutes": 10,
+      "orders": 155,
+      "lost_orders": 9,
+      "lost_revenue_cents": 73740,
+      "agent_runs": 1,
+      "purchase_orders": 1,
+      "first_proposal_minute": 18.0,
+      "first_lost_order_minute": 61.9,
+      "purchase_order_arrival_minutes": [
+        68
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 2
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 4,
+      "policy": "approve_all",
+      "approval_delay_minutes": 15,
+      "orders": 155,
+      "lost_orders": 0,
+      "lost_revenue_cents": 0,
+      "agent_runs": 1,
+      "purchase_orders": 1,
+      "first_proposal_minute": 18.0,
+      "first_lost_order_minute": null,
+      "purchase_order_arrival_minutes": [
+        73
+      ],
+      "approvals": {
+        "executed": 3
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 4,
+      "policy": "po_only",
+      "approval_delay_minutes": 15,
+      "orders": 155,
+      "lost_orders": 15,
+      "lost_revenue_cents": 140710,
+      "agent_runs": 1,
+      "purchase_orders": 1,
+      "first_proposal_minute": 18.0,
+      "first_lost_order_minute": 61.9,
+      "purchase_order_arrival_minutes": [
+        73
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 2
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 4,
+      "policy": "approve_all",
+      "approval_delay_minutes": 20,
+      "orders": 155,
+      "lost_orders": 1,
+      "lost_revenue_cents": 5880,
+      "agent_runs": 1,
+      "purchase_orders": 1,
+      "first_proposal_minute": 18.0,
+      "first_lost_order_minute": 77.6,
+      "purchase_order_arrival_minutes": [
+        78
+      ],
+      "approvals": {
+        "executed": 3
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 4,
+      "policy": "po_only",
+      "approval_delay_minutes": 20,
+      "orders": 155,
+      "lost_orders": 19,
+      "lost_revenue_cents": 168090,
+      "agent_runs": 1,
+      "purchase_orders": 1,
+      "first_proposal_minute": 18.0,
+      "first_lost_order_minute": 61.9,
+      "purchase_order_arrival_minutes": [
+        78
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 2
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 4,
+      "policy": "approve_all",
+      "approval_delay_minutes": 25,
+      "orders": 155,
+      "lost_orders": 2,
+      "lost_revenue_cents": 15540,
+      "agent_runs": 1,
+      "purchase_orders": 1,
+      "first_proposal_minute": 18.0,
+      "first_lost_order_minute": 75.8,
+      "purchase_order_arrival_minutes": [
+        83
+      ],
+      "approvals": {
+        "executed": 3
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 4,
+      "policy": "po_only",
+      "approval_delay_minutes": 25,
+      "orders": 155,
+      "lost_orders": 22,
+      "lost_revenue_cents": 187830,
+      "agent_runs": 1,
+      "purchase_orders": 1,
+      "first_proposal_minute": 18.0,
+      "first_lost_order_minute": 61.9,
+      "purchase_order_arrival_minutes": [
+        83
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 2
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 4,
+      "policy": "approve_all",
+      "approval_delay_minutes": 30,
+      "orders": 155,
+      "lost_orders": 5,
+      "lost_revenue_cents": 44230,
+      "agent_runs": 1,
+      "purchase_orders": 1,
+      "first_proposal_minute": 18.0,
+      "first_lost_order_minute": 69.5,
+      "purchase_order_arrival_minutes": [
+        88
+      ],
+      "approvals": {
+        "executed": 3
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 4,
+      "policy": "po_only",
+      "approval_delay_minutes": 30,
+      "orders": 155,
+      "lost_orders": 22,
+      "lost_revenue_cents": 187830,
+      "agent_runs": 1,
+      "purchase_orders": 1,
+      "first_proposal_minute": 18.0,
+      "first_lost_order_minute": 61.9,
+      "purchase_order_arrival_minutes": [
+        88
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 2
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 5,
+      "policy": "reject_all",
+      "approval_delay_minutes": 0,
+      "orders": 160,
+      "lost_orders": 63,
+      "lost_revenue_cents": 531240,
+      "agent_runs": 2,
+      "purchase_orders": 0,
+      "first_proposal_minute": 17.0,
+      "first_lost_order_minute": 48.6,
+      "purchase_order_arrival_minutes": [],
+      "approvals": {
+        "rejected": 3
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 5,
+      "policy": "approve_all",
+      "approval_delay_minutes": 0,
+      "orders": 160,
+      "lost_orders": 0,
+      "lost_revenue_cents": 0,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 17.0,
+      "first_lost_order_minute": null,
+      "purchase_order_arrival_minutes": [
+        57
+      ],
+      "approvals": {
+        "executed": 3
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 5,
+      "policy": "po_only",
+      "approval_delay_minutes": 0,
+      "orders": 160,
+      "lost_orders": 9,
+      "lost_revenue_cents": 56990,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 17.0,
+      "first_lost_order_minute": 48.6,
+      "purchase_order_arrival_minutes": [
+        57
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 2,
+        "failed": 1
+      },
+      "failed_approvals": {
+        "duplicate_purchase_order": 1
+      }
+    },
+    {
+      "seed": 5,
+      "policy": "approve_all",
+      "approval_delay_minutes": 5,
+      "orders": 160,
+      "lost_orders": 0,
+      "lost_revenue_cents": 0,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 17.0,
+      "first_lost_order_minute": null,
+      "purchase_order_arrival_minutes": [
+        62
+      ],
+      "approvals": {
+        "executed": 3
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 5,
+      "policy": "po_only",
+      "approval_delay_minutes": 5,
+      "orders": 160,
+      "lost_orders": 14,
+      "lost_revenue_cents": 95130,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 17.0,
+      "first_lost_order_minute": 48.6,
+      "purchase_order_arrival_minutes": [
+        62
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 2,
+        "failed": 1
+      },
+      "failed_approvals": {
+        "duplicate_purchase_order": 1
+      }
+    },
+    {
+      "seed": 5,
+      "policy": "approve_all",
+      "approval_delay_minutes": 10,
+      "orders": 160,
+      "lost_orders": 0,
+      "lost_revenue_cents": 0,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 17.0,
+      "first_lost_order_minute": null,
+      "purchase_order_arrival_minutes": [
+        67
+      ],
+      "approvals": {
+        "executed": 3
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 5,
+      "policy": "po_only",
+      "approval_delay_minutes": 10,
+      "orders": 160,
+      "lost_orders": 16,
+      "lost_revenue_cents": 112760,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 17.0,
+      "first_lost_order_minute": 48.6,
+      "purchase_order_arrival_minutes": [
+        67
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 2,
+        "failed": 1
+      },
+      "failed_approvals": {
+        "duplicate_purchase_order": 1
+      }
+    },
+    {
+      "seed": 5,
+      "policy": "approve_all",
+      "approval_delay_minutes": 15,
+      "orders": 160,
+      "lost_orders": 0,
+      "lost_revenue_cents": 0,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 17.0,
+      "first_lost_order_minute": null,
+      "purchase_order_arrival_minutes": [
+        72
+      ],
+      "approvals": {
+        "executed": 3
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 5,
+      "policy": "po_only",
+      "approval_delay_minutes": 15,
+      "orders": 160,
+      "lost_orders": 19,
+      "lost_revenue_cents": 143260,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 17.0,
+      "first_lost_order_minute": 48.6,
+      "purchase_order_arrival_minutes": [
+        72
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 2,
+        "failed": 1
+      },
+      "failed_approvals": {
+        "duplicate_purchase_order": 1
+      }
+    },
+    {
+      "seed": 5,
+      "policy": "approve_all",
+      "approval_delay_minutes": 20,
+      "orders": 160,
+      "lost_orders": 0,
+      "lost_revenue_cents": 0,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 17.0,
+      "first_lost_order_minute": null,
+      "purchase_order_arrival_minutes": [
+        77
+      ],
+      "approvals": {
+        "executed": 3
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 5,
+      "policy": "po_only",
+      "approval_delay_minutes": 20,
+      "orders": 160,
+      "lost_orders": 25,
+      "lost_revenue_cents": 193560,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 17.0,
+      "first_lost_order_minute": 48.6,
+      "purchase_order_arrival_minutes": [
+        77
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 2,
+        "failed": 1
+      },
+      "failed_approvals": {
+        "duplicate_purchase_order": 1
+      }
+    },
+    {
+      "seed": 5,
+      "policy": "approve_all",
+      "approval_delay_minutes": 25,
+      "orders": 160,
+      "lost_orders": 10,
+      "lost_revenue_cents": 90860,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 17.0,
+      "first_lost_order_minute": 57.0,
+      "purchase_order_arrival_minutes": [
+        82
+      ],
+      "approvals": {
+        "executed": 5,
+        "failed": 1
+      },
+      "failed_approvals": {
+        "duplicate_purchase_order": 1
+      }
+    },
+    {
+      "seed": 5,
+      "policy": "po_only",
+      "approval_delay_minutes": 25,
+      "orders": 160,
+      "lost_orders": 29,
+      "lost_revenue_cents": 227930,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 17.0,
+      "first_lost_order_minute": 48.6,
+      "purchase_order_arrival_minutes": [
+        82
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 4,
+        "failed": 1
+      },
+      "failed_approvals": {
+        "duplicate_purchase_order": 1
+      }
+    },
+    {
+      "seed": 5,
+      "policy": "approve_all",
+      "approval_delay_minutes": 30,
+      "orders": 160,
+      "lost_orders": 17,
+      "lost_revenue_cents": 153950,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 17.0,
+      "first_lost_order_minute": 54.6,
+      "purchase_order_arrival_minutes": [
+        87
+      ],
+      "approvals": {
+        "executed": 5,
+        "failed": 1
+      },
+      "failed_approvals": {
+        "duplicate_purchase_order": 1
+      }
+    },
+    {
+      "seed": 5,
+      "policy": "po_only",
+      "approval_delay_minutes": 30,
+      "orders": 160,
+      "lost_orders": 35,
+      "lost_revenue_cents": 285430,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 17.0,
+      "first_lost_order_minute": 48.6,
+      "purchase_order_arrival_minutes": [
+        87
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 4,
+        "failed": 1
+      },
+      "failed_approvals": {
+        "duplicate_purchase_order": 1
+      }
+    },
+    {
+      "seed": 6,
+      "policy": "reject_all",
+      "approval_delay_minutes": 0,
+      "orders": 164,
+      "lost_orders": 71,
+      "lost_revenue_cents": 594520,
+      "agent_runs": 2,
+      "purchase_orders": 0,
+      "first_proposal_minute": 25.0,
+      "first_lost_order_minute": 52.9,
+      "purchase_order_arrival_minutes": [],
+      "approvals": {
+        "rejected": 3
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 6,
+      "policy": "approve_all",
+      "approval_delay_minutes": 0,
+      "orders": 164,
+      "lost_orders": 0,
+      "lost_revenue_cents": 0,
+      "agent_runs": 3,
+      "purchase_orders": 2,
+      "first_proposal_minute": 25.0,
+      "first_lost_order_minute": null,
+      "purchase_order_arrival_minutes": [
+        65,
+        179
+      ],
+      "approvals": {
+        "executed": 4
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 6,
+      "policy": "po_only",
+      "approval_delay_minutes": 0,
+      "orders": 164,
+      "lost_orders": 23,
+      "lost_revenue_cents": 193440,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 25.0,
+      "first_lost_order_minute": 52.9,
+      "purchase_order_arrival_minutes": [
+        65
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 2,
+        "failed": 1
+      },
+      "failed_approvals": {
+        "duplicate_purchase_order": 1
+      }
+    },
+    {
+      "seed": 6,
+      "policy": "approve_all",
+      "approval_delay_minutes": 5,
+      "orders": 164,
+      "lost_orders": 0,
+      "lost_revenue_cents": 0,
+      "agent_runs": 3,
+      "purchase_orders": 1,
+      "first_proposal_minute": 25.0,
+      "first_lost_order_minute": null,
+      "purchase_order_arrival_minutes": [
+        70
+      ],
+      "approvals": {
+        "executed": 3,
+        "unanswered": 1
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 6,
+      "policy": "po_only",
+      "approval_delay_minutes": 5,
+      "orders": 164,
+      "lost_orders": 26,
+      "lost_revenue_cents": 219150,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 25.0,
+      "first_lost_order_minute": 52.9,
+      "purchase_order_arrival_minutes": [
+        70
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 2,
+        "failed": 1
+      },
+      "failed_approvals": {
+        "duplicate_purchase_order": 1
+      }
+    },
+    {
+      "seed": 6,
+      "policy": "approve_all",
+      "approval_delay_minutes": 10,
+      "orders": 164,
+      "lost_orders": 4,
+      "lost_revenue_cents": 34480,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 25.0,
+      "first_lost_order_minute": 65.0,
+      "purchase_order_arrival_minutes": [
+        75
+      ],
+      "approvals": {
+        "executed": 3
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 6,
+      "policy": "po_only",
+      "approval_delay_minutes": 10,
+      "orders": 164,
+      "lost_orders": 28,
+      "lost_revenue_cents": 234680,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 25.0,
+      "first_lost_order_minute": 52.9,
+      "purchase_order_arrival_minutes": [
+        75
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 2,
+        "failed": 1
+      },
+      "failed_approvals": {
+        "duplicate_purchase_order": 1
+      }
+    },
+    {
+      "seed": 6,
+      "policy": "approve_all",
+      "approval_delay_minutes": 15,
+      "orders": 164,
+      "lost_orders": 15,
+      "lost_revenue_cents": 131230,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 25.0,
+      "first_lost_order_minute": 61.4,
+      "purchase_order_arrival_minutes": [
+        80
+      ],
+      "approvals": {
+        "executed": 3
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 6,
+      "policy": "po_only",
+      "approval_delay_minutes": 15,
+      "orders": 164,
+      "lost_orders": 35,
+      "lost_revenue_cents": 294950,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 25.0,
+      "first_lost_order_minute": 52.9,
+      "purchase_order_arrival_minutes": [
+        80
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 2,
+        "failed": 1
+      },
+      "failed_approvals": {
+        "duplicate_purchase_order": 1
+      }
+    },
+    {
+      "seed": 6,
+      "policy": "approve_all",
+      "approval_delay_minutes": 20,
+      "orders": 164,
+      "lost_orders": 17,
+      "lost_revenue_cents": 149370,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 25.0,
+      "first_lost_order_minute": 60.7,
+      "purchase_order_arrival_minutes": [
+        85
+      ],
+      "approvals": {
+        "executed": 5,
+        "failed": 1
+      },
+      "failed_approvals": {
+        "duplicate_purchase_order": 1
+      }
+    },
+    {
+      "seed": 6,
+      "policy": "po_only",
+      "approval_delay_minutes": 20,
+      "orders": 164,
+      "lost_orders": 38,
+      "lost_revenue_cents": 325340,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 25.0,
+      "first_lost_order_minute": 52.9,
+      "purchase_order_arrival_minutes": [
+        85
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 4,
+        "failed": 1
+      },
+      "failed_approvals": {
+        "duplicate_purchase_order": 1
+      }
+    },
+    {
+      "seed": 6,
+      "policy": "approve_all",
+      "approval_delay_minutes": 25,
+      "orders": 164,
+      "lost_orders": 23,
+      "lost_revenue_cents": 200690,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 25.0,
+      "first_lost_order_minute": 59.1,
+      "purchase_order_arrival_minutes": [
+        90
+      ],
+      "approvals": {
+        "executed": 5,
+        "failed": 1
+      },
+      "failed_approvals": {
+        "duplicate_purchase_order": 1
+      }
+    },
+    {
+      "seed": 6,
+      "policy": "po_only",
+      "approval_delay_minutes": 25,
+      "orders": 164,
+      "lost_orders": 42,
+      "lost_revenue_cents": 351950,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 25.0,
+      "first_lost_order_minute": 52.9,
+      "purchase_order_arrival_minutes": [
+        90
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 4,
+        "failed": 1
+      },
+      "failed_approvals": {
+        "duplicate_purchase_order": 1
+      }
+    },
+    {
+      "seed": 6,
+      "policy": "approve_all",
+      "approval_delay_minutes": 30,
+      "orders": 164,
+      "lost_orders": 31,
+      "lost_revenue_cents": 262170,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 25.0,
+      "first_lost_order_minute": 52.9,
+      "purchase_order_arrival_minutes": [
+        95
+      ],
+      "approvals": {
+        "executed": 5,
+        "failed": 1
+      },
+      "failed_approvals": {
+        "duplicate_purchase_order": 1
+      }
+    },
+    {
+      "seed": 6,
+      "policy": "po_only",
+      "approval_delay_minutes": 30,
+      "orders": 164,
+      "lost_orders": 49,
+      "lost_revenue_cents": 406450,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 25.0,
+      "first_lost_order_minute": 52.9,
+      "purchase_order_arrival_minutes": [
+        95
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 4,
+        "failed": 1
+      },
+      "failed_approvals": {
+        "duplicate_purchase_order": 1
+      }
+    },
+    {
+      "seed": 7,
+      "policy": "reject_all",
+      "approval_delay_minutes": 0,
+      "orders": 160,
+      "lost_orders": 67,
+      "lost_revenue_cents": 573070,
+      "agent_runs": 2,
+      "purchase_orders": 0,
+      "first_proposal_minute": 23.0,
+      "first_lost_order_minute": 47.4,
+      "purchase_order_arrival_minutes": [],
+      "approvals": {
+        "rejected": 3
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 7,
+      "policy": "approve_all",
+      "approval_delay_minutes": 0,
+      "orders": 160,
+      "lost_orders": 0,
+      "lost_revenue_cents": 0,
+      "agent_runs": 3,
+      "purchase_orders": 2,
+      "first_proposal_minute": 23.0,
+      "first_lost_order_minute": null,
+      "purchase_order_arrival_minutes": [
+        63,
+        145
+      ],
+      "approvals": {
+        "executed": 4
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 7,
+      "policy": "po_only",
+      "approval_delay_minutes": 0,
+      "orders": 160,
+      "lost_orders": 15,
+      "lost_revenue_cents": 120540,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 23.0,
+      "first_lost_order_minute": 47.4,
+      "purchase_order_arrival_minutes": [
+        63
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 2,
+        "failed": 1
+      },
+      "failed_approvals": {
+        "duplicate_purchase_order": 1
+      }
+    },
+    {
+      "seed": 7,
+      "policy": "approve_all",
+      "approval_delay_minutes": 5,
+      "orders": 160,
+      "lost_orders": 0,
+      "lost_revenue_cents": 0,
+      "agent_runs": 3,
+      "purchase_orders": 2,
+      "first_proposal_minute": 23.0,
+      "first_lost_order_minute": null,
+      "purchase_order_arrival_minutes": [
+        68,
+        150
+      ],
+      "approvals": {
+        "executed": 4
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 7,
+      "policy": "po_only",
+      "approval_delay_minutes": 5,
+      "orders": 160,
+      "lost_orders": 20,
+      "lost_revenue_cents": 165680,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 23.0,
+      "first_lost_order_minute": 47.4,
+      "purchase_order_arrival_minutes": [
+        68
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 2,
+        "failed": 1
+      },
+      "failed_approvals": {
+        "duplicate_purchase_order": 1
+      }
+    },
+    {
+      "seed": 7,
+      "policy": "approve_all",
+      "approval_delay_minutes": 10,
+      "orders": 160,
+      "lost_orders": 0,
+      "lost_revenue_cents": 0,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 23.0,
+      "first_lost_order_minute": null,
+      "purchase_order_arrival_minutes": [
+        73
+      ],
+      "approvals": {
+        "executed": 3
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 7,
+      "policy": "po_only",
+      "approval_delay_minutes": 10,
+      "orders": 160,
+      "lost_orders": 26,
+      "lost_revenue_cents": 221070,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 23.0,
+      "first_lost_order_minute": 47.4,
+      "purchase_order_arrival_minutes": [
+        73
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 2,
+        "failed": 1
+      },
+      "failed_approvals": {
+        "duplicate_purchase_order": 1
+      }
+    },
+    {
+      "seed": 7,
+      "policy": "approve_all",
+      "approval_delay_minutes": 15,
+      "orders": 160,
+      "lost_orders": 0,
+      "lost_revenue_cents": 0,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 23.0,
+      "first_lost_order_minute": null,
+      "purchase_order_arrival_minutes": [
+        78
+      ],
+      "approvals": {
+        "executed": 3
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 7,
+      "policy": "po_only",
+      "approval_delay_minutes": 15,
+      "orders": 160,
+      "lost_orders": 31,
+      "lost_revenue_cents": 269600,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 23.0,
+      "first_lost_order_minute": 47.4,
+      "purchase_order_arrival_minutes": [
+        78
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 2,
+        "failed": 1
+      },
+      "failed_approvals": {
+        "duplicate_purchase_order": 1
+      }
+    },
+    {
+      "seed": 7,
+      "policy": "approve_all",
+      "approval_delay_minutes": 20,
+      "orders": 160,
+      "lost_orders": 5,
+      "lost_revenue_cents": 37570,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 23.0,
+      "first_lost_order_minute": 65.1,
+      "purchase_order_arrival_minutes": [
+        83
+      ],
+      "approvals": {
+        "executed": 5,
+        "failed": 1
+      },
+      "failed_approvals": {
+        "duplicate_purchase_order": 1
+      }
+    },
+    {
+      "seed": 7,
+      "policy": "po_only",
+      "approval_delay_minutes": 20,
+      "orders": 160,
+      "lost_orders": 35,
+      "lost_revenue_cents": 301490,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 23.0,
+      "first_lost_order_minute": 47.4,
+      "purchase_order_arrival_minutes": [
+        83
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 4,
+        "failed": 1
+      },
+      "failed_approvals": {
+        "duplicate_purchase_order": 1
+      }
+    },
+    {
+      "seed": 7,
+      "policy": "approve_all",
+      "approval_delay_minutes": 25,
+      "orders": 160,
+      "lost_orders": 13,
+      "lost_revenue_cents": 102930,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 23.0,
+      "first_lost_order_minute": 47.4,
+      "purchase_order_arrival_minutes": [
+        88
+      ],
+      "approvals": {
+        "executed": 5,
+        "failed": 1
+      },
+      "failed_approvals": {
+        "duplicate_purchase_order": 1
+      }
+    },
+    {
+      "seed": 7,
+      "policy": "po_only",
+      "approval_delay_minutes": 25,
+      "orders": 160,
+      "lost_orders": 39,
+      "lost_revenue_cents": 341230,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 23.0,
+      "first_lost_order_minute": 47.4,
+      "purchase_order_arrival_minutes": [
+        88
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 4,
+        "failed": 1
+      },
+      "failed_approvals": {
+        "duplicate_purchase_order": 1
+      }
+    },
+    {
+      "seed": 7,
+      "policy": "approve_all",
+      "approval_delay_minutes": 30,
+      "orders": 160,
+      "lost_orders": 20,
+      "lost_revenue_cents": 154910,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 23.0,
+      "first_lost_order_minute": 47.4,
+      "purchase_order_arrival_minutes": [
+        93
+      ],
+      "approvals": {
+        "executed": 5,
+        "failed": 1
+      },
+      "failed_approvals": {
+        "duplicate_purchase_order": 1
+      }
+    },
+    {
+      "seed": 7,
+      "policy": "po_only",
+      "approval_delay_minutes": 30,
+      "orders": 160,
+      "lost_orders": 44,
+      "lost_revenue_cents": 381770,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 23.0,
+      "first_lost_order_minute": 47.4,
+      "purchase_order_arrival_minutes": [
+        93
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 4,
+        "failed": 1
+      },
+      "failed_approvals": {
+        "duplicate_purchase_order": 1
+      }
+    },
+    {
+      "seed": 8,
+      "policy": "reject_all",
+      "approval_delay_minutes": 0,
+      "orders": 148,
+      "lost_orders": 50,
+      "lost_revenue_cents": 410460,
+      "agent_runs": 1,
+      "purchase_orders": 0,
+      "first_proposal_minute": 32.0,
+      "first_lost_order_minute": 69.7,
+      "purchase_order_arrival_minutes": [],
+      "approvals": {
+        "rejected": 3
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 8,
+      "policy": "approve_all",
+      "approval_delay_minutes": 0,
+      "orders": 148,
+      "lost_orders": 0,
+      "lost_revenue_cents": 0,
+      "agent_runs": 2,
+      "purchase_orders": 2,
+      "first_proposal_minute": 32.0,
+      "first_lost_order_minute": null,
+      "purchase_order_arrival_minutes": [
+        72,
+        153
+      ],
+      "approvals": {
+        "executed": 4
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 8,
+      "policy": "po_only",
+      "approval_delay_minutes": 0,
+      "orders": 148,
+      "lost_orders": 5,
+      "lost_revenue_cents": 40940,
+      "agent_runs": 1,
+      "purchase_orders": 1,
+      "first_proposal_minute": 32.0,
+      "first_lost_order_minute": 69.7,
+      "purchase_order_arrival_minutes": [
+        72
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 2
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 8,
+      "policy": "approve_all",
+      "approval_delay_minutes": 5,
+      "orders": 148,
+      "lost_orders": 0,
+      "lost_revenue_cents": 0,
+      "agent_runs": 2,
+      "purchase_orders": 2,
+      "first_proposal_minute": 32.0,
+      "first_lost_order_minute": null,
+      "purchase_order_arrival_minutes": [
+        77,
+        158
+      ],
+      "approvals": {
+        "executed": 4
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 8,
+      "policy": "po_only",
+      "approval_delay_minutes": 5,
+      "orders": 148,
+      "lost_orders": 9,
+      "lost_revenue_cents": 72110,
+      "agent_runs": 1,
+      "purchase_orders": 1,
+      "first_proposal_minute": 32.0,
+      "first_lost_order_minute": 69.7,
+      "purchase_order_arrival_minutes": [
+        77
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 2
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 8,
+      "policy": "approve_all",
+      "approval_delay_minutes": 10,
+      "orders": 148,
+      "lost_orders": 0,
+      "lost_revenue_cents": 0,
+      "agent_runs": 2,
+      "purchase_orders": 2,
+      "first_proposal_minute": 32.0,
+      "first_lost_order_minute": null,
+      "purchase_order_arrival_minutes": [
+        82,
+        163
+      ],
+      "approvals": {
+        "executed": 4
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 8,
+      "policy": "po_only",
+      "approval_delay_minutes": 10,
+      "orders": 148,
+      "lost_orders": 13,
+      "lost_revenue_cents": 105620,
+      "agent_runs": 1,
+      "purchase_orders": 1,
+      "first_proposal_minute": 32.0,
+      "first_lost_order_minute": 69.7,
+      "purchase_order_arrival_minutes": [
+        82
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 2
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 8,
+      "policy": "approve_all",
+      "approval_delay_minutes": 15,
+      "orders": 148,
+      "lost_orders": 0,
+      "lost_revenue_cents": 0,
+      "agent_runs": 2,
+      "purchase_orders": 2,
+      "first_proposal_minute": 32.0,
+      "first_lost_order_minute": null,
+      "purchase_order_arrival_minutes": [
+        87,
+        168
+      ],
+      "approvals": {
+        "executed": 4
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 8,
+      "policy": "po_only",
+      "approval_delay_minutes": 15,
+      "orders": 148,
+      "lost_orders": 22,
+      "lost_revenue_cents": 181340,
+      "agent_runs": 1,
+      "purchase_orders": 1,
+      "first_proposal_minute": 32.0,
+      "first_lost_order_minute": 69.7,
+      "purchase_order_arrival_minutes": [
+        87
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 2
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 8,
+      "policy": "approve_all",
+      "approval_delay_minutes": 20,
+      "orders": 148,
+      "lost_orders": 8,
+      "lost_revenue_cents": 79690,
+      "agent_runs": 1,
+      "purchase_orders": 1,
+      "first_proposal_minute": 32.0,
+      "first_lost_order_minute": 84.8,
+      "purchase_order_arrival_minutes": [
+        92
+      ],
+      "approvals": {
+        "executed": 3
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 8,
+      "policy": "po_only",
+      "approval_delay_minutes": 20,
+      "orders": 148,
+      "lost_orders": 28,
+      "lost_revenue_cents": 240490,
+      "agent_runs": 1,
+      "purchase_orders": 1,
+      "first_proposal_minute": 32.0,
+      "first_lost_order_minute": 69.7,
+      "purchase_order_arrival_minutes": [
+        92
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 2
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 8,
+      "policy": "approve_all",
+      "approval_delay_minutes": 25,
+      "orders": 148,
+      "lost_orders": 14,
+      "lost_revenue_cents": 134910,
+      "agent_runs": 1,
+      "purchase_orders": 1,
+      "first_proposal_minute": 32.0,
+      "first_lost_order_minute": 72.5,
+      "purchase_order_arrival_minutes": [
+        97
+      ],
+      "approvals": {
+        "executed": 3
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 8,
+      "policy": "po_only",
+      "approval_delay_minutes": 25,
+      "orders": 148,
+      "lost_orders": 35,
+      "lost_revenue_cents": 298570,
+      "agent_runs": 1,
+      "purchase_orders": 1,
+      "first_proposal_minute": 32.0,
+      "first_lost_order_minute": 69.7,
+      "purchase_order_arrival_minutes": [
+        97
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 2
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 8,
+      "policy": "approve_all",
+      "approval_delay_minutes": 30,
+      "orders": 148,
+      "lost_orders": 19,
+      "lost_revenue_cents": 182350,
+      "agent_runs": 1,
+      "purchase_orders": 1,
+      "first_proposal_minute": 32.0,
+      "first_lost_order_minute": 70.7,
+      "purchase_order_arrival_minutes": [
+        102
+      ],
+      "approvals": {
+        "executed": 3
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 8,
+      "policy": "po_only",
+      "approval_delay_minutes": 30,
+      "orders": 148,
+      "lost_orders": 40,
+      "lost_revenue_cents": 337630,
+      "agent_runs": 1,
+      "purchase_orders": 1,
+      "first_proposal_minute": 32.0,
+      "first_lost_order_minute": 69.7,
+      "purchase_order_arrival_minutes": [
+        102
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 2
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 9,
+      "policy": "reject_all",
+      "approval_delay_minutes": 0,
+      "orders": 159,
+      "lost_orders": 70,
+      "lost_revenue_cents": 582740,
+      "agent_runs": 2,
+      "purchase_orders": 0,
+      "first_proposal_minute": 14.0,
+      "first_lost_order_minute": 55.6,
+      "purchase_order_arrival_minutes": [],
+      "approvals": {
+        "rejected": 3
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 9,
+      "policy": "approve_all",
+      "approval_delay_minutes": 0,
+      "orders": 159,
+      "lost_orders": 0,
+      "lost_revenue_cents": 0,
+      "agent_runs": 4,
+      "purchase_orders": 3,
+      "first_proposal_minute": 14.0,
+      "first_lost_order_minute": null,
+      "purchase_order_arrival_minutes": [
+        54,
+        131,
+        169
+      ],
+      "approvals": {
+        "executed": 5
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 9,
+      "policy": "po_only",
+      "approval_delay_minutes": 0,
+      "orders": 159,
+      "lost_orders": 0,
+      "lost_revenue_cents": 0,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 14.0,
+      "first_lost_order_minute": null,
+      "purchase_order_arrival_minutes": [
+        54
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 2
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 9,
+      "policy": "approve_all",
+      "approval_delay_minutes": 5,
+      "orders": 159,
+      "lost_orders": 0,
+      "lost_revenue_cents": 0,
+      "agent_runs": 3,
+      "purchase_orders": 2,
+      "first_proposal_minute": 14.0,
+      "first_lost_order_minute": null,
+      "purchase_order_arrival_minutes": [
+        59,
+        174
+      ],
+      "approvals": {
+        "executed": 4
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 9,
+      "policy": "po_only",
+      "approval_delay_minutes": 5,
+      "orders": 159,
+      "lost_orders": 8,
+      "lost_revenue_cents": 56750,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 14.0,
+      "first_lost_order_minute": 55.6,
+      "purchase_order_arrival_minutes": [
+        59
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 2
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 9,
+      "policy": "approve_all",
+      "approval_delay_minutes": 10,
+      "orders": 159,
+      "lost_orders": 0,
+      "lost_revenue_cents": 0,
+      "agent_runs": 3,
+      "purchase_orders": 2,
+      "first_proposal_minute": 14.0,
+      "first_lost_order_minute": null,
+      "purchase_order_arrival_minutes": [
+        64,
+        179
+      ],
+      "approvals": {
+        "executed": 4
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 9,
+      "policy": "po_only",
+      "approval_delay_minutes": 10,
+      "orders": 159,
+      "lost_orders": 17,
+      "lost_revenue_cents": 136960,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 14.0,
+      "first_lost_order_minute": 55.6,
+      "purchase_order_arrival_minutes": [
+        64
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 2
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 9,
+      "policy": "approve_all",
+      "approval_delay_minutes": 15,
+      "orders": 159,
+      "lost_orders": 0,
+      "lost_revenue_cents": 0,
+      "agent_runs": 3,
+      "purchase_orders": 1,
+      "first_proposal_minute": 14.0,
+      "first_lost_order_minute": null,
+      "purchase_order_arrival_minutes": [
+        69
+      ],
+      "approvals": {
+        "executed": 3,
+        "unanswered": 1
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 9,
+      "policy": "po_only",
+      "approval_delay_minutes": 15,
+      "orders": 159,
+      "lost_orders": 25,
+      "lost_revenue_cents": 225470,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 14.0,
+      "first_lost_order_minute": 55.6,
+      "purchase_order_arrival_minutes": [
+        69
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 2
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 9,
+      "policy": "approve_all",
+      "approval_delay_minutes": 20,
+      "orders": 159,
+      "lost_orders": 0,
+      "lost_revenue_cents": 0,
+      "agent_runs": 4,
+      "purchase_orders": 2,
+      "first_proposal_minute": 14.0,
+      "first_lost_order_minute": null,
+      "purchase_order_arrival_minutes": [
+        74,
+        151
+      ],
+      "approvals": {
+        "executed": 4,
+        "unanswered": 1
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 9,
+      "policy": "po_only",
+      "approval_delay_minutes": 20,
+      "orders": 159,
+      "lost_orders": 28,
+      "lost_revenue_cents": 251370,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 14.0,
+      "first_lost_order_minute": 55.6,
+      "purchase_order_arrival_minutes": [
+        74
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 2
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 9,
+      "policy": "approve_all",
+      "approval_delay_minutes": 25,
+      "orders": 159,
+      "lost_orders": 0,
+      "lost_revenue_cents": 0,
+      "agent_runs": 3,
+      "purchase_orders": 1,
+      "first_proposal_minute": 14.0,
+      "first_lost_order_minute": null,
+      "purchase_order_arrival_minutes": [
+        79
+      ],
+      "approvals": {
+        "executed": 5,
+        "failed": 1,
+        "unanswered": 1
+      },
+      "failed_approvals": {
+        "duplicate_purchase_order": 1
+      }
+    },
+    {
+      "seed": 9,
+      "policy": "po_only",
+      "approval_delay_minutes": 25,
+      "orders": 159,
+      "lost_orders": 35,
+      "lost_revenue_cents": 296300,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 14.0,
+      "first_lost_order_minute": 55.6,
+      "purchase_order_arrival_minutes": [
+        79
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 4,
+        "failed": 1
+      },
+      "failed_approvals": {
+        "duplicate_purchase_order": 1
+      }
+    },
+    {
+      "seed": 9,
+      "policy": "approve_all",
+      "approval_delay_minutes": 30,
+      "orders": 159,
+      "lost_orders": 8,
+      "lost_revenue_cents": 71740,
+      "agent_runs": 3,
+      "purchase_orders": 1,
+      "first_proposal_minute": 14.0,
+      "first_lost_order_minute": 64.5,
+      "purchase_order_arrival_minutes": [
+        84
+      ],
+      "approvals": {
+        "executed": 5,
+        "failed": 1,
+        "unanswered": 1
+      },
+      "failed_approvals": {
+        "duplicate_purchase_order": 1
+      }
+    },
+    {
+      "seed": 9,
+      "policy": "po_only",
+      "approval_delay_minutes": 30,
+      "orders": 159,
+      "lost_orders": 38,
+      "lost_revenue_cents": 330660,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 14.0,
+      "first_lost_order_minute": 55.6,
+      "purchase_order_arrival_minutes": [
+        84
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 4,
+        "failed": 1
+      },
+      "failed_approvals": {
+        "duplicate_purchase_order": 1
+      }
+    },
+    {
+      "seed": 10,
+      "policy": "reject_all",
+      "approval_delay_minutes": 0,
+      "orders": 134,
+      "lost_orders": 39,
+      "lost_revenue_cents": 350770,
+      "agent_runs": 2,
+      "purchase_orders": 0,
+      "first_proposal_minute": 34.0,
+      "first_lost_order_minute": 68.2,
+      "purchase_order_arrival_minutes": [],
+      "approvals": {
+        "rejected": 3
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 10,
+      "policy": "approve_all",
+      "approval_delay_minutes": 0,
+      "orders": 134,
+      "lost_orders": 0,
+      "lost_revenue_cents": 0,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 34.0,
+      "first_lost_order_minute": null,
+      "purchase_order_arrival_minutes": [
+        74
+      ],
+      "approvals": {
+        "executed": 3
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 10,
+      "policy": "po_only",
+      "approval_delay_minutes": 0,
+      "orders": 134,
+      "lost_orders": 7,
+      "lost_revenue_cents": 60070,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 34.0,
+      "first_lost_order_minute": 68.2,
+      "purchase_order_arrival_minutes": [
+        74
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 2,
+        "failed": 1
+      },
+      "failed_approvals": {
+        "duplicate_purchase_order": 1
+      }
+    },
+    {
+      "seed": 10,
+      "policy": "approve_all",
+      "approval_delay_minutes": 5,
+      "orders": 134,
+      "lost_orders": 0,
+      "lost_revenue_cents": 0,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 34.0,
+      "first_lost_order_minute": null,
+      "purchase_order_arrival_minutes": [
+        79
+      ],
+      "approvals": {
+        "executed": 3
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 10,
+      "policy": "po_only",
+      "approval_delay_minutes": 5,
+      "orders": 134,
+      "lost_orders": 10,
+      "lost_revenue_cents": 89540,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 34.0,
+      "first_lost_order_minute": 68.2,
+      "purchase_order_arrival_minutes": [
+        79
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 2,
+        "failed": 1
+      },
+      "failed_approvals": {
+        "duplicate_purchase_order": 1
+      }
+    },
+    {
+      "seed": 10,
+      "policy": "approve_all",
+      "approval_delay_minutes": 10,
+      "orders": 134,
+      "lost_orders": 0,
+      "lost_revenue_cents": 0,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 34.0,
+      "first_lost_order_minute": null,
+      "purchase_order_arrival_minutes": [
+        84
+      ],
+      "approvals": {
+        "executed": 3
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 10,
+      "policy": "po_only",
+      "approval_delay_minutes": 10,
+      "orders": 134,
+      "lost_orders": 17,
+      "lost_revenue_cents": 160490,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 34.0,
+      "first_lost_order_minute": 68.2,
+      "purchase_order_arrival_minutes": [
+        84
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 2,
+        "failed": 1
+      },
+      "failed_approvals": {
+        "duplicate_purchase_order": 1
+      }
+    },
+    {
+      "seed": 10,
+      "policy": "approve_all",
+      "approval_delay_minutes": 15,
+      "orders": 134,
+      "lost_orders": 0,
+      "lost_revenue_cents": 0,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 34.0,
+      "first_lost_order_minute": null,
+      "purchase_order_arrival_minutes": [
+        89
+      ],
+      "approvals": {
+        "executed": 3
+      },
+      "failed_approvals": {}
+    },
+    {
+      "seed": 10,
+      "policy": "po_only",
+      "approval_delay_minutes": 15,
+      "orders": 134,
+      "lost_orders": 18,
+      "lost_revenue_cents": 172250,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 34.0,
+      "first_lost_order_minute": 68.2,
+      "purchase_order_arrival_minutes": [
+        89
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 2,
+        "failed": 1
+      },
+      "failed_approvals": {
+        "duplicate_purchase_order": 1
+      }
+    },
+    {
+      "seed": 10,
+      "policy": "approve_all",
+      "approval_delay_minutes": 20,
+      "orders": 134,
+      "lost_orders": 0,
+      "lost_revenue_cents": 0,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 34.0,
+      "first_lost_order_minute": null,
+      "purchase_order_arrival_minutes": [
+        94
+      ],
+      "approvals": {
+        "executed": 5,
+        "failed": 1
+      },
+      "failed_approvals": {
+        "duplicate_purchase_order": 1
+      }
+    },
+    {
+      "seed": 10,
+      "policy": "po_only",
+      "approval_delay_minutes": 20,
+      "orders": 134,
+      "lost_orders": 20,
+      "lost_revenue_cents": 185010,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 34.0,
+      "first_lost_order_minute": 68.2,
+      "purchase_order_arrival_minutes": [
+        94
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 4,
+        "failed": 1
+      },
+      "failed_approvals": {
+        "duplicate_purchase_order": 1
+      }
+    },
+    {
+      "seed": 10,
+      "policy": "approve_all",
+      "approval_delay_minutes": 25,
+      "orders": 134,
+      "lost_orders": 4,
+      "lost_revenue_cents": 41850,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 34.0,
+      "first_lost_order_minute": 85.3,
+      "purchase_order_arrival_minutes": [
+        99
+      ],
+      "approvals": {
+        "executed": 5,
+        "failed": 1
+      },
+      "failed_approvals": {
+        "duplicate_purchase_order": 1
+      }
+    },
+    {
+      "seed": 10,
+      "policy": "po_only",
+      "approval_delay_minutes": 25,
+      "orders": 134,
+      "lost_orders": 25,
+      "lost_revenue_cents": 234430,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 34.0,
+      "first_lost_order_minute": 68.2,
+      "purchase_order_arrival_minutes": [
+        99
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 4,
+        "failed": 1
+      },
+      "failed_approvals": {
+        "duplicate_purchase_order": 1
+      }
+    },
+    {
+      "seed": 10,
+      "policy": "approve_all",
+      "approval_delay_minutes": 30,
+      "orders": 134,
+      "lost_orders": 11,
+      "lost_revenue_cents": 112500,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 34.0,
+      "first_lost_order_minute": 80.6,
+      "purchase_order_arrival_minutes": [
+        104
+      ],
+      "approvals": {
+        "executed": 5,
+        "failed": 1
+      },
+      "failed_approvals": {
+        "duplicate_purchase_order": 1
+      }
+    },
+    {
+      "seed": 10,
+      "policy": "po_only",
+      "approval_delay_minutes": 30,
+      "orders": 134,
+      "lost_orders": 31,
+      "lost_revenue_cents": 285140,
+      "agent_runs": 2,
+      "purchase_orders": 1,
+      "first_proposal_minute": 34.0,
+      "first_lost_order_minute": 68.2,
+      "purchase_order_arrival_minutes": [
+        104
+      ],
+      "approvals": {
+        "executed": 1,
+        "rejected": 4,
+        "failed": 1
+      },
+      "failed_approvals": {
+        "duplicate_purchase_order": 1
+      }
+    }
+  ]
+}

@@ -14,7 +14,7 @@ O projeto está dividido em fases. Abaixo está o que já foi feito e o que falt
 - Painel com dados persistidos e atualização ao vivo (consultas a `/live`; SSE disponível para integrações).
 - Agentes de operação, estoque e previsão com ferramentas tipadas.
 - Aprovação humana persistente, conferência antes de executar, execução única e auditoria.
-- Testes (164 de backend e 3 de ponta a ponta), Docker Compose e CI.
+- Testes (165 de backend e 3 de ponta a ponta), Docker Compose e CI.
 
 ## Fase 2: incidentes de ponta a ponta (parcial)
 

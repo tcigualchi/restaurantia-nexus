@@ -143,6 +143,8 @@ não o desempenho em um restaurante real. Metodologia e dados brutos em
 | Cenário principal, 10 seeds, aprovando as sugestões | 0 pedidos perdidos por falta de ingrediente, em média |
 | O mesmo cenário aprovando só a compra | 8,2 pedidos perdidos |
 | O mesmo cenário rejeitando tudo | 55,9 pedidos perdidos, cerca de R$ 4.766 por execução |
+| Aprovando tudo, mas com o gerente respondendo 15 min depois de cada sugestão | 2,5 pedidos perdidos |
+| O mesmo, respondendo em 30 min, o prazo máximo da aprovação | 16,1 pedidos perdidos |
 | Execução completa dos agentes (modo determinístico) | p50 de 100 ms, p95 de 134 ms |
 
 O simulador assume que, quando um prato é pausado, o cliente escolhe outro. Na vida real parte dessas pessoas
@@ -222,7 +224,7 @@ cd tests/e2e                   # com a aplicação rodando em http://localhost:3
 npm ci && npx playwright install chromium && npx playwright test
 ```
 
-Na última execução passaram 164 testes de backend (100 unitários e 64 de integração e segurança contra um PostgreSQL
+Na última execução passaram 165 testes de backend (100 unitários e 65 de integração e segurança contra um PostgreSQL
 real), com cerca de 90% de cobertura, e os 3 testes de ponta a ponta com Playwright, rodados com worker e também no
 modo serverless. O CI no GitHub Actions roda lint, tipos, testes, build, e2e, auditoria de dependências e busca de
 segredos.

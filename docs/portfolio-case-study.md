@@ -67,13 +67,15 @@ trigger no banco protege a auditoria. Detalhes em [`security.md`](security.md).
 
 ## Resultados medidos (dados sintéticos)
 
-- 164 testes de backend (100 unitários e 64 de integração e segurança com PostgreSQL), cerca de 90% de cobertura, e 3
+- 165 testes de backend (100 unitários e 65 de integração e segurança com PostgreSQL), cerca de 90% de cobertura, e 3
   testes de ponta a ponta com Playwright.
 - Previsão: WAPE de 33,9% contra 40,5% do ingênuo semanal na semana de teste. O intervalo de 80% cobriu 89% dos
   valores reais.
 - Cenário principal em 10 seeds: aprovando as sugestões, 0 pedidos perdidos; aprovando só a compra, 8,2; rejeitando
   tudo, 55,9 pedidos (cerca de R$ 4,8 mil). Isso vale dentro da premissa do simulador de que o cliente troca de prato
   quando um item é pausado.
+- Com o relógio andando enquanto o gerente não responde, aprovar tudo 15 minutos depois perde 2,5 pedidos, e 30
+  minutos depois (o prazo da aprovação), 16,1.
 - Agentes no modo determinístico: p50 de 100 ms e p95 de 134 ms por execução completa.
 - Ainda não medi: avaliação dos agentes com um conjunto de casos, RAG e custo com um LLM real.
 
@@ -109,7 +111,7 @@ avaliação com mais de 100 casos.
 > com LangGraph que só acessam dados por ferramentas tipadas e com escopo por restaurante, regras auditáveis para as
 > ações, aprovação humana conferida antes da execução e auditoria que não aceita alteração. A previsão de demanda usa
 > modelos estatísticos avaliados com backtest temporal (WAPE de 33,9% contra 40,5% do modelo ingênuo). Stack: FastAPI,
-> SQLAlchemy, LangGraph, Next.js 16 e TypeScript, com 164 testes de backend, testes e2e com Playwright e CI. Está
+> SQLAlchemy, LangGraph, Next.js 16 e TypeScript, com 165 testes de backend, testes e2e com Playwright e CI. Está
 > publicado no Vercel. Não é um produto em produção e não tem vínculo com plataformas de delivery.
 
 ---
@@ -150,11 +152,13 @@ cookie), FastAPI and PostgreSQL, deployed on Vercel with Neon.
 
 ### Measured results (synthetic data)
 
-- 164 backend tests (100 unit, 64 PostgreSQL integration and security), about 90% coverage, 3 Playwright end-to-end tests.
+- 165 backend tests (100 unit, 65 PostgreSQL integration and security), about 90% coverage, 3 Playwright end-to-end tests.
 - Forecasting: 33.9% WAPE against 40.5% for the seasonal naive baseline on the test week; the 80% interval covered 89%
   of actual values.
 - Featured scenario over 10 seeds: approving the suggestions leads to 0 lost orders, approving only the purchase to
   8.2 and rejecting everything to 55.9 (about BRL 4.8k), under the simulator's assumption that customers switch dishes.
+- With the clock running while the manager has not answered, approving everything 15 minutes late loses 2.5 orders,
+  and 30 minutes late (the approval deadline) loses 16.1.
 - Deterministic agent runs: p50 of 100 ms and p95 of 134 ms end to end.
 - Not measured yet: dataset-based agent evaluation, RAG quality and real LLM cost.
 
@@ -179,5 +183,5 @@ cookie), FastAPI and PostgreSQL, deployed on Vercel with Neon.
 > through typed, tenant-scoped tools, auditable rules for actions, human approvals that are re-validated before
 > execution and an append-only audit trail. Demand forecasting uses statistical models evaluated with a temporal
 > backtest (33.9% vs 40.5% WAPE for the naive baseline). Stack: FastAPI, SQLAlchemy, LangGraph, Next.js 16 and
-> TypeScript, with 164 backend tests, Playwright end-to-end tests and CI. It is live on Vercel. It is not a production
+> TypeScript, with 165 backend tests, Playwright end-to-end tests and CI. It is live on Vercel. It is not a production
 > product and has no affiliation with any delivery platform.

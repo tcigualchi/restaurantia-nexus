@@ -12,6 +12,7 @@ from nexus.application.audit import Actor
 from nexus.application.simulation import start_simulation, step_simulation
 from nexus.domain.approvals import Decision
 from nexus.domain.rbac import Role
+from nexus.domain.simulation import minutes_to_datetime
 from nexus.infra.db import session_scope
 from nexus.infra.models import (
     AgentRun,
@@ -30,7 +31,7 @@ from nexus.infra.models import (
 pytestmark = pytest.mark.integration
 
 
-def _start(factory, catalog, settings, tenant, seed=42, scenario="rush_stockout"):
+def _start(factory, catalog, settings, tenant, seed=42, scenario="rush_stockout", auto_pause=None):
     with session_scope(factory) as s:
         restaurant = s.get(Restaurant, tenant.restaurant_id)
         run = start_simulation(
@@ -41,7 +42,7 @@ def _start(factory, catalog, settings, tenant, seed=42, scenario="rush_stockout"
             scenario_key=scenario,
             seed=seed,
             tick_interval_ms=200,
-            auto_pause_on_approval=None,
+            auto_pause_on_approval=auto_pause,
             actor=Actor("user", str(tenant.user_id), "Teste"),
         )
         return run.id
@@ -254,6 +255,58 @@ def test_rejecting_everything_loses_more_orders(factory, catalog, settings, make
             == 0
         )
     assert lost >= 30
+
+
+def test_without_auto_pause_a_late_answer_costs_simulated_time(factory, catalog, settings, make_tenant) -> None:
+    """What the approval-delay benchmark relies on (scripts/run_benchmarks.py --approval-delays)."""
+    tenant = make_tenant()
+    run_id = _start(factory, catalog, settings, tenant, auto_pause=False)
+    res = _run_until_agents(factory, catalog, settings, run_id)
+    assert execute_agent_run(factory, settings, catalog, res.agent_run_id) == "awaiting_approval"
+    with session_scope(factory) as s:
+        sim = s.get(SimulationRun, run_id)
+        assert (sim.status, sim.pause_reason) == ("running", None)  # the restaurant does not wait for the manager
+        proposed_tick = sim.current_tick
+        approval = s.scalars(
+            select(ApprovalRequest).where(
+                ApprovalRequest.run_id == res.agent_run_id, ApprovalRequest.action_type == "create_purchase_order"
+            )
+        ).one()
+        assert approval.business_time == minutes_to_datetime(sim.sim_start, proposed_tick)
+
+    wait = 15
+    for _ in range(wait):
+        with session_scope(factory) as s:
+            step = step_simulation(s, run_id=run_id, catalog=catalog, settings=settings)
+        assert step.tick is not None
+        if step.agent_run_id:
+            execute_agent_run(factory, settings, catalog, step.agent_run_id)
+    with session_scope(factory) as s:
+        assert s.get(SimulationRun, run_id).current_tick == proposed_tick + wait
+        assert s.get(ApprovalRequest, approval.id).status == "pending"
+        assert (
+            s.scalar(
+                select(func.count())
+                .select_from(PurchaseOrder)
+                .where(PurchaseOrder.restaurant_id == tenant.restaurant_id)
+            )
+            == 0
+        )
+
+    actor = DecisionActor(user_id=tenant.user_id, label="Gerente", role=Role.MANAGER)
+    with session_scope(factory) as s:
+        done = decide(
+            s,
+            restaurant_id=tenant.restaurant_id,
+            approval_id=approval.id,
+            actor=actor,
+            decision=Decision.APPROVE,
+            reason=None,
+        )
+        assert done.status == "executed", done.execution_result
+        po = s.scalars(select(PurchaseOrder).where(PurchaseOrder.approval_id == approval.id)).one()
+    # The supplier's lead time starts when the manager approves, not when the agent proposed.
+    assert po.expected_tick == proposed_tick + wait + approval.payload["expected_arrival_minutes"]
 
 
 def test_reset_replays_deterministically(factory, catalog, settings, make_tenant) -> None:
